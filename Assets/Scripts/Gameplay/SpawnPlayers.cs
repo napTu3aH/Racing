@@ -49,9 +49,9 @@ public class SpawnPlayers : MonoBehaviour {
             int p = Random.Range(0, _SpawnPoints.Length);
             Spawn(0, RandomValueForPosition(), true);
         }
-        for (int i = 0; i < _MaximumCountPlayers - 1; i++)
+        for (int i = _CountPlayersNow; i < _MaximumCountPlayers; i++)
         {
-            if (i < _MaximumCountPlayers - 1)
+            if (i < _MaximumCountPlayers)
             {
                 int c = Random.Range(0, _Cars.Length);
                 Spawn(c, RandomValueForPosition(), false);
@@ -109,10 +109,9 @@ public class SpawnPlayers : MonoBehaviour {
     /// <summary>
     /// Метод удаления игрока из списка целей.
     /// </summary>
-    public void RemovePlayer(CarInfo _carInfo)
+    public void RemovePlayer()
     {
         _CountPlayersNow--;
-        //TargetList.Instance._CarsInfo.Remove(_carInfo);
         AddList();
     }
 

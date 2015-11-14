@@ -18,9 +18,7 @@ public class ShootScript : MonoBehaviour
     [Header("Target")]
     [SerializeField] internal HitBox _TargetedHitBox;
 
-    [Header("Characteristics")]
-    [SerializeField] internal float _TimeBetweenShot = 0.1f;
-    [SerializeField] internal float _Damage = 1.0f;
+    
     [SerializeField] internal float _DistanceForShooting;
 
 
@@ -51,19 +49,19 @@ public class ShootScript : MonoBehaviour
         }
     }
 
-    void Update()
+    /*void Update()
     {
         Shoot();
-    }
+    }*/
     /// <summary>
     /// Метод, описывающий логику выстрела.
     /// </summary>
-    void Shooting()
+    void Shooting(float _damage, float _timeBetweenShot)
     {
-        if (_Time < _TimeBetweenShot)
+        if (_Time < _timeBetweenShot)
         {
             _Time += Time.deltaTime;
-            if (_Time >= _TimeBetweenShot)
+            if (_Time >= _timeBetweenShot)
             {
                 Ray _ray = new Ray(_Barrel.position, _Barrel.forward);
                 RaycastHit _hit;
@@ -75,7 +73,7 @@ public class ShootScript : MonoBehaviour
                         _TargetedHitBox = _hit.collider.GetComponent<HitBox>();
                     } else
                     {
-                        _TargetedHitBox.Hitted(_Damage);
+                        _TargetedHitBox.Hitted(_damage);
                     }
                     Debugger.Instance.Line(_ray.origin, _hit.point);
                 }
@@ -87,18 +85,18 @@ public class ShootScript : MonoBehaviour
     /// <summary>
     /// Метод, отвечающий за выстрелы орудий.
     /// </summary>
-    void Shoot()
+    public void Shoot(float _damage, float _timeBetweenShot)
     {
         if (player)
         {
             if (CarUserControl.Instance._shooting)
             {
-                Shooting();
+                Shooting(_damage, _timeBetweenShot);
             }
         }
         else
         {
-            Shooting();
+            Shooting(_damage, _timeBetweenShot);
         }
         
     }

@@ -47,6 +47,10 @@ namespace UnityStandardAssets.Vehicles.Car
         private Rigidbody m_Rigidbody;
         private const float k_ReversingThreshold = 0.01f;
 
+        public float TopSpeed {
+            get { return m_Topspeed; }
+            set { m_Topspeed = value; }
+        }
         public SpeedType TypeOfSpeed { get { return m_SpeedType; } }
         public int GearNum { get { return m_GearNum; }}
         public int NumberOfGear { get { return NoOfGears; }}
