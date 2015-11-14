@@ -51,6 +51,7 @@ namespace UnityStandardAssets.Vehicles.Car
             get { return m_Topspeed; }
             set { m_Topspeed = value; }
         }
+        public float _FactorLeft, _FactorRight;
         public SpeedType TypeOfSpeed { get { return m_SpeedType; } }
         public int GearNum { get { return m_GearNum; }}
         public int NumberOfGear { get { return NoOfGears; }}
@@ -146,7 +147,7 @@ namespace UnityStandardAssets.Vehicles.Car
             }
 
             //clamp input values
-            steering = Mathf.Clamp(steering, -1, 1);
+            steering = Mathf.Clamp(steering, -_FactorLeft, _FactorRight);
             AccelInput = accel = Mathf.Clamp(accel, 0, 1);
             BrakeInput = footbrake = -1*Mathf.Clamp(footbrake, -1, 0);
             handbrake = Mathf.Clamp(handbrake, 0, 1);

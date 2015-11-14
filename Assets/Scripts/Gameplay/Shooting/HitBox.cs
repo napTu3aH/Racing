@@ -1,21 +1,24 @@
 ﻿using UnityEngine;
 using System.Collections;
-
+using UnityStandardAssets.Vehicles.Car;
 /// <summary>
 /// Класс обработки урона по игроку.
 /// </summary>
 public class HitBox : MonoBehaviour {
 
+    CarController _Car;
     [SerializeField] internal CarInfo _CarInfo;
     [SerializeField] internal float _ArmorFactor = 1.0f;
     [SerializeField] internal float _HitBoxHealth = 100.0f;
-   // [SerializeField] internal float _DamageFactor = 0.01f;
+    [SerializeField] internal float _UnDamagedFactor = 0.0f;
     internal Collider _Collider;
+
     void Awake()
     {
         _CarInfo = transform.root.GetComponent<CarInfo>();
+        _Car = transform.root.GetComponent<CarController>();
         _Collider = GetComponent<Collider>();
-        _ArmorFactor = 1 + (_HitBoxHealth / 100.0f);
+        Counting();
     }
 
     /// <summary>
@@ -24,16 +27,31 @@ public class HitBox : MonoBehaviour {
     public void Hitted(float _damage)
     {
         Damage(_damage);
-
+        Counting();
         if (_CarInfo._Health <= 0.0f && _CarInfo._isAlive)
         {
             _CarInfo.DiePlayer();
         }
     }
 
-    void Damage(float _damage)
+    void Counting()
     {
         _ArmorFactor = 1 + (_HitBoxHealth / 100.0f);
+        _UnDamagedFactor = _ArmorFactor - 1;
+
+        if (transform.name == "Left")
+        {
+            _Car._FactorLeft = _UnDamagedFactor;
+        }
+        if (transform.name == "Right")
+        {
+            _Car._FactorRight = _UnDamagedFactor;
+        }
+
+    }
+
+    void Damage(float _damage)
+    {
         float _tmp = _damage / _ArmorFactor;
         
         if (_HitBoxHealth > _tmp)
@@ -45,9 +63,10 @@ public class HitBox : MonoBehaviour {
                 _ArmorFactor = 1.0f;
             } 
         }
+
         _CarInfo._CurrentHealth -= _tmp;
         _CarInfo._Health = _CarInfo._CurrentHealth / _CarInfo._PercentHealthFactor;
-        _CarInfo._Car.TopSpeed = _CarInfo._TopSpeed *(_CarInfo._Health / 100.0f);
+        _Car.TopSpeed = _CarInfo._TopSpeed *(_CarInfo._Health / 100.0f);
         Debugger.Instance.Log("Damaged " + transform.root.tag + " in " + transform.name + " component: " + _tmp + " Health: "+ _CarInfo._Health+"%");
     }
 
