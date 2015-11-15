@@ -31,7 +31,7 @@ public class CalculatePath : MonoBehaviour
 		{
 			for(int i = 0; i < _MainPath.corners.Length - 1; i++)
 			{
-				Debug.DrawLine(_MainPath.corners[i],_MainPath.corners[i+1]);
+				Debugger.Instance.Line(_MainPath.corners[i],_MainPath.corners[i+1]);
 				_CurWayPoint.position = _MainPath.corners[1];
 			}
 		}

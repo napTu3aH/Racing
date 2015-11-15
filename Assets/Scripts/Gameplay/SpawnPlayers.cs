@@ -46,7 +46,6 @@ public class SpawnPlayers : MonoBehaviour {
     {
         if (!_PlayerSpawned)
         {
-            int p = Random.Range(0, _SpawnPoints.Length);
             Spawn(0, RandomValueForPosition(), true);
         }
         for (int i = _CountPlayersNow; i < _MaximumCountPlayers; i++)
@@ -97,13 +96,8 @@ public class SpawnPlayers : MonoBehaviour {
             _AI.SetTarget(_waypoint.transform);
             _calc._CurWayPoint = _waypoint.transform;
             _calc._HeadNavPoints = _HeaderWayPoints;
-        }
-        
-        CarInfo _carInfo = _car.GetComponent<CarInfo>();
-
-        
+        } 
         _CountPlayersNow++;
-        //TargetList.Instance._CarsInfo.Add(_carInfo);
     }
 
     /// <summary>

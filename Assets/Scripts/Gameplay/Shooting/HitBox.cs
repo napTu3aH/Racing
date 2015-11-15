@@ -28,6 +28,7 @@ public class HitBox : MonoBehaviour {
     {
         Damage(_damage);
         Counting();
+        
         if (_CarInfo._Health <= 0.0f && _CarInfo._isAlive)
         {
             _CarInfo.DiePlayer();
@@ -74,6 +75,10 @@ public class HitBox : MonoBehaviour {
     {
         if (_col.CompareTag("HitBox"))
         {
+            if (_CarInfo._Player)
+            {
+                GameSettings.Instance.Vibrate();
+            }            
             _col.GetComponent<HitBox>().Hitted(_CarInfo._CarSpeed);     
         }
     }
