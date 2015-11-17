@@ -23,7 +23,8 @@ public class SpawnPlayers : MonoBehaviour {
     public int _MaximumCountPlayers;
     [SerializeField] internal int _CountPlayersNow;
     [SerializeField] internal Transform[] _SpawnPoints;
-    int _tmp;
+    int[] _RandomPoints;
+    int _CountNPC;
 
     void Awake()
     {
@@ -33,8 +34,9 @@ public class SpawnPlayers : MonoBehaviour {
     void Init()
     {
         Instance = this;
-        _tmp = _SpawnPoints.Length + 1;
         _SpawnPoints = GameObject.FindWithTag("Respawn").GetComponentsInChildren<Transform>();
+        _RandomPoints = new int[_SpawnPoints.Length - 1];      
+        RandomValueForPosition();
         _HeaderWayPoints = GameObject.FindWithTag("Waypoints");
         if (_Spawn) AddList();
     }
@@ -43,17 +45,17 @@ public class SpawnPlayers : MonoBehaviour {
     /// Метод добавления игрока в список целей.
     /// </summary>
     public void AddList()
-    {
+    {      
         if (!_PlayerSpawned)
         {
-            Spawn(0, RandomValueForPosition(), true);
+            Spawn(0, _RandomPoints[_CountPlayersNow], true);
         }
         for (int i = _CountPlayersNow; i < _MaximumCountPlayers; i++)
         {
             if (i < _MaximumCountPlayers)
             {
                 int c = Random.Range(0, _Cars.Length);
-                Spawn(c, RandomValueForPosition(), false);
+                Spawn(c, _RandomPoints[_CountPlayersNow], false);
             }
         }
         
@@ -62,19 +64,25 @@ public class SpawnPlayers : MonoBehaviour {
     /// <summary>
     /// Метод вычисления случайного числа позиции без совпадения.
     /// </summary>
-    int RandomValueForPosition()
+    void RandomValueForPosition()
     {
-        int p = Random.Range(0, _SpawnPoints.Length);
-        if (_tmp != p)
+        for (int i = 0; i < _RandomPoints.Length; i++)
         {
-            _tmp = p;
-            return p;
-        }
-        else
-        {
-            RandomValueForPosition();
-        }
-        return 0;
+            int _p = Random.Range(1, _SpawnPoints.Length);
+            _RandomPoints[i] = _p;
+            if (i > 0)
+            {
+                for (int j = 0; j < i; j++)
+                {
+                    if (_RandomPoints[i] == _RandomPoints[j])
+                    {
+                        i--;
+                        break;
+                    }                    
+                    
+                }
+            }
+        }        
     }
 
     /// <summary>
@@ -91,20 +99,35 @@ public class SpawnPlayers : MonoBehaviour {
         {
             _car = Instantiate(_Cars[i], _SpawnPoints[j].position, Quaternion.identity) as GameObject;
             _waypoint = Instantiate(_CurrentWayPoint, transform.position, Quaternion.identity) as GameObject;
-            CalculatePath _calc = _car.GetComponent<CalculatePath>();
+            //CalculatePath _calc = _car.GetComponent<CalculatePath>();
+            
+            NPCCalculatePath.Instance._CurrentWayPoints.Add(_waypoint.transform);
+
+            if (NPCCalculatePath.Instance._MaximumNPC != _MaximumCountPlayers - 1)
+            {
+                NPCCalculatePath.Instance._MaximumNPC = _MaximumCountPlayers - 1;
+            }
+            
             CarAIControl _AI = _car.GetComponent<CarAIControl>();
             _AI.SetTarget(_waypoint.transform);
-            _calc._CurWayPoint = _waypoint.transform;
-            _calc._HeadNavPoints = _HeaderWayPoints;
-        } 
+            _car.GetComponent<CarInfo>()._ID = _CountNPC;
+            _CountNPC++;
+            //_calc._CurWayPoint = _waypoint.transform;
+            ///_calc._HeadNavPoints = _HeaderWayPoints;
+        }
+        
         _CountPlayersNow++;
     }
 
     /// <summary>
     /// Метод удаления игрока из списка целей.
     /// </summary>
-    public void RemovePlayer()
+    public void RemovePlayer(bool _Player)
     {
+        if (!_Player)
+        {
+            _CountNPC--;
+        }
         _CountPlayersNow--;
         AddList();
     }

@@ -52,6 +52,7 @@ namespace UnityStandardAssets.Vehicles.Car
             set { m_Topspeed = value; }
         }
         public float _FactorLeft, _FactorRight;
+        public float _FullTorqueOverAllWheels { get { return m_FullTorqueOverAllWheels; } set { m_FullTorqueOverAllWheels = value; } }
         public SpeedType TypeOfSpeed { get { return m_SpeedType; } }
         public int GearNum { get { return m_GearNum; }}
         public int NumberOfGear { get { return NoOfGears; }}

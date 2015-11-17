@@ -11,6 +11,7 @@ namespace UnityStandardAssets.Vehicles.Car
 
         internal CarController _Car;
 
+        public int _ID;
         public bool _Player, _isAlive;
         public float _Health = 0.0f, _PercentHealthFactor, _CurrentHealth;
 
@@ -22,6 +23,9 @@ namespace UnityStandardAssets.Vehicles.Car
             get { return _Car.CurrentSpeed; }
         }
         public float _TopSpeed = 100.0f;
+
+        public float _TimeUpdateFactor;
+        float _TimeUpdate;
 
         void Awake()
         {
@@ -40,10 +44,22 @@ namespace UnityStandardAssets.Vehicles.Car
                 CarUserControl.Instance.SetCamera();
                 SpawnPlayers.Instance._PlayerSpawned = true;
             }
+            else
+            {
+                NPCCalculatePath.Instance._NPC_Cars.Add(this.transform);
+            }
             _HitBoxParent = transform.SearchChildWithTag("HitBoxsParent");
             _HitBoxs = _HitBoxParent.GetComponentsInChildren<HitBox>();
             Counting();
             _isAlive = true;
+        }
+
+        void Start()
+        {
+            if (!_Player)
+            {
+                StartCoroutine(MoveToPoint());
+            }
         }
 
         void Counting()
@@ -61,19 +77,53 @@ namespace UnityStandardAssets.Vehicles.Car
         public void DiePlayer()
         {
             _isAlive = false;
-            SpawnPlayers.Instance.RemovePlayer();
+            SpawnPlayers.Instance.RemovePlayer(_Player);
             CarController _car = GetComponent<CarController>();
             _car.enabled = false;
             if (!_Player)
             {
-                CalculatePath _calc = GetComponent<CalculatePath>();
                 CarAIControl _carAi = GetComponent<CarAIControl>();
                 _carAi.enabled = false;
-                Destroy(_calc._CurWayPoint.gameObject);
+                NPCCalculatePath.Instance._CurrentWayPoints.Remove(NPCCalculatePath.Instance._CurrentWayPoints[_ID]);
+                Destroy(NPCCalculatePath.Instance._CurrentWayPoints[_ID].gameObject);
             }
             Destroy(this.gameObject);
         }
 
+        void FixedUpdate()
+        {
+            if (!_Player)
+            {
+                NPCCalculatePath.Instance.DistaceUpdate(_ID);
+                _TimeUpdateFactor = 1.0f + (NPCCalculatePath.Instance._Distance[_ID] / 100.0f);
+            }            
+        }
+
+        IEnumerator MoveToPoint()
+        {        
+            while (_isAlive)
+            {                
+                if (_TimeUpdate < _TimeUpdateFactor)
+                {
+                    _TimeUpdate += Time.deltaTime;
+                    if (_TimeUpdate > _TimeUpdateFactor)
+                    {                        
+                        NPCCalculatePath.Instance.PathUpdate(_ID);
+                        _TimeUpdate = 0.0f;
+                        yield return null;
+                    }
+                }else
+                    if (_TimeUpdate > _TimeUpdateFactor)
+                {
+                    NPCCalculatePath.Instance.PathUpdate(_ID);
+                    _TimeUpdate = 0.0f;
+                    yield return null;
+                }
+
+                yield return null;
+            }
+            yield return null;
+        }
     }
 }
 

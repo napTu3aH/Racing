@@ -7,6 +7,7 @@ using UnityStandardAssets.Vehicles.Car;
 public class HitBox : MonoBehaviour {
 
     CarController _Car;
+    BackDrive _CarBackDrive;
     [SerializeField] internal CarInfo _CarInfo;
     [SerializeField] internal float _ArmorFactor = 1.0f;
     [SerializeField] internal float _HitBoxHealth = 100.0f;
@@ -15,7 +16,16 @@ public class HitBox : MonoBehaviour {
 
     void Awake()
     {
+        Init();
+    }
+
+    void Init()
+    {
         _CarInfo = transform.root.GetComponent<CarInfo>();
+        if (!_CarInfo._Player)
+        {
+            _CarBackDrive = _CarInfo.GetComponent<BackDrive>();
+        }
         _Car = transform.root.GetComponent<CarController>();
         _Collider = GetComponent<Collider>();
         Counting();
@@ -78,8 +88,34 @@ public class HitBox : MonoBehaviour {
             if (_CarInfo._Player)
             {
                 GameSettings.Instance.Vibrate();
-            }            
+            }
+            else
+            {
+                NPCCalculatePath.Instance.PathUpdate(_CarInfo._ID);    
+            } 
             _col.GetComponent<HitBox>().Hitted(_CarInfo._CarSpeed);     
+        }
+    }
+
+    void OnTriggerStay(Collider _col)
+    {
+        if (_col.CompareTag("HitBox"))
+        {
+            if (!_CarInfo._Player)
+            {
+                _CarBackDrive._StayTimer += Time.deltaTime;
+            }
+        }
+    }
+
+    void OnTriggerExit(Collider _col)
+    {
+        if (_col.CompareTag("HitBox"))
+        {
+            if (!_CarInfo._Player)
+            {
+                _CarBackDrive._StayTimer = 0.0f;
+            }
         }
     }
 }

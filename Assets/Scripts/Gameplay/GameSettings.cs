@@ -31,6 +31,7 @@ public class GameSettings : MonoBehaviour {
 
     [Header("Other settings")]
     public bool _Vibrate;
+    public bool _SlowMotion;
     [Range (0.0f, 1.0f)]public float _SlowValue;
     public float _SmoothRate = 0.005f;
 
@@ -187,9 +188,24 @@ public class GameSettings : MonoBehaviour {
     /// </summary>
     public void ShowHideSettings()
     {
+        //Debugger.Instance.Log(Time.fixedDeltaTime);
         _SettingsLayer.SetActive(!_SettingsLayer.activeSelf);
         _ControlsLayer.SetActive(!_ControlsLayer.activeSelf);
-        SlowMotion();
+        if (_SlowMotion)
+        {
+            SlowMotion();
+        }
+        else
+        {
+            if (Time.timeScale == 1.0f)
+            {
+                Time.timeScale = 0.0f;
+            }
+            else
+            {
+                Time.timeScale = 1.0f;
+            }
+        }
     }
 
     /// <summary>
@@ -211,7 +227,7 @@ public class GameSettings : MonoBehaviour {
     void FrameChangeValue()
     {
         Time.timeScale = _SlowingFactor;
-        Time.fixedDeltaTime = 0.002F * Time.timeScale;
+        Time.fixedDeltaTime = 0.02F * Time.timeScale;
         Debugger.Instance.Log(Time.fixedDeltaTime);
     }
 
@@ -220,41 +236,37 @@ public class GameSettings : MonoBehaviour {
     /// </summary>
     IEnumerator Slowing()
     {
-        if (_Slowed)
+
+        while (_Slowed && _SlowingFactor != _SlowValue)
         {
-            while (_SlowingFactor != _SlowValue)
+            if (_SlowingFactor > _SlowValue)
             {
-                if (_SlowingFactor > _SlowValue)
-                {
-                    _SlowingFactor -= _SmoothRate;
-                }
-                else
-                if (_SlowingFactor < _SlowValue)
-                {
-                    _SlowingFactor = _SlowValue;
-                }
-                FrameChangeValue();
-                yield return null;
+                _SlowingFactor -= _SmoothRate;
             }
-        }
-        else
-        {
-            while (_SlowingFactor != 1.0f)
+            else
+            if (_SlowingFactor < _SlowValue)
             {
-                if (_SlowingFactor < 1.0f)
-                {
-                    _SlowingFactor += _SmoothRate;
-                }
-                else
-                if (_SlowingFactor > 1.0f)
-                {
-                    _SlowingFactor = 1.0f;
-                }
-                FrameChangeValue();
-                yield return null;
+                _SlowingFactor = _SlowValue;
             }
+            FrameChangeValue();
+            yield return null;
         }
 
+        while (!_Slowed && _SlowingFactor != 1.0f)
+        {
+            if (_SlowingFactor < 1.0f)
+            {
+                _SlowingFactor += _SmoothRate;
+            }
+            else
+            if (_SlowingFactor > 1.0f)
+            {
+                _SlowingFactor = 1.0f;
+            }
+            FrameChangeValue();
+            yield return null;
+        }
+        
         _SlowCoroutine = false;
         yield return null;
     }

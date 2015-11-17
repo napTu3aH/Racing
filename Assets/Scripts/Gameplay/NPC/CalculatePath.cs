@@ -21,8 +21,8 @@ public class CalculatePath : MonoBehaviour
 		_NavigationPoints = _HeadNavPoints.GetComponentsInChildren<Transform>();
 		_CarTransform = transform;
 		_MainPath = new NavMeshPath();
-		_NumberNavPoint = Random.Range(0,_NavigationPoints.Length);
-	}
+        ChangeNumberPoint();
+    }
 
 	void Update () 
 	{
@@ -31,20 +31,26 @@ public class CalculatePath : MonoBehaviour
 		{
 			for(int i = 0; i < _MainPath.corners.Length - 1; i++)
 			{
-				Debugger.Instance.Line(_MainPath.corners[i],_MainPath.corners[i+1]);
+				//Debugger.Instance.Line(_MainPath.corners[i],_MainPath.corners[i+1]);
 				_CurWayPoint.position = _MainPath.corners[1];
 			}
 		}
 		if(Vector3.Distance(_CarTransform.position,_NavigationPoints[_NumberNavPoint].position) <= _MinDistance)
 		{
-			_NumberNavPoint = Random.Range(0,_NavigationPoints.Length);
-		}
+            ChangeNumberPoint();
+        }
 	}
+
+    void ChangeNumberPoint()
+    {
+        _NumberNavPoint = Random.Range(1, _NavigationPoints.Length);
+    }
+
 	void OnTriggerEnter(Collider col)
 	{
 		if(col.CompareTag("Walls"))
 		{
-			_NumberNavPoint = Random.Range(0,_NavigationPoints.Length);
+            ChangeNumberPoint();
 		}
 	}
 }

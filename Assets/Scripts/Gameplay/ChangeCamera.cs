@@ -1,11 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class ChangeCamera : MonoBehaviour {
 
     public static ChangeCamera Instance;
 
-    public GameObject[] _Cameras;
+    public List<Camera> _Cameras;
     internal int _CameraNumber;
 
 	void Awake ()
@@ -24,7 +25,7 @@ public class ChangeCamera : MonoBehaviour {
 
     public void Change()
     {
-        if (_CameraNumber < _Cameras.Length - 1)
+        if (_CameraNumber < _Cameras.Count - 1)
         {
             _CameraNumber++;
         }
@@ -33,15 +34,15 @@ public class ChangeCamera : MonoBehaviour {
             _CameraNumber = 0;
         }
         
-        for (int i = 0; i < _Cameras.Length; i++)
+        for (int i = 0; i < _Cameras.Count; i++)
         {
             if (i == _CameraNumber)
             {
-                _Cameras[i].SetActive(true);
+                _Cameras[i].enabled = true;
             }
             else
             {
-                _Cameras[i].SetActive(false);
+                _Cameras[i].enabled = false;
             }
         }
     }

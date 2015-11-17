@@ -3,8 +3,8 @@ using System.Collections;
 
 public class Debugger : MonoBehaviour {
 
-    public bool _DebugLog = true;
-    public bool _DebugLine = true;
+    public bool _DebugLog = false;
+    public bool _DebugLine = false;
 
     private static Debugger _Debugger;
     public static Debugger Instance
@@ -18,10 +18,7 @@ public class Debugger : MonoBehaviour {
             else
             {
                 _Debugger = new GameObject("Debugger", typeof(Debugger)).GetComponent<Debugger>();
-#if !UNITY_EDITOR
-				_Debugger._DebugLog = false;
-				_Debugger._DebugLine = false;
-#endif
+
                 return _Debugger;
             }
         }
