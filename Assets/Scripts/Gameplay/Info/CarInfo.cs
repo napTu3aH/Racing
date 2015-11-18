@@ -13,6 +13,7 @@ namespace UnityStandardAssets.Vehicles.Car
 
         public int _ID;
         public bool _Player, _isAlive;
+        [Header("Healths")]
         public float _Health = 0.0f, _PercentHealthFactor, _CurrentHealth;
 
         public Transform _HitBoxParent;
@@ -24,8 +25,7 @@ namespace UnityStandardAssets.Vehicles.Car
         }
         public float _TopSpeed = 100.0f;
 
-        public float _TimeUpdateFactor;
-        float _TimeUpdate;
+        public float _TimeUpdateFactor, _TimeUpdate;
 
         void Awake()
         {
@@ -96,7 +96,7 @@ namespace UnityStandardAssets.Vehicles.Car
             {
                 NPCCalculatePath.Instance.DistaceUpdate(_ID);
                 _TimeUpdateFactor = 1.0f + (NPCCalculatePath.Instance._Distance[_ID] / 100.0f);
-            }            
+            }      
         }
 
         IEnumerator MoveToPoint()
