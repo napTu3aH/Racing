@@ -13,10 +13,10 @@ public class CameraSetter : MonoBehaviour
     void Start()
     {
         _Camera = GetComponent<Camera>();
-        ChangeCamera.Instance._Cameras.Add(_Camera);
+        ChangeCamera.Instance._Cameras.Add(this.gameObject);
         if (_Camera != Camera.main)
         {
-            _Camera.enabled = false;
+            gameObject.SetActive(false);
         }
         
     }

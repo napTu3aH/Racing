@@ -77,22 +77,25 @@ namespace UnityStandardAssets.Vehicles.Car
         public void DiePlayer()
         {
             _isAlive = false;
-            SpawnPlayers.Instance.RemovePlayer(_Player);
-            CarController _car = GetComponent<CarController>();
-            _car.enabled = false;
+
             if (!_Player)
             {
+                NPCCalculatePath.Instance._NPC_Cars.Remove(transform);
+                Destroy(NPCCalculatePath.Instance._CurrentWayPoints[_ID].gameObject);
+                NPCCalculatePath.Instance._CurrentWayPoints.Remove(NPCCalculatePath.Instance._CurrentWayPoints[_ID]);
                 CarAIControl _carAi = GetComponent<CarAIControl>();
                 _carAi.enabled = false;
-                NPCCalculatePath.Instance._CurrentWayPoints.Remove(NPCCalculatePath.Instance._CurrentWayPoints[_ID]);
-                Destroy(NPCCalculatePath.Instance._CurrentWayPoints[_ID].gameObject);
             }
+            SpawnPlayers.Instance.RemovePlayer(_Player, _ID);
+
+            CarController _car = GetComponent<CarController>();
+            _car.enabled = false;
             Destroy(this.gameObject);
         }
 
         void FixedUpdate()
         {
-            if (!_Player)
+            if (!_Player && _isAlive)
             {
                 NPCCalculatePath.Instance.DistaceUpdate(_ID);
                 _TimeUpdateFactor = 1.0f + (NPCCalculatePath.Instance._Distance[_ID] / 100.0f);

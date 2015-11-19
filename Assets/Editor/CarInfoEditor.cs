@@ -57,7 +57,7 @@ public class CarInfoEditor : Editor
     {
         // Get a rect for the progress bar using the same margins as a textfield:
         Rect rect = GUILayoutUtility.GetRect(18, 18, "TextField");
-        EditorGUI.ProgressBar(rect, value, label);
+        EditorGUI.ProgressBar(rect, value, label+value);
         EditorGUILayout.Space();
     }
 }

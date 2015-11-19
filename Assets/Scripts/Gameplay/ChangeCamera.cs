@@ -6,7 +6,7 @@ public class ChangeCamera : MonoBehaviour {
 
     public static ChangeCamera Instance;
 
-    public List<Camera> _Cameras;
+    public List<GameObject> _Cameras;
     internal int _CameraNumber;
 
 	void Awake ()
@@ -38,11 +38,11 @@ public class ChangeCamera : MonoBehaviour {
         {
             if (i == _CameraNumber)
             {
-                _Cameras[i].enabled = true;
+                _Cameras[i].SetActive(true);
             }
             else
             {
-                _Cameras[i].enabled = false;
+                _Cameras[i].SetActive(false);
             }
         }
     }

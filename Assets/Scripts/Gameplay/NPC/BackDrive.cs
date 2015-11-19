@@ -8,11 +8,10 @@ public class BackDrive : MonoBehaviour {
 	CarAIControl _AILogic;
 	
 	public float _StayTimer;
-    public float _TimeChangeBrakeType;
 
     float _StartSpeed;
     float _TimeForСheck;
-    float _DistanceFromStart, _RandomTimeChangeBrake;
+    float _DistanceFromStart;
 
     Vector3 _StartPointBrake;
 
@@ -29,7 +28,6 @@ public class BackDrive : MonoBehaviour {
         _AILogic = GetComponent<CarAIControl>();
         _StartSpeed = _CarControl._FullTorqueOverAllWheels;
         _TimeForСheck = Random.Range(1.5f, 1.6f);
-        _RandomTimeChangeBrake = Random.Range(5f, 15f);
     }
 
     public void HittedToWall()
@@ -62,30 +60,8 @@ public class BackDrive : MonoBehaviour {
         yield return null;
     }
 
-    void ChangeBrakeState()
-    {
-        _AIStateChange = !_AIStateChange;        
-        if (_AIStateChange)
-        {
-            _AILogic._BrakeCondition = CarAIControl.BrakeCondition.NeverBrake;
-        }
-        else
-        {
-            _AILogic._BrakeCondition = CarAIControl.BrakeCondition.TargetDistance;
-        }
-    }
-
 	void FixedUpdate () 
 	{
-        _TimeChangeBrakeType += Time.fixedDeltaTime;
-
-		if(_TimeChangeBrakeType >= _RandomTimeChangeBrake)
-		{
-            _RandomTimeChangeBrake = Random.Range(5f, 35f);
-            _TimeChangeBrakeType = 0.0f;
-            ChangeBrakeState();
-		}
-
 		if(_StayTimer >= _TimeForСheck)
 		{
 			if(_CarControl._FullTorqueOverAllWheels == _StartSpeed)
