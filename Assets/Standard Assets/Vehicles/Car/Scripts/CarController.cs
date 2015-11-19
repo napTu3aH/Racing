@@ -51,6 +51,8 @@ namespace UnityStandardAssets.Vehicles.Car
             get { return m_Topspeed; }
             set { m_Topspeed = value; }
         }
+        public WheelCollider[] _WheelColliders { get { return m_WheelColliders; } }
+        public GameObject[] _WheelMeshes { get { return m_WheelMeshes; } }
         public float _FactorLeft, _FactorRight;
         public float _FullTorqueOverAllWheels { get { return m_FullTorqueOverAllWheels; } set { m_FullTorqueOverAllWheels = value; } }
         public SpeedType TypeOfSpeed { get { return m_SpeedType; } }
@@ -268,8 +270,10 @@ namespace UnityStandardAssets.Vehicles.Car
         // this is used to add more grip in relation to speed
         private void AddDownForce()
         {
-            m_WheelColliders[0].attachedRigidbody.AddForce(-transform.up*m_Downforce*
-                                                         m_WheelColliders[0].attachedRigidbody.velocity.magnitude);
+            if (m_WheelColliders[0].gameObject.activeSelf)
+            {
+                m_WheelColliders[0].attachedRigidbody.AddForce(-transform.up * m_Downforce * m_WheelColliders[0].attachedRigidbody.velocity.magnitude);
+            }            
         }
 
 

@@ -17,10 +17,9 @@ public class ShootScript : MonoBehaviour
 
     [Header("Target")]
     [SerializeField] internal HitBox _TargetedHitBox;
-
-    
     [SerializeField] internal float _DistanceForShooting;
 
+    [SerializeField] internal ParticlesSystem _ParticlesSystemScript;
 
     float _Time;
     bool player; // true - player, false - NPC
@@ -37,7 +36,7 @@ public class ShootScript : MonoBehaviour
         {
             player = true;
         }
-
+        _ParticlesSystemScript = GetComponent<ParticlesSystem>();
         try
         {
             _Weapon = transform.SearchChildWithTag("Weapon");
@@ -74,6 +73,7 @@ public class ShootScript : MonoBehaviour
                     } else
                     {
                         _TargetedHitBox.Hitted(_damage);
+                        _ParticlesSystemScript.ShootHit(_hit.point, Quaternion.LookRotation(_hit.normal, Vector3.up));
                     }
                     Debugger.Instance.Line(_ray.origin, _hit.point);
                 }

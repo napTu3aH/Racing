@@ -8,6 +8,7 @@ public class HitBox : MonoBehaviour {
 
     CarController _Car;
     BackDrive _CarBackDrive;
+    ParticlesSystem _ParticlesSystem;
     [SerializeField] internal CarInfo _CarInfo;
     [SerializeField] internal float _ArmorFactor = 1.0f;
     [SerializeField] internal float _HitBoxHealth = 100.0f;
@@ -17,12 +18,14 @@ public class HitBox : MonoBehaviour {
     bool _CoroutineColor;
     public Color[] _Colors;
     public Color _CurrentColour;
-    int _ColorIndex = 0;
-    Color _ColorStart, _ColorEnd;
+    Color _ColorStart, _ColorEnd, _ColorChange;
+
     internal Collider _Collider;
     internal Material _HitBoxMaterial;
     internal MeshRenderer _Mesh;
-    float _TimeChange = 0.0f;
+    internal float _TimeChange = 0.0f;
+    internal int _RandomValueLeftWheel, _RandomValueRightWheel, _RandomValueBackWheels;
+    ParticleSystem _Particle;
 
     void Awake()
     {
@@ -39,16 +42,29 @@ public class HitBox : MonoBehaviour {
         }
 
         _Car = transform.root.GetComponent<CarController>();
+        _ParticlesSystem = _Car.GetComponent<ParticlesSystem>();
         _Collider = GetComponent<Collider>();
         _Mesh = GetComponent<MeshRenderer>();
         _HitBoxMaterial = _Mesh.material;
 
         _ColorStart = new Color(1.0f, 1.0f, 1.0f, 1.0f);
-        _ColorEnd = new Color(1.0f, 1.0f, 1.0f, 0.0f);
+        _ColorEnd = new Color(0.0f, 0.0f, 0.0f, 0.0f);
 
         if (_Colors.Length > 0)
         {
             _CurrentColour = _Colors[0];
+        }
+        _RandomValueLeftWheel = Random.Range(0, 2);
+        _RandomValueRightWheel = Random.Range(0, 2);
+        _RandomValueBackWheels = Random.Range(0, 2);
+
+        if (transform.name == "Forward")
+        {
+            _Particle = transform.GetComponentInChildren<ParticleSystem>();
+            if (_Particle.gameObject.activeSelf)
+            {
+                _Particle.gameObject.SetActive(false);
+            }
         }
 
         Counting();
@@ -62,21 +78,37 @@ public class HitBox : MonoBehaviour {
     {
         Damage(_damage);
         Counting();
+        ColoringBox();
 
+        if (_CarInfo._Health <= 0.0f && _CarInfo._isAlive)
+        {
+            _CarInfo.DiePlayer();
+        }
+    }
+
+    void ColoringBox()
+    {
         if (_HitBoxHealth >= _HealthFactor / 2.0f)
         {
             float _value = (1.0f - (_HitBoxHealth / _HealthFactor)) * 2.0f;
             ChangeColor(_Colors[0], _Colors[1], _value);
         }
         else
+        if (_HitBoxHealth < _HealthFactor / 2.0f && _HitBoxHealth > 0.1f)
         {
             float _value = (1.0f - (_HitBoxHealth / (_HealthFactor / 2.0f)));
             ChangeColor(_Colors[1], _Colors[2], _value);
         }
-
-        if (_CarInfo._Health <= 0.0f && _CarInfo._isAlive)
+        else
+        if (_HitBoxHealth <= 0.1f && _HitBoxMaterial.color != _CurrentColour)
         {
-            _CarInfo.DiePlayer();
+            if (_CoroutineColor)
+            {
+                _CoroutineColor = false;
+            }
+            _CurrentColour = _Colors[2];
+            _ColorStart = _CurrentColour;
+            _HitBoxMaterial.color = _ColorStart;
         }
     }
 
@@ -90,59 +122,45 @@ public class HitBox : MonoBehaviour {
     {
         _CurrentColour = Color.Lerp(_currentColor, _nextColor, _value);
         _ColorStart = _CurrentColour;
+        _TimeChange = 0.0f;
         if (!_CoroutineColor)
         {
             _CoroutineColor = true;
+            StartCoroutine(ColorChanger());
         }
     }
 
-
-    void FixedUpdate()
+    /// <summary>
+    /// Сопрограмма подкрутки значения цвета у HitBox'а.
+    /// </summary>
+    /// <returns></returns>
+    IEnumerator ColorChanger()
     {
-        if (_CoroutineColor)
+        while (_TimeChange < 1.0f)
         {
-            if (_TimeChange < 1.0f)
+            _TimeChange += Time.deltaTime * 0.5f;
+
+            _ColorChange = Color.Lerp(_ColorStart, _ColorEnd, _TimeChange);
+            _HitBoxMaterial.color = _ColorChange;
+            if (_HitBoxHealth < 0.1f)
             {
-                _TimeChange += Time.deltaTime * 0.01f;
-                _ColorStart.a = Mathf.Lerp(_ColorStart.a, _ColorEnd.a, _TimeChange);
+                _CurrentColour = _Colors[2];
+                _ColorStart = _CurrentColour;
                 _HitBoxMaterial.color = _ColorStart;
-            }
-            else
-            if (_TimeChange > 1.0f)
-            {
-                _TimeChange = 0.0f;
-                _ColorStart.a = _TimeChange;
-                _HitBoxMaterial.color = _ColorStart;
-                Debug.Log(_TimeChange);
                 _CoroutineColor = false;
-                
             }
+            yield return null;
         }
-
-    }
-
-    IEnumerator ColorSetter()
-    {
-        while (_CoroutineColor)
-        {
-            if (_TimeChange < 1.0f)
-            {
-                _TimeChange += Time.deltaTime * 0.01f;
-                _ColorStart.a = Mathf.Lerp(_ColorStart.a, _ColorEnd.a, _TimeChange);
-                _HitBoxMaterial.color = _ColorStart;
-                yield return null;
-            }
-            else
-            if(_TimeChange > 1.0f)
-            {
-                _TimeChange = 0.0f;
-                _ColorStart.a = _TimeChange;                                
-                _HitBoxMaterial.color = _ColorStart;
-                _CoroutineColor = false;
-                yield return null;
-            }            
-        }        
+        _TimeChange = 0.0f;
+        _CoroutineColor = false;
         yield return null;
+    }
+
+    void SpawnWheel(int _wheelIndex)
+    {
+        _Car._WheelMeshes[_wheelIndex].SetActive(false);
+        _Car._WheelColliders[_wheelIndex].gameObject.SetActive(false);
+        _ParticlesSystem.WheelSpawn(_Car._WheelMeshes[_wheelIndex].transform.position, _Car._WheelMeshes[_wheelIndex].transform.rotation);
     }
 
     /// <summary>
@@ -152,14 +170,56 @@ public class HitBox : MonoBehaviour {
     {
         _ArmorFactor = 1 + (_HitBoxHealth / 100.0f);
         _UnDamagedFactor = _ArmorFactor - 1;
-        
-        if (transform.name == "Left")
+
+        if (transform.name == "Forward")
         {
-            _Car._FactorLeft = _UnDamagedFactor;
+            if (_HitBoxHealth == 0.0f && _Particle && GameSettings.Instance._Particles)
+            {
+                if (!_Particle.gameObject.activeSelf)
+                {
+                    _Particle.gameObject.SetActive(true);
+                }
+                
+            }
         }
+
         if (transform.name == "Right")
         {
             _Car._FactorRight = _UnDamagedFactor;
+            if (_HitBoxHealth == 0.0f && _Car._WheelMeshes[0].activeSelf)
+            {
+                if (_RandomValueRightWheel == 1)
+                {
+                    SpawnWheel(0);
+                }
+            }
+        }
+
+        if (transform.name == "Left")
+        {
+            _Car._FactorLeft = _UnDamagedFactor;
+            if (_HitBoxHealth == 0.0f && _Car._WheelMeshes[1].activeSelf)
+            {
+                if (_RandomValueLeftWheel == 1)
+                {
+                    SpawnWheel(1);
+                }
+            }
+        }
+        
+        if (transform.name == "Back")
+        {
+            if (_HitBoxHealth == 0.0f && (_Car._WheelMeshes[2].activeSelf && _Car._WheelMeshes[3].activeSelf))
+            {
+                if (_RandomValueBackWheels == 0)
+                {
+                    SpawnWheel(2);
+                }
+                else
+                {
+                    SpawnWheel(3);
+                }
+            }
         }
 
     }
@@ -204,7 +264,7 @@ public class HitBox : MonoBehaviour {
     {
         if (_col.CompareTag("HitBox"))
         {
-            if (!_CarInfo._Player)
+            if (!_CarInfo._Player && transform.name == "Forward")
             {
                 _CarBackDrive._StayTimer += Time.deltaTime;
             }

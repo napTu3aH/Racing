@@ -32,6 +32,7 @@ public class GameSettings : MonoBehaviour {
     [Header("Other settings")]
     public bool _Vibrate;
     public bool _SlowMotion;
+    public bool _Particles;
     [Range (0.0f, 1.0f)]public float _SlowValue;
     public float _SmoothRate = 0.005f;
 
@@ -56,6 +57,7 @@ public class GameSettings : MonoBehaviour {
         _Vibrate = Convert.ToBoolean(PlayerPrefs.GetInt("Vibration", 1));
         _Sound = PlayerPrefsHelper.GetFloat("Sound", 0.5f); _SoundSlider.value = _Sound;
         _Music = PlayerPrefsHelper.GetFloat("Music", 0.5f); _MusicSlider.value = _Music;
+        _Particles = Convert.ToBoolean(PlayerPrefsHelper.GetInt("Particles", 1));
         SetAudioSourceValue(_SoundSprite, _SoundButton, _SoundSource, _SoundSlider);
         SetAudioSourceValue(_MusicSprite, _MusicButton, _MusicSource, _MusicSlider);       
     }
@@ -181,6 +183,16 @@ public class GameSettings : MonoBehaviour {
         {
             Handheld.Vibrate();
         }
+    }
+
+    /// <summary>
+    /// Вкл/Выкл частицы.
+    /// </summary>
+    public void Particles()
+    {
+        _Particles = !_Particles;
+        PlayerPrefsHelper.SetInt("Particles", Convert.ToInt32(_Particles));
+        Debugger.Instance.Log("Particles: " + _Particles);
     }
 
     /// <summary>

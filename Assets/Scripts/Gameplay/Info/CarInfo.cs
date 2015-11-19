@@ -10,7 +10,7 @@ namespace UnityStandardAssets.Vehicles.Car
     {
 
         internal CarController _Car;
-
+        internal ParticlesSystem _ParticlesSystem;
         public int _ID;
         public bool _Player, _isAlive;
         [Header("Healths")]
@@ -35,6 +35,7 @@ namespace UnityStandardAssets.Vehicles.Car
         void Init()
         {
             _Car = GetComponent<CarController>();
+            _ParticlesSystem = GetComponent<ParticlesSystem>();
 
             if (_Player)
             {
@@ -77,7 +78,7 @@ namespace UnityStandardAssets.Vehicles.Car
         public void DiePlayer()
         {
             _isAlive = false;
-
+            _ParticlesSystem.Explosion(transform.position, transform.rotation, 0);
             if (!_Player)
             {
                 NPCCalculatePath.Instance._NPC_Cars.Remove(transform);

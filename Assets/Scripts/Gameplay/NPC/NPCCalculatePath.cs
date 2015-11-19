@@ -56,7 +56,10 @@ public class NPCCalculatePath : MonoBehaviour
 
     public void DistaceUpdate(int _Id_NPC)
     {
-        _Distance[_Id_NPC] = Vector3.Distance(_NPC_Cars[_Id_NPC].position, _NavPoints[_NumberOfPoints[_Id_NPC]].position);
+        if (Instance)
+        {
+            _Distance[_Id_NPC] = Vector3.Distance(_NPC_Cars[_Id_NPC].position, _NavPoints[_NumberOfPoints[_Id_NPC]].position);
+        }        
     }
 
     public void PathUpdate(int _Id_NPC)
