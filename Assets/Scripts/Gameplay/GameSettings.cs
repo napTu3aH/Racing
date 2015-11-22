@@ -11,6 +11,10 @@ public class GameSettings : MonoBehaviour {
 
     public bool _ActiveScript;
 
+    [Header("Main buttons")]
+    public Button _MenuButton;
+    public Button _RestartButton;
+
     [Header("Canvas layers")]
     public GameObject _SettingsLayer;
     public GameObject _ControlsLayer;
@@ -221,6 +225,22 @@ public class GameSettings : MonoBehaviour {
     }
 
     /// <summary>
+    /// Метод загрузки меню.
+    /// </summary>
+    public void MenuButton()
+    {      
+        StartCoroutine(LoadingLevel(0));
+    }
+
+    /// <summary>
+    /// Метод перезагрузки уровня.
+    /// </summary>
+    public void RestartButton()
+    {
+        StartCoroutine(LoadingLevel(Application.loadedLevel));
+    }
+
+    /// <summary>
     /// Метод замедления времени.
     /// </summary>
     public void SlowMotion()
@@ -281,6 +301,20 @@ public class GameSettings : MonoBehaviour {
         
         _SlowCoroutine = false;
         yield return null;
+    }
+
+    IEnumerator LoadingLevel(int _index)
+    {
+#if UNITY_IPHONE
+            Handheld.SetActivityIndicatorStyle(iOS.ActivityIndicatorStyle.Gray);
+#elif UNITY_ANDROID
+        Handheld.SetActivityIndicatorStyle(AndroidActivityIndicatorStyle.Large);
+#endif
+        _MenuButton.interactable = false;
+        _RestartButton.interactable = false;
+        Handheld.StartActivityIndicator();
+        yield return new WaitForSeconds(0);
+        Application.LoadLevel(_index);
     }
 
 }
