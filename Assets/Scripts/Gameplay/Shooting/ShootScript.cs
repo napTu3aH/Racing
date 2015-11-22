@@ -60,10 +60,13 @@ public class ShootScript : MonoBehaviour
         if (_Time < _timeBetweenShot)
         {
             _Time += Time.deltaTime;
+
             if (_Time >= _timeBetweenShot)
             {
                 Ray _ray = new Ray(_Barrel.position, _Barrel.forward);
                 RaycastHit _hit;
+
+                _ParticlesSystemScript._Muzzels[0].Play();
 
                 if (Physics.Raycast(_ray, out _hit, _DistanceForShooting))
                 {
@@ -72,7 +75,7 @@ public class ShootScript : MonoBehaviour
                         _TargetedHitBox = _hit.collider.GetComponent<HitBox>();
                     } else
                     {
-                        _TargetedHitBox.Hitted(_damage);
+                        _TargetedHitBox.Hitted(_damage);                      
                         _ParticlesSystemScript.ShootHit(_hit.point, Quaternion.LookRotation(_hit.normal, Vector3.up));
                     }
                     Debugger.Instance.Line(_ray.origin, _hit.point);

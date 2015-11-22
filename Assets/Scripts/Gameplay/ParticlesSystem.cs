@@ -9,6 +9,7 @@ public class ParticlesSystem : MonoBehaviour {
     [SerializeField] internal GameObject _Wheel;
     [SerializeField] internal GameObject _ShootHitParticle;
     [SerializeField] internal GameObject[] _Explosions;
+    [SerializeField] internal ParticleSystem[] _Muzzels;
 
     void Awake()
     {

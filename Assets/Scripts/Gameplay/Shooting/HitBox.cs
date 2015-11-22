@@ -239,8 +239,9 @@ public class HitBox : MonoBehaviour {
         }
 
         _CarInfo._CurrentHealth -= _tmp;
-        _CarInfo._Health = _CarInfo._CurrentHealth / _CarInfo._PercentHealthFactor;
-        _Car.TopSpeed = _CarInfo._TopSpeed *(_CarInfo._Health / 100.0f);
+        /*_CarInfo._Health = _CarInfo._CurrentHealth / _CarInfo._PercentHealthFactor;
+        _Car.TopSpeed = _CarInfo._TopSpeed *(_CarInfo._Health / 100.0f);*/
+        _CarInfo.Count();
         Debugger.Instance.Log("Damaged " + transform.root.tag + " in " + transform.name + " component: " + _tmp + " Health: "+ _CarInfo._Health+"%");
     }
 

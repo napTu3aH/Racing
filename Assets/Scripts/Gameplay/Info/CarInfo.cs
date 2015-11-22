@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 /// <summary>
 /// Класс, хранящий и взаимодействующий с характеристиками игрока.
@@ -13,7 +14,7 @@ namespace UnityStandardAssets.Vehicles.Car
         internal ParticlesSystem _ParticlesSystem;
         public int _ID;
         public bool _Player, _isAlive;
-        [Header("Healths")]
+        public Image _PlayerHealthImage;
         public float _Health = 0.0f, _PercentHealthFactor, _CurrentHealth;
 
         public Transform _HitBoxParent;
@@ -27,6 +28,8 @@ namespace UnityStandardAssets.Vehicles.Car
 
         public float _TimeUpdateFactor, _TimeUpdate;
 
+        Color _ColorHealthImage;
+
         void Awake()
         {
             Init();
@@ -39,11 +42,14 @@ namespace UnityStandardAssets.Vehicles.Car
 
             if (_Player)
             {
+                _PlayerHealthImage = GameObject.FindWithTag("HealthBar").GetComponent<Image>();
                 CarUserControl.Instance.m_Car = _Car;
                 CarGUI.Instance._Car = _Car;
                 CarUserControl.Instance._CameraTarget = transform.SearchChildWithTag("Target");
                 CarUserControl.Instance.SetCamera();
                 SpawnPlayers.Instance._PlayerSpawned = true;
+
+                _ColorHealthImage = new Color(1.0f, 1.0f, 1.0f, 0.0f);
             }
             else
             {
@@ -71,8 +77,19 @@ namespace UnityStandardAssets.Vehicles.Car
                 _PercentHealthFactor += _ht._ArmorFactor;
             }
             _PercentHealthFactor -= _HitBoxs.Length;
+            Count();
+            
+        }
+
+        public void Count()
+        {
             _Health = _CurrentHealth / _PercentHealthFactor;
             _Car.TopSpeed = _TopSpeed * (_Health / 100.0f);
+            if (_Player)
+            {
+                _ColorHealthImage.a = 1.0f - (_Health / 100.0f);
+                _PlayerHealthImage.color = _ColorHealthImage;
+            }
         }
 
         public void DiePlayer()

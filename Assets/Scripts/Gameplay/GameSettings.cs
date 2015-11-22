@@ -63,7 +63,14 @@ public class GameSettings : MonoBehaviour {
         _Music = PlayerPrefsHelper.GetFloat("Music", 0.5f); _MusicSlider.value = _Music;
         _Particles = Convert.ToBoolean(PlayerPrefsHelper.GetInt("Particles", 1));
         SetAudioSourceValue(_SoundSprite, _SoundButton, _SoundSource, _SoundSlider);
-        SetAudioSourceValue(_MusicSprite, _MusicButton, _MusicSource, _MusicSlider);       
+        SetAudioSourceValue(_MusicSprite, _MusicButton, _MusicSource, _MusicSlider);
+
+        if (!_SlowCoroutine && Time.timeScale < 1.0f)
+        {
+            _SlowCoroutine = true;
+            _SlowingFactor = 0.0f;
+            StartCoroutine(Slowing());
+        }
     }
 
 
@@ -274,12 +281,11 @@ public class GameSettings : MonoBehaviour {
             if (_SlowingFactor > _SlowValue)
             {
                 _SlowingFactor -= _SmoothRate;
-            }
-            else
-            if (_SlowingFactor < _SlowValue)
-            {
-                _SlowingFactor = _SlowValue;
-            }
+                if (_SlowingFactor < _SlowValue)
+                {
+                    _SlowingFactor = _SlowValue;
+                }
+            }            
             FrameChangeValue();
             yield return null;
         }
@@ -289,11 +295,10 @@ public class GameSettings : MonoBehaviour {
             if (_SlowingFactor < 1.0f)
             {
                 _SlowingFactor += _SmoothRate;
-            }
-            else
-            if (_SlowingFactor > 1.0f)
-            {
-                _SlowingFactor = 1.0f;
+                if (_SlowingFactor > 1.0f)
+                {
+                    _SlowingFactor = 1.0f;
+                }
             }
             FrameChangeValue();
             yield return null;
@@ -310,10 +315,24 @@ public class GameSettings : MonoBehaviour {
 #elif UNITY_ANDROID
         Handheld.SetActivityIndicatorStyle(AndroidActivityIndicatorStyle.Large);
 #endif
+        Handheld.StartActivityIndicator();
+
         _MenuButton.interactable = false;
         _RestartButton.interactable = false;
-        Handheld.StartActivityIndicator();
-        yield return new WaitForSeconds(0);
+
+        while (_SlowingFactor != 0.0f)
+        {
+            if (_SlowingFactor > 0.0f)
+            {
+                _SlowingFactor -= _SmoothRate;
+                if (_SlowingFactor < 0.0f)
+                {
+                    _SlowingFactor = 0.0f;
+                }
+            }           
+            FrameChangeValue();
+            yield return null;
+        }
         Application.LoadLevel(_index);
     }
 

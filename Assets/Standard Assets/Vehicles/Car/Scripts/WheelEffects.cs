@@ -20,7 +20,7 @@ namespace UnityStandardAssets.Vehicles.Car
 
         private void Start()
         {
-            skidParticles = transform.root.GetComponentInChildren<ParticleSystem>();
+            //skidParticles = transform.root.GetComponentInChildren<ParticleSystem>();
 
             if (skidParticles == null)
             {
@@ -48,7 +48,7 @@ namespace UnityStandardAssets.Vehicles.Car
             skidParticles.Emit(1);
             if (!skidding)
             {
-                StartCoroutine(StartSkidTrail());
+                //StartCoroutine(StartSkidTrail());
             }
         }
 
