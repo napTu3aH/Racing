@@ -9,26 +9,24 @@ namespace UnityStandardAssets.Vehicles.Car
 {
     public class CarInfo : MonoBehaviour
     {
-
+        Color _ColorHealthImage;
         internal CarController _Car;
         internal ParticlesSystem _ParticlesSystem;
+
         public int _ID;
+        public HitBox[] _HitBoxs;
+        public Transform _HitBoxParent;
         public bool _Player, _isAlive;
         public Image _PlayerHealthImage;
         public float _Health = 0.0f, _PercentHealthFactor, _CurrentHealth;
-
-        public Transform _HitBoxParent;
-        public HitBox[] _HitBoxs;
+               
         public float _CarSpeed
         {
             set { value = _Car.CurrentSpeed; }
             get { return _Car.CurrentSpeed; }
         }
         public float _TopSpeed = 100.0f;
-
-        public float _TimeUpdateFactor, _TimeUpdate;
-
-        Color _ColorHealthImage;
+        public float _TimeUpdateFactor, _TimeUpdate;     
 
         void Awake()
         {
@@ -37,6 +35,7 @@ namespace UnityStandardAssets.Vehicles.Car
 
         void Init()
         {
+            _isAlive = true;
             _Car = GetComponent<CarController>();
             _ParticlesSystem = GetComponent<ParticlesSystem>();
 
@@ -57,8 +56,7 @@ namespace UnityStandardAssets.Vehicles.Car
             }
             _HitBoxParent = transform.SearchChildWithTag("HitBoxsParent");
             _HitBoxs = _HitBoxParent.GetComponentsInChildren<HitBox>();
-            Counting();
-            _isAlive = true;
+            Counting();            
         }
 
         void Start()
@@ -95,7 +93,9 @@ namespace UnityStandardAssets.Vehicles.Car
         public void DiePlayer()
         {
             _isAlive = false;
-            _ParticlesSystem.Explosion(transform.position, transform.rotation, 0);
+            WeaponRotate _rotate = GetComponent<WeaponRotate>();
+            CarController _car = GetComponent<CarController>();
+            
             if (!_Player)
             {
                 NPCCalculatePath.Instance._NPC_Cars.Remove(transform);
@@ -104,10 +104,11 @@ namespace UnityStandardAssets.Vehicles.Car
                 CarAIControl _carAi = GetComponent<CarAIControl>();
                 _carAi.enabled = false;
             }
-            SpawnPlayers.Instance.RemovePlayer(_Player, _ID);
 
-            CarController _car = GetComponent<CarController>();
+            SpawnPlayers.Instance.RemovePlayer(_Player, _ID);
+            _rotate._Cars.Remove(transform);
             _car.enabled = false;
+            _ParticlesSystem.Explosion(transform.position, transform.rotation, 0);
             Destroy(this.gameObject);
         }
 

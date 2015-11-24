@@ -31,7 +31,7 @@ public class ShootScript : MonoBehaviour
     public void Init()
     {
         _WeaponRotateScript = GetComponent<WeaponRotate>();
-        _DistanceForShooting = _WeaponRotateScript._Sphere.radius;
+        _DistanceForShooting = _WeaponRotateScript._MinDistance;
         if (transform.CompareTag("Player"))
         {
             player = true;

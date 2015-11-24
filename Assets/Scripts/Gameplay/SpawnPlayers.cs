@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using UnityStandardAssets.Vehicles.Car;
 
 /// <summary>
@@ -23,6 +24,10 @@ public class SpawnPlayers : MonoBehaviour {
     public int _MaximumCountPlayers;
     [SerializeField] internal int _CountPlayersNow;
     [SerializeField] internal Transform[] _SpawnPoints;
+
+    [Header("Player and NPC's")]
+    public List<Transform> _PlayersOnScene;
+
     int[] _RandomPoints;
     int _ID_NPC;
 
@@ -34,15 +39,25 @@ public class SpawnPlayers : MonoBehaviour {
     void Init()
     {
         Instance = this;
-        _SpawnPoints = GameObject.FindWithTag("Respawn").GetComponentsInChildren<Transform>();
-        _RandomPoints = new int[_SpawnPoints.Length - 1];      
-        RandomValueForPosition();
         _HeaderWayPoints = GameObject.FindWithTag("Waypoints");
+        _SpawnPoints = GameObject.FindWithTag("Respawn").GetComponentsInChildren<Transform>();
+        _RandomPoints = new int[_SpawnPoints.Length - 1];   
+                  
+        RandomValueForPosition();
         if (_Spawn)
         {
             AddList();
         }
             
+    }
+
+    public List<Transform> PlayersTransforms()
+    {
+        if (_PlayersOnScene.Count == _MaximumCountPlayers)
+        {
+            return _PlayersOnScene;
+        }
+        return null;
     }
 
     /// <summary>
@@ -88,7 +103,6 @@ public class SpawnPlayers : MonoBehaviour {
                         i--;
                         break;
                     }                    
-                    
                 }
             }
         }        
@@ -116,9 +130,10 @@ public class SpawnPlayers : MonoBehaviour {
             }
             
             CarAIControl _AI = _car.GetComponent<CarAIControl>();
-            _AI.SetTarget(_waypoint.transform);
+            _AI.SetTarget(_waypoint.transform);           
             _car.GetComponent<CarInfo>()._ID = _ID;
-        }       
+        }
+        _PlayersOnScene.Add(_car.transform);
         _CountPlayersNow++;
     }
 
