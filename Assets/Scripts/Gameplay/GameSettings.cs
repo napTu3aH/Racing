@@ -58,6 +58,9 @@ public class GameSettings : MonoBehaviour {
         }
         _SettingsLayer.SetActive(false);
 
+        _SoundSource = AudioController.Instance._Sound;
+        _MusicSource = AudioController.Instance._Music;
+
         _Vibrate = Convert.ToBoolean(PlayerPrefs.GetInt("Vibration", 1));
         _Sound = PlayerPrefsHelper.GetFloat("Sound", 0.5f); _SoundSlider.value = _Sound;
         _Music = PlayerPrefsHelper.GetFloat("Music", 0.5f); _MusicSlider.value = _Music;
@@ -267,6 +270,8 @@ public class GameSettings : MonoBehaviour {
     {
         Time.timeScale = _SlowingFactor;
         Time.fixedDeltaTime = 0.02F * Time.timeScale;
+        _SoundSource.pitch = _SlowingFactor;
+        _MusicSource.pitch = Mathf.Clamp(_SlowingFactor + 0.4f, -1.0f, 1.0f);
         Debugger.Instance.Log(Time.fixedDeltaTime);
     }
 

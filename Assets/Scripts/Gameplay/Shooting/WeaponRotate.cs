@@ -10,16 +10,18 @@ using UnityStandardAssets.Vehicles.Car;
 [RequireComponent(typeof(ShootScript))]
 public class WeaponRotate : MonoBehaviour {
 
-    public float _MinDistance;
     [SerializeField] internal Transform _Target;
     [SerializeField] internal Weapon[] _Weapons;
     [SerializeField] internal ShootScript _ShootingScript;
 
     int _TargetIndex;
     float[] _Distance;
+    float _MinDistance;
+    CarInfo _InfoTarget, _Car;
     internal bool _Targeted;
     internal CarController _PlayerCar;
-    internal float _DistanceForTarget, _TimeRotate;
+    internal float _TimeRotate, _DistanceToPlayer;
+    internal Transform _PlayerTransform;
     [HideInInspector] public List<Transform> _Cars;
     [HideInInspector] public HitBox _TargetedHitBox;
     
@@ -32,6 +34,8 @@ public class WeaponRotate : MonoBehaviour {
     void Init()
     {
         _Cars = new List<Transform>();
+        _Car = GetComponent<CarInfo>();
+        _PlayerTransform = GameObject.FindWithTag("Player").GetComponent<Transform>();
         _PlayerCar = GetComponent<CarController>();
         _ShootingScript = GetComponent<ShootScript>();
 
@@ -49,11 +53,21 @@ public class WeaponRotate : MonoBehaviour {
     }
 
 	void Update ()
-    {
-        WeaponRotating(); 
+    {        
         SearchTarget();
         MissingOfTarget();
-	}
+        DistanceToPlayer();
+        WeaponRotating();
+    }
+
+    void DistanceToPlayer()
+    {
+        if (!_Car._Player && _PlayerTransform)
+        {
+            _DistanceToPlayer = Vector3.Distance(transform.position, _PlayerTransform.position);
+            _DistanceToPlayer = 1.0f - (Mathf.Clamp(_DistanceToPlayer, 0, 100) / 100.0f);
+        }
+    }
 
     #region Search and Targeting
     /// <summary>
@@ -96,13 +110,14 @@ public class WeaponRotate : MonoBehaviour {
         if (_MinDistance >= _Distance[i] && _Cars[i] != transform)
         {
             _MinDistance = _Distance[i];
-            CarInfo _info = _Cars[i].GetComponent<CarInfo>();
 
-            for (int j = 0; j < _info._HitBoxs.Length; j++)
+            _InfoTarget = _Cars[i].GetComponent<CarInfo>();
+            for (int j = 0; j < _InfoTarget._HitBoxs.Length; j++)
             {
-                if (_info._HitBoxs[j]._HitBoxHealth > 0.0f)
+                if (_InfoTarget._HitBoxs[j]._HitBoxHealth > 0.0f)
                 {
-                    _Target = _info._HitBoxs[j].transform;
+                    _TargetedHitBox = _InfoTarget._HitBoxs[j];
+                    _Target = _TargetedHitBox.transform;
                     _TargetIndex = i;
                     _Targeted = true;
                     break;
@@ -119,9 +134,10 @@ public class WeaponRotate : MonoBehaviour {
         if (_Targeted)
         {
             _Distance[_TargetIndex] = Vector3.Distance(transform.position, _Cars[_TargetIndex].position);
-            if (_Distance[_TargetIndex] > 75.0f)
+            if (_Distance[_TargetIndex] > 75.0f || _TargetedHitBox._HitBoxHealth <= 0.0f || _Target == null)
             {
                 _Target = null;
+                _TargetedHitBox = null;
                 _Targeted = false;
             }
         }
@@ -141,7 +157,9 @@ public class WeaponRotate : MonoBehaviour {
             {
                 if (_wp._HitBox._HitBoxHealth > 0.0f)
                 {
-                    _ShootingScript.Shoot(_wp._Damage, _wp._TimeBetweenShot);
+                    if (_Car._Player) _ShootingScript.Shoot(_wp._Damage, _wp._TimeBetweenShot, _wp._ShootClip, 1.0f - (Mathf.Clamp(_Distance[_TargetIndex], 0, 100) / 100.0f));
+                    else _ShootingScript.Shoot(_wp._Damage, _wp._TimeBetweenShot, _wp._ShootClip, _DistanceToPlayer);
+                    _ShootingScript._DistanceForShooting = _wp._DistanceForShooting;
                     RotateWeapon(_wp._WeaponTransform, _wp._WeaponCollider, _wp._Quat, _wp._SpeedRotate, 1, 1, 0, _wp._Quat.eulerAngles);
                     if (_wp._Tower._TowerTransform)
                     {
@@ -181,13 +199,13 @@ public class WeaponRotate : MonoBehaviour {
                 _TimeRotate += _speedRotate * Time.deltaTime;
             }
             
-            //_quat = Quaternion.Slerp(_quat, Quaternion.LookRotation(_RelativePos), _speedRotate);
-            _vect = Vector3.Lerp(_vect, _RelativePos, _TimeRotate);
-            _weaponTransform.eulerAngles = _vect;
-            //_weaponTransform.rotation = Quaternion.Euler(_x * _quat.eulerAngles.x, _y * _quat.eulerAngles.y, _z * _quat.eulerAngles.z);
+            _quat = Quaternion.Slerp(_quat, Quaternion.LookRotation(_RelativePos), _speedRotate);
+            //_vect = Vector3.Lerp(_vect, _RelativePos, _TimeRotate);
+            //_weaponTransform.eulerAngles = _vect;
+            _weaponTransform.rotation = Quaternion.Euler(_x * _quat.eulerAngles.x, _y * _quat.eulerAngles.y, _z * _quat.eulerAngles.z);
             if (_weaponCollider)
             {
-                //_weaponCollider.transform.rotation = _weaponTransform.rotation;
+                _weaponCollider.transform.rotation = _weaponTransform.rotation;
             }
         }
     }
@@ -202,9 +220,11 @@ public class Weapon
     public Transform _WeaponTransform;
     public Collider _WeaponCollider;
     public HitBox _HitBox;
-    public float _TimeBetweenShot = 0.1f;
+    public AudioClip _ShootClip;
     public float _Damage = 1.0f;
     public float _SpeedRotate;
+    public float _TimeBetweenShot = 0.1f;
+    public float _DistanceForShooting;    
     [HideInInspector] public Quaternion _Quat;
     public Tower _Tower;
 }

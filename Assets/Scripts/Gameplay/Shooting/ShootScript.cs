@@ -19,7 +19,7 @@ public class ShootScript : MonoBehaviour
     [SerializeField] internal HitBox _TargetedHitBox;
     [SerializeField] internal float _DistanceForShooting;
 
-    [SerializeField] internal ParticlesSystem _ParticlesSystemScript;
+    [SerializeField] internal ParticlesSystemHitting _ParticlesSystemScript;
 
     float _Time;
     bool player; // true - player, false - NPC
@@ -31,12 +31,11 @@ public class ShootScript : MonoBehaviour
     public void Init()
     {
         _WeaponRotateScript = GetComponent<WeaponRotate>();
-        _DistanceForShooting = _WeaponRotateScript._MinDistance;
         if (transform.CompareTag("Player"))
         {
             player = true;
         }
-        _ParticlesSystemScript = GetComponent<ParticlesSystem>();
+        _ParticlesSystemScript = GetComponent<ParticlesSystemHitting>();
         try
         {
             _Weapon = transform.SearchChildWithTag("Weapon");
@@ -48,14 +47,10 @@ public class ShootScript : MonoBehaviour
         }
     }
 
-    /*void Update()
-    {
-        Shoot();
-    }*/
     /// <summary>
     /// Метод, описывающий логику выстрела.
     /// </summary>
-    void Shooting(float _damage, float _timeBetweenShot)
+    void Shooting(float _damage, float _timeBetweenShot, AudioClip _shootClip, float _clipVolume)
     {
         if (_Time < _timeBetweenShot)
         {
@@ -67,7 +62,8 @@ public class ShootScript : MonoBehaviour
                 RaycastHit _hit;
 
                 _ParticlesSystemScript._Muzzels[0].Play();
-
+                if(player) AudioController.Instance.PlayOneShot(_shootClip, 0.25f);
+                else AudioController.Instance.PlayOneShot(_shootClip, 0.25f * _clipVolume);
                 if (Physics.Raycast(_ray, out _hit, _DistanceForShooting))
                 {
                     if (!_TargetedHitBox || _hit.collider.name != _TargetedHitBox.name)
@@ -75,7 +71,8 @@ public class ShootScript : MonoBehaviour
                         _TargetedHitBox = _hit.collider.GetComponent<HitBox>();
                     } else
                     {
-                        _TargetedHitBox.Hitted(_damage);                      
+                        _TargetedHitBox.Hitted(_damage);
+                        AudioController.Instance.PlayOneShot(_ParticlesSystemScript._HitShootSound[Random.Range(0, _ParticlesSystemScript._HitShootSound.Length)], 0.5f * _clipVolume);
                         _ParticlesSystemScript.ShootHit(_hit.point, Quaternion.LookRotation(_hit.normal, Vector3.up));
                     }
                     Debugger.Instance.Line(_ray.origin, _hit.point);
@@ -85,21 +82,23 @@ public class ShootScript : MonoBehaviour
         }
         
     }
+
     /// <summary>
     /// Метод, отвечающий за выстрелы орудий.
     /// </summary>
-    public void Shoot(float _damage, float _timeBetweenShot)
+    public void Shoot(float _damage, float _timeBetweenShot, AudioClip _shootClip, float _clipVolume)
     {
         if (player)
         {
             if (CarUserControl.Instance._shooting)
             {
-                Shooting(_damage, _timeBetweenShot);
+                Shooting(_damage, _timeBetweenShot, _shootClip, _clipVolume);
             }
         }
         else
         {
-            Shooting(_damage, _timeBetweenShot);
+            if (_WeaponRotateScript._TargetedHitBox)
+                Shooting(_damage, _timeBetweenShot, _shootClip, _clipVolume);
         }
         
     }

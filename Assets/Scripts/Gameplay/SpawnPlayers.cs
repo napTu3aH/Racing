@@ -79,6 +79,11 @@ public class SpawnPlayers : MonoBehaviour {
         }
         
     }
+
+    /// <summary>
+    /// Метод добавления NPC в список целей.
+    /// </summary>
+    /// <param name="_ID"></param>
     void AddList(int _ID)
     {
         int c = Random.Range(0, _Cars.Length);

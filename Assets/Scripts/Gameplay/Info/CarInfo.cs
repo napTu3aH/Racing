@@ -11,7 +11,7 @@ namespace UnityStandardAssets.Vehicles.Car
     {
         Color _ColorHealthImage;
         internal CarController _Car;
-        internal ParticlesSystem _ParticlesSystem;
+        internal ParticlesSystemHitting _ParticlesSystem;
 
         public int _ID;
         public HitBox[] _HitBoxs;
@@ -37,7 +37,7 @@ namespace UnityStandardAssets.Vehicles.Car
         {
             _isAlive = true;
             _Car = GetComponent<CarController>();
-            _ParticlesSystem = GetComponent<ParticlesSystem>();
+            _ParticlesSystem = GetComponent<ParticlesSystemHitting>();
 
             if (_Player)
             {
@@ -56,7 +56,7 @@ namespace UnityStandardAssets.Vehicles.Car
             }
             _HitBoxParent = transform.SearchChildWithTag("HitBoxsParent");
             _HitBoxs = _HitBoxParent.GetComponentsInChildren<HitBox>();
-            Counting();            
+            InitCounting();            
         }
 
         void Start()
@@ -67,7 +67,10 @@ namespace UnityStandardAssets.Vehicles.Car
             }
         }
 
-        void Counting()
+        /// <summary>
+        /// Метод подсчёта значений здоровья и процентажа здоровья при старте.
+        /// </summary>
+        void InitCounting()
         {
             foreach (HitBox _ht in _HitBoxs)
             {
@@ -75,11 +78,14 @@ namespace UnityStandardAssets.Vehicles.Car
                 _PercentHealthFactor += _ht._ArmorFactor;
             }
             _PercentHealthFactor -= _HitBoxs.Length;
-            Count();
+            Counting();
             
         }
 
-        public void Count()
+        /// <summary>
+        /// Метод обновления значений здоровья, скорости, цвета индикатора здоровья.
+        /// </summary>
+        public void Counting()
         {
             _Health = _CurrentHealth / _PercentHealthFactor;
             _Car.TopSpeed = _TopSpeed * (_Health / 100.0f);
@@ -90,6 +96,9 @@ namespace UnityStandardAssets.Vehicles.Car
             }
         }
 
+        /// <summary>
+        /// Метод обработки "смерти".
+        /// </summary>
         public void DiePlayer()
         {
             _isAlive = false;
@@ -121,6 +130,10 @@ namespace UnityStandardAssets.Vehicles.Car
             }      
         }
 
+        /// <summary>
+        /// Сопрограмма частоты обновлений пути до цели для NPC.
+        /// </summary>
+        /// <returns></returns>
         IEnumerator MoveToPoint()
         {        
             while (_isAlive)
