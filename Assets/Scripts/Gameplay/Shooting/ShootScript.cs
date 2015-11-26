@@ -21,6 +21,7 @@ public class ShootScript : MonoBehaviour
 
     [SerializeField] internal ParticlesSystemHitting _ParticlesSystemScript;
 
+    CarInfo _InCarInfo;
     float _Time;
     bool player; // true - player, false - NPC
 
@@ -31,6 +32,7 @@ public class ShootScript : MonoBehaviour
     public void Init()
     {
         _WeaponRotateScript = GetComponent<WeaponRotate>();
+        _InCarInfo = GetComponent<CarInfo>();
         if (transform.CompareTag("Player"))
         {
             player = true;
@@ -71,7 +73,7 @@ public class ShootScript : MonoBehaviour
                         _TargetedHitBox = _hit.collider.GetComponent<HitBox>();
                     } else
                     {
-                        _TargetedHitBox.Hitted(_damage);
+                        _TargetedHitBox.Hitted(_damage, _InCarInfo);
                         AudioController.Instance.PlayOneShot(_ParticlesSystemScript._HitShootSound[Random.Range(0, _ParticlesSystemScript._HitShootSound.Length)], 0.5f * _clipVolume);
                         _ParticlesSystemScript.ShootHit(_hit.point, Quaternion.LookRotation(_hit.normal, Vector3.up));
                     }

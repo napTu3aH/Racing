@@ -217,10 +217,8 @@ public class GameSettings : MonoBehaviour {
         //Debugger.Instance.Log(Time.fixedDeltaTime);
         _SettingsLayer.SetActive(!_SettingsLayer.activeSelf);
         _ControlsLayer.SetActive(!_ControlsLayer.activeSelf);
-        if (_SlowMotion)
-        {
-            SlowMotion();
-        }
+
+        if(_SlowMotion) SlowMotion();
         else
         {
             if (Time.timeScale == 1.0f)
@@ -255,11 +253,14 @@ public class GameSettings : MonoBehaviour {
     /// </summary>
     public void SlowMotion()
     {
-        _Slowed = !_Slowed;
-        if (!_SlowCoroutine)
+        if (_SlowMotion)
         {
-            _SlowCoroutine = true;
-            StartCoroutine(Slowing());
+            _Slowed = !_Slowed;
+            if (!_SlowCoroutine)
+            {
+                _SlowCoroutine = true;
+                StartCoroutine(Slowing());
+            }
         }
     }
 

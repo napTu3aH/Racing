@@ -87,8 +87,9 @@ namespace UnityStandardAssets.Vehicles.Car
         /// </summary>
         public void Counting()
         {
-            _Health = _CurrentHealth / _PercentHealthFactor;
+            _Health = _CurrentHealth / _PercentHealthFactor;            
             _Car.TopSpeed = _TopSpeed * (_Health / 100.0f);
+
             if (_Player)
             {
                 _ColorHealthImage.a = 1.0f - (_Health / 100.0f);
@@ -96,15 +97,29 @@ namespace UnityStandardAssets.Vehicles.Car
             }
         }
 
+        void CountingPoints(CarInfo _NPC)
+        {
+            if (_NPC._Player && !_Player)
+            {
+                GameplayInfo.Inscante.Kills();
+            }
+            else
+                if (!_NPC._Player && _Player)
+            {
+                GameplayInfo.Inscante.Kills();     
+            }
+
+        }
+
         /// <summary>
         /// Метод обработки "смерти".
         /// </summary>
-        public void DiePlayer()
+        public void DiePlayer(CarInfo _InCarInfo)
         {
             _isAlive = false;
             WeaponRotate _rotate = GetComponent<WeaponRotate>();
             CarController _car = GetComponent<CarController>();
-            
+            CountingPoints(_InCarInfo);
             if (!_Player)
             {
                 NPCCalculatePath.Instance._NPC_Cars.Remove(transform);

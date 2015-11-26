@@ -74,15 +74,15 @@ public class HitBox : MonoBehaviour {
     /// <summary>
     /// Передача урона игроку.
     /// </summary>
-    public void Hitted(float _damage)
+    public void Hitted(float _damage, CarInfo _inCarInfo)
     {
-        Damage(_damage);
+        Damage(_damage, _inCarInfo);
         Counting();
         ColoringBox();
 
         if (_CarInfo._Health <= 0.0f && _CarInfo._isAlive)
         {
-            _CarInfo.DiePlayer();
+            _CarInfo.DiePlayer(_inCarInfo);
         }
     }
 
@@ -235,7 +235,7 @@ public class HitBox : MonoBehaviour {
     /// Обработка урона.
     /// </summary>
     /// <param name="_damage"></param>
-    void Damage(float _damage)
+    void Damage(float _damage, CarInfo _inCarInfo)
     {
         float _tmp = _damage / _ArmorFactor;
         
@@ -250,6 +250,11 @@ public class HitBox : MonoBehaviour {
         }
 
         _CarInfo._CurrentHealth -= _tmp;
+        if (_inCarInfo._Player)
+        {
+            GameplayInfo.Inscante._PointsNow += _tmp / _CarInfo._PercentHealthFactor;
+        }
+
         _CarInfo.Counting();
         
         Debugger.Instance.Log("Damaged " + transform.root.tag + " in " + transform.name + " component: " + _tmp + " Health: "+ _CarInfo._Health+"%");
@@ -270,8 +275,8 @@ public class HitBox : MonoBehaviour {
                 {
                     _CarBackDrive.Staying();
                 }
-            } 
-            _col.GetComponent<HitBox>().Hitted(_CarInfo._CarSpeed);     
+            }
+            _col.GetComponent<HitBox>().Hitted(_CarInfo._CarSpeed, _CarInfo);     
         }
     }
 
