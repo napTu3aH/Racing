@@ -18,6 +18,7 @@ public class GameSettings : MonoBehaviour {
     [Header("Canvas layers")]
     public GameObject _SettingsLayer;
     public GameObject _ControlsLayer;
+    public Image _Health;
 
     [Header("Sound")]
     public Sprite[] _SoundSprite; // 0 - off, 1 - on
@@ -214,6 +215,7 @@ public class GameSettings : MonoBehaviour {
         //Debugger.Instance.Log(Time.fixedDeltaTime);
         _SettingsLayer.SetActive(!_SettingsLayer.activeSelf);
         _ControlsLayer.SetActive(!_ControlsLayer.activeSelf);
+        _Health.gameObject.SetActive(!_Health.gameObject.activeSelf);
         if (_SlowMotion)
         {
             SlowMotion();

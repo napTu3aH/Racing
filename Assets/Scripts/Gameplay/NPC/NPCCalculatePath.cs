@@ -42,7 +42,7 @@ public class NPCCalculatePath : MonoBehaviour
     void ChangeNumberPoint(int i)
     {
         _NumberOfPoints[i] = Random.Range(0, _NavPoints.Count);
-        if (_NumberOfPoints[i] == i)
+        if (_NumberOfPoints[i] == i + 1)
         {
             ChangeNumberPoint(i);
         }

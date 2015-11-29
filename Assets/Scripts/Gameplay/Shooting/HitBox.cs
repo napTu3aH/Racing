@@ -10,6 +10,7 @@ public class HitBox : MonoBehaviour {
     BackDrive _CarBackDrive;
     ParticlesHitting _ParticlesSystem;
     [SerializeField] internal CarInfo _CarInfo;
+    [SerializeField] internal WeaponRotate _CarWeapon;
     [SerializeField] internal float _ArmorFactor = 1.0f;
     [SerializeField] internal float _HitBoxHealth = 100.0f;
     [SerializeField] internal float _UnDamagedFactor = 0.0f;
@@ -35,7 +36,7 @@ public class HitBox : MonoBehaviour {
     void Init()
     {
         _CarInfo = transform.root.GetComponent<CarInfo>();
-
+        _CarWeapon = _CarInfo.GetComponent<WeaponRotate>();
         if (!_CarInfo._Player)
         {
             _CarBackDrive = _CarInfo.GetComponent<BackDrive>();
@@ -239,8 +240,7 @@ public class HitBox : MonoBehaviour {
         }
 
         _CarInfo._CurrentHealth -= _tmp;
-        _CarInfo._Health = _CarInfo._CurrentHealth / _CarInfo._PercentHealthFactor;
-        _Car.TopSpeed = _CarInfo._TopSpeed *(_CarInfo._Health / 100.0f);
+        _CarInfo.Counting();
         Debugger.Instance.Log("Damaged " + transform.root.tag + " in " + transform.name + " component: " + _tmp + " Health: "+ _CarInfo._Health+"%");
     }
 
@@ -254,20 +254,14 @@ public class HitBox : MonoBehaviour {
             }
             else
             {
-                NPCCalculatePath.Instance.PathUpdate(_CarInfo._ID);    
-            } 
-            _col.GetComponent<HitBox>().Hitted(_CarInfo._CarSpeed);     
-        }
-    }
-
-    void OnTriggerStay(Collider _col)
-    {
-        if (_col.CompareTag("HitBox"))
-        {
-            if (!_CarInfo._Player && transform.name == "Forward")
-            {
-                _CarBackDrive._StayTimer += Time.deltaTime;
+                NPCCalculatePath.Instance.PathUpdate(_CarInfo._ID);
+                if (transform.name == "Forward")
+                {
+                    _CarBackDrive.Staying();
+                }
             }
+            _CarWeapon.ChangeTarget(_col);
+            _col.GetComponent<HitBox>().Hitted(_CarInfo._CarSpeed);     
         }
     }
 
@@ -277,7 +271,7 @@ public class HitBox : MonoBehaviour {
         {
             if (!_CarInfo._Player)
             {
-                _CarBackDrive._StayTimer = 0.0f;
+                _CarBackDrive.UnStaying();
             }
         }
     }

@@ -19,7 +19,6 @@ public class SpawnPlayers : MonoBehaviour {
     [SerializeField] internal GameObject[] _PlayerCars;
     [SerializeField] internal GameObject[] _Cars;
     [SerializeField] internal GameObject _CurrentWayPoint;
-    [SerializeField] internal GameObject _HeaderWayPoints;
 
     [Header("Count players and spawn position")]
     public int _MaximumCountPlayers;
@@ -39,16 +38,6 @@ public class SpawnPlayers : MonoBehaviour {
         Instance = this;
         _SpawnPoints = GameObject.FindWithTag("Respawn").GetComponentsInChildren<Transform>();
         _RandomPoints = new int[_SpawnPoints.Length - 1];
-        _HeaderWayPoints = GameObject.FindWithTag("Waypoints");
-
-        if (_HeaderWayPoints)
-        {
-            PlayerTargetPoint[] _tp = _HeaderWayPoints.GetComponentsInChildren<PlayerTargetPoint>();
-            foreach (PlayerTargetPoint _p in _tp)
-            {
-                _Targets.Add(_p);
-            }
-        }
 
         RandomValueForPosition();
         if (_Spawn)
@@ -132,7 +121,7 @@ public class SpawnPlayers : MonoBehaviour {
             _AI.SetTarget(_waypoint.transform);
             _car.GetComponent<CarInfo>()._ID = _ID;
         }
-        _Targets[_CountPlayersNow]._PlayerTransform = _car.transform;
+        _Targets.Add(_car.GetComponentInChildren<PlayerTargetPoint>());
         _Targets[_CountPlayersNow].Set();
         _CarsOnScene.Add(_car.transform);
         _CountPlayersNow++;
@@ -141,11 +130,15 @@ public class SpawnPlayers : MonoBehaviour {
     /// <summary>
     /// Метод удаления игрока из списка целей.
     /// </summary>
-    public void RemovePlayer(bool _Player, int _ID)
+    public void RemovePlayer(bool _Player, int _ID, Transform _CarTransform)
     {
         _CountPlayersNow--;
+        _CarsOnScene.Remove(_CarTransform);
+        PlayerTargetPoint _tp = _CarTransform.GetComponentInChildren<PlayerTargetPoint>();
+        _Targets.Remove(_tp);
         if (!_Player)
         {
+            NPCCalculatePath.Instance._NavPoints.Remove(_tp.transform);
             AddList(_ID);
         }       
         

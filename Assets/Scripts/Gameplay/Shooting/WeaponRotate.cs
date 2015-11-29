@@ -14,11 +14,14 @@ public class WeaponRotate : MonoBehaviour {
     [SerializeField] internal Transform _Target;
     [SerializeField] internal Weapon[] _Weapons;
     [SerializeField] internal float _Radius;
-    internal List<Transform> _CarsTransform;
+
+    internal CarInfo _Car;
     internal bool _Targeted;
     internal CarController _PlayerCar;
-    internal float _DistanceForTarget;
-    
+    internal float _DistanceForTarget, _DistanceToPlayer;
+    internal List<Transform> _CarsTransform;
+    internal Transform _PlayerTransform;
+
     [HideInInspector] public HitBox _TargetedHitBox;
                                             
     void Awake ()
@@ -29,6 +32,8 @@ public class WeaponRotate : MonoBehaviour {
     void Init()
     {
         _ShootingScript = GetComponent<ShootScript>();
+        _Car = GetComponent<CarInfo>();
+        _PlayerTransform = GameObject.FindWithTag("Player").GetComponent<Transform>();
         if (this.CompareTag("PlayerLogic"))
         {
             _PlayerCar = CarUserControl.Instance.m_Car;
@@ -56,6 +61,7 @@ public class WeaponRotate : MonoBehaviour {
     {
         SearchTarget();
         MissingTargeting();
+        DistanceToPlayer();
         WeaponRotating(); 
 	}
 
@@ -63,7 +69,7 @@ public class WeaponRotate : MonoBehaviour {
     {
         if (!_Targeted)
         {
-            if (_CarsTransform == null)
+            if (_CarsTransform == null || _CarsTransform.Count < SpawnPlayers.Instance._MaximumCountPlayers)
             {
                 _CarsTransform = SpawnPlayers.Instance._CarsOnScene;
             }
@@ -90,6 +96,15 @@ public class WeaponRotate : MonoBehaviour {
         }
     }
 
+    void DistanceToPlayer()
+    {
+        if (!_Car._Player && _PlayerTransform)
+        {
+            _DistanceToPlayer = Vector3.Distance(transform.position, _PlayerTransform.position);
+            _DistanceToPlayer = 1.0f - (Mathf.Clamp(_DistanceToPlayer, 0, _Radius) / _Radius);
+        }
+    }
+
     #region Missing of target
     /// <summary>
     /// Метод потери цели.
@@ -99,13 +114,7 @@ public class WeaponRotate : MonoBehaviour {
         if (_Targeted && _Target)
         {
             _DistanceForTarget = Vector3.Distance(_PlayerCar.transform.position, _Target.position);
-            if (_DistanceForTarget > _Radius)
-            {
-                _Target = null;
-                _TargetedHitBox = null;
-                _Targeted = false;
-            }
-            if (_TargetedHitBox._HitBoxHealth <= 0.0f)
+            if (_DistanceForTarget > _Radius || _TargetedHitBox._HitBoxHealth <= 0.0f)
             {
                 _Target = null;
                 _TargetedHitBox = null;
@@ -132,7 +141,11 @@ public class WeaponRotate : MonoBehaviour {
             {
                 if (_wp._HitBox._HitBoxHealth > 0.0f)
                 {
-                    _ShootingScript.Shoot(_wp._Damage, _wp._TimeBetweenShot);
+                    float _volume = 1.0f - (Mathf.Clamp(_DistanceForTarget, 0, _Radius) / _Radius);
+
+                    if (_Car._Player) _ShootingScript.Shoot(_wp._Damage, _wp._TimeBetweenShot, _wp._Clip, _volume);
+                    else _ShootingScript.Shoot(_wp._Damage, _wp._TimeBetweenShot, _wp._Clip, _DistanceToPlayer);
+
                     RotateWeapon(_wp._WeaponTransform, _wp._WeaponCollider, _wp._Quat, _wp._SpeedRotate, 1, 1, 0);
                     if (_wp._Tower._TowerTransform)
                     {
@@ -177,18 +190,18 @@ public class WeaponRotate : MonoBehaviour {
     }
     #endregion
 
-    /*void OnTriggerStay(Collider _col)
+    public void ChangeTarget(Collider _col)
     {
-        if (!_Targeted)
+        if (_col.CompareTag("HitBox") && _col.GetComponent<HitBox>()._HitBoxHealth > 0.0f)
         {
-            if (_col.CompareTag("HitBox") && _col.GetComponent<HitBox>()._HitBoxHealth > 0.0f)
+            _Target = _col.transform;
+            _TargetedHitBox = _col.GetComponent<HitBox>();
+            if (!_Targeted)
             {
-                _Target = _col.transform;
-                _TargetedHitBox = _col.GetComponent<HitBox>();
                 _Targeted = true;
-            }
-        }
-    }*/
+            }         
+        }       
+    }
 
 }
 
@@ -199,6 +212,7 @@ public class Weapon
     public Transform _WeaponTransform;
     public Collider _WeaponCollider;
     public HitBox _HitBox;
+    public AudioClip _Clip;
     public float _TimeBetweenShot = 0.1f;
     public float _Damage = 1.0f;
     [Range(1.0f, 5.0f)] public float _SpeedRotate;

@@ -55,7 +55,7 @@ public class ShootScript : MonoBehaviour
     /// <summary>
     /// Метод, описывающий логику выстрела.
     /// </summary>
-    void Shooting(float _damage, float _timeBetweenShot)
+    void Shooting(float _damage, float _timeBetweenShot, AudioClip _clip, float _volume)
     {
         if (_Time < _timeBetweenShot)
         {
@@ -64,6 +64,8 @@ public class ShootScript : MonoBehaviour
             {
                 Ray _ray = new Ray(_Barrel.position, _Barrel.forward);
                 RaycastHit _hit;
+                if (player) AudioController.Instance.PlayOneShot(_clip, 0.25f);
+                else AudioController.Instance.PlayOneShot(_clip, 0.25f * _volume);
                 _ParticlesSystemScript._Muzzels[0].Play();
                 if (Physics.Raycast(_ray, out _hit, _DistanceForShooting))
                 {
@@ -73,6 +75,7 @@ public class ShootScript : MonoBehaviour
                     } else
                     {
                         _TargetedHitBox.Hitted(_damage);
+                        AudioController.Instance.PlayOneShot(_ParticlesSystemScript._HitShootSound[Random.Range(0, _ParticlesSystemScript._HitShootSound.Length)], 0.5f * _volume);
                         _ParticlesSystemScript.ShootHit(_hit.point, Quaternion.LookRotation(_hit.normal, Vector3.up));
                     }
                     Debugger.Instance.Line(_ray.origin, _hit.point);
@@ -85,18 +88,19 @@ public class ShootScript : MonoBehaviour
     /// <summary>
     /// Метод, отвечающий за выстрелы орудий.
     /// </summary>
-    public void Shoot(float _damage, float _timeBetweenShot)
+    public void Shoot(float _damage, float _timeBetweenShot, AudioClip _clip, float _volume)
     {
         if (player)
         {
             if (CarUserControl.Instance._shooting)
             {
-                Shooting(_damage, _timeBetweenShot);
+                Shooting(_damage, _timeBetweenShot, _clip, _volume);
             }
         }
         else
         {
-            Shooting(_damage, _timeBetweenShot);
+            if (_WeaponRotateScript._TargetedHitBox)
+                Shooting(_damage, _timeBetweenShot, _clip, _volume);
         }
         
     }

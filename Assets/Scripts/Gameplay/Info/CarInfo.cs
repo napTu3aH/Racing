@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 /// <summary>
 /// Класс, хранящий и взаимодействующий с характеристиками игрока.
@@ -8,14 +9,14 @@ namespace UnityStandardAssets.Vehicles.Car
 {
     public class CarInfo : MonoBehaviour
     {
-
+        Color _ColorHealthImage;
         internal CarController _Car;
         internal ParticlesHitting _ParticlesSystem;
         public int _ID;
         public bool _Player, _isAlive;
         [Header("Healths")]
         public float _Health = 0.0f, _PercentHealthFactor, _CurrentHealth;
-
+        public Image _PlayerHealthImage;
         public Transform _HitBoxParent;
         public HitBox[] _HitBoxs;
         public float _CarSpeed
@@ -44,6 +45,9 @@ namespace UnityStandardAssets.Vehicles.Car
                 CarUserControl.Instance._CameraTarget = transform.SearchChildWithTag("Target");
                 CarUserControl.Instance.SetCamera();
                 SpawnPlayers.Instance._PlayerSpawned = true;
+
+                //_PlayerHealthImage = GameObject.FindWithTag("HealthBar").GetComponent<Image>();
+                _ColorHealthImage = new Color(1.0f, 1.0f, 1.0f, 0.0f);
             }
             else
             {
@@ -51,7 +55,7 @@ namespace UnityStandardAssets.Vehicles.Car
             }
             _HitBoxParent = transform.SearchChildWithTag("HitBoxsParent");
             _HitBoxs = _HitBoxParent.GetComponentsInChildren<HitBox>();
-            Counting();
+            InitCounting();
             _isAlive = true;
         }
 
@@ -63,7 +67,10 @@ namespace UnityStandardAssets.Vehicles.Car
             }
         }
 
-        void Counting()
+        /// <summary>
+        /// Метод подсчёта значений здоровья и процентажа здоровья при старте.
+        /// </summary>
+        void InitCounting()
         {
             foreach (HitBox _ht in _HitBoxs)
             {
@@ -71,8 +78,20 @@ namespace UnityStandardAssets.Vehicles.Car
                 _PercentHealthFactor += _ht._ArmorFactor;
             }
             _PercentHealthFactor -= _HitBoxs.Length;
+            Counting();
+
+        }
+
+        public void Counting()
+        {
             _Health = _CurrentHealth / _PercentHealthFactor;
             _Car.TopSpeed = _TopSpeed * (_Health / 100.0f);
+
+            /*if (_Player)
+            {
+                _ColorHealthImage.a = 1.0f - (_Health / 100.0f);
+                _PlayerHealthImage.color = _ColorHealthImage;
+            }*/
         }
 
         public void DiePlayer()
@@ -87,7 +106,7 @@ namespace UnityStandardAssets.Vehicles.Car
                 CarAIControl _carAi = GetComponent<CarAIControl>();
                 _carAi.enabled = false;
             }
-            SpawnPlayers.Instance.RemovePlayer(_Player, _ID);
+            SpawnPlayers.Instance.RemovePlayer(_Player, _ID, transform);
 
             CarController _car = GetComponent<CarController>();
             _car.enabled = false;
