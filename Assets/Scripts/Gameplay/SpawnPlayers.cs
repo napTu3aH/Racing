@@ -25,6 +25,7 @@ public class SpawnPlayers : MonoBehaviour {
     public int _MaximumCountPlayers;
     [SerializeField] internal int _CountPlayersNow;
     [SerializeField] internal Transform[] _SpawnPoints;
+    [SerializeField] internal List<Transform> _CarsOnScene;
     int[] _RandomPoints;
     int _ID_NPC;
 
@@ -133,6 +134,7 @@ public class SpawnPlayers : MonoBehaviour {
         }
         _Targets[_CountPlayersNow]._PlayerTransform = _car.transform;
         _Targets[_CountPlayersNow].Set();
+        _CarsOnScene.Add(_car.transform);
         _CountPlayersNow++;
     }
 

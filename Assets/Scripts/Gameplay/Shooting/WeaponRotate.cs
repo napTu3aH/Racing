@@ -14,6 +14,7 @@ public class WeaponRotate : MonoBehaviour {
     [SerializeField] internal Transform _Target;
     [SerializeField] internal Weapon[] _Weapons;
     [SerializeField] internal float _Radius;
+    internal List<Transform> _CarsTransform;
     internal bool _Targeted;
     internal CarController _PlayerCar;
     internal float _DistanceForTarget;
@@ -53,9 +54,41 @@ public class WeaponRotate : MonoBehaviour {
 
 	void Update ()
     {
-        WeaponRotating();
-        MissingTargeting();    
+        SearchTarget();
+        MissingTargeting();
+        WeaponRotating(); 
 	}
+
+    void SearchTarget()
+    {
+        if (!_Targeted)
+        {
+            if (_CarsTransform == null)
+            {
+                _CarsTransform = SpawnPlayers.Instance._CarsOnScene;
+            }
+                        
+            for (int i = 0; i < _CarsTransform.Count; i++)
+            {
+                if (_CarsTransform[i] != transform)
+                {
+                    if (Vector3.Distance(transform.position, _CarsTransform[i].position) < _Radius)
+                    {
+                        CarInfo _info = _CarsTransform[i].GetComponent<CarInfo>();
+                        for (int j = 0; j < _info._HitBoxs.Length; j++)
+                        {
+                            if (_info._HitBoxs[j]._HitBoxHealth > 0.0f)
+                            {
+                                _Target = _info._HitBoxs[j].transform;
+                                _TargetedHitBox = _info._HitBoxs[j];
+                                _Targeted = true;
+                            }
+                        }
+                    }
+                }                
+            }
+        }
+    }
 
     #region Missing of target
     /// <summary>
@@ -69,11 +102,13 @@ public class WeaponRotate : MonoBehaviour {
             if (_DistanceForTarget > _Radius)
             {
                 _Target = null;
+                _TargetedHitBox = null;
                 _Targeted = false;
             }
             if (_TargetedHitBox._HitBoxHealth <= 0.0f)
             {
                 _Target = null;
+                _TargetedHitBox = null;
                 _Targeted = false;
             }
         }
@@ -142,7 +177,7 @@ public class WeaponRotate : MonoBehaviour {
     }
     #endregion
 
-    void OnTriggerStay(Collider _col)
+    /*void OnTriggerStay(Collider _col)
     {
         if (!_Targeted)
         {
@@ -153,7 +188,7 @@ public class WeaponRotate : MonoBehaviour {
                 _Targeted = true;
             }
         }
-    }
+    }*/
 
 }
 
