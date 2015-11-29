@@ -25,8 +25,8 @@ public class AudioController : MonoBehaviour {
     void Init()
     {
         Instance = this;
-        _Music = transform.SearchChildWithTag("Music").GetComponent<AudioSource>();
-        _Sound = transform.SearchChildWithTag("Sound").GetComponent<AudioSource>();
+        _Music = transform.SearchChildWithName("Music").GetComponent<AudioSource>();
+        _Sound = transform.SearchChildWithName("Sound").GetComponent<AudioSource>();
         PlayMusic();
     }
 

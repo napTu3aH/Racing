@@ -58,9 +58,6 @@ public class GameSettings : MonoBehaviour {
         }
         _SettingsLayer.SetActive(false);
 
-        _SoundSource = AudioController.Instance._Sound;
-        _MusicSource = AudioController.Instance._Music;
-
         _Vibrate = Convert.ToBoolean(PlayerPrefs.GetInt("Vibration", 1));
         _Sound = PlayerPrefsHelper.GetFloat("Sound", 0.5f); _SoundSlider.value = _Sound;
         _Music = PlayerPrefsHelper.GetFloat("Music", 0.5f); _MusicSlider.value = _Music;
@@ -217,8 +214,10 @@ public class GameSettings : MonoBehaviour {
         //Debugger.Instance.Log(Time.fixedDeltaTime);
         _SettingsLayer.SetActive(!_SettingsLayer.activeSelf);
         _ControlsLayer.SetActive(!_ControlsLayer.activeSelf);
-
-        if(_SlowMotion) SlowMotion();
+        if (_SlowMotion)
+        {
+            SlowMotion();
+        }
         else
         {
             if (Time.timeScale == 1.0f)
@@ -253,14 +252,11 @@ public class GameSettings : MonoBehaviour {
     /// </summary>
     public void SlowMotion()
     {
-        if (_SlowMotion)
+        _Slowed = !_Slowed;
+        if (!_SlowCoroutine)
         {
-            _Slowed = !_Slowed;
-            if (!_SlowCoroutine)
-            {
-                _SlowCoroutine = true;
-                StartCoroutine(Slowing());
-            }
+            _SlowCoroutine = true;
+            StartCoroutine(Slowing());
         }
     }
 
@@ -287,11 +283,12 @@ public class GameSettings : MonoBehaviour {
             if (_SlowingFactor > _SlowValue)
             {
                 _SlowingFactor -= _SmoothRate;
-                if (_SlowingFactor < _SlowValue)
-                {
-                    _SlowingFactor = _SlowValue;
-                }
-            }            
+            }
+            else
+            if (_SlowingFactor < _SlowValue)
+            {
+                _SlowingFactor = _SlowValue;
+            }
             FrameChangeValue();
             yield return null;
         }
@@ -301,10 +298,11 @@ public class GameSettings : MonoBehaviour {
             if (_SlowingFactor < 1.0f)
             {
                 _SlowingFactor += _SmoothRate;
-                if (_SlowingFactor > 1.0f)
-                {
-                    _SlowingFactor = 1.0f;
-                }
+            }
+            else
+            if (_SlowingFactor > 1.0f)
+            {
+                _SlowingFactor = 1.0f;
             }
             FrameChangeValue();
             yield return null;
@@ -321,24 +319,10 @@ public class GameSettings : MonoBehaviour {
 #elif UNITY_ANDROID
         Handheld.SetActivityIndicatorStyle(AndroidActivityIndicatorStyle.Large);
 #endif
-        Handheld.StartActivityIndicator();
-
         _MenuButton.interactable = false;
         _RestartButton.interactable = false;
-
-        while (_SlowingFactor != 0.0f)
-        {
-            if (_SlowingFactor > 0.0f)
-            {
-                _SlowingFactor -= _SmoothRate;
-                if (_SlowingFactor < 0.0f)
-                {
-                    _SlowingFactor = 0.0f;
-                }
-            }           
-            FrameChangeValue();
-            yield return null;
-        }
+        Handheld.StartActivityIndicator();
+        yield return new WaitForSeconds(0);
         Application.LoadLevel(_index);
     }
 

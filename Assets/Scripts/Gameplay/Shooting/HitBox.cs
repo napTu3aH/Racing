@@ -8,7 +8,7 @@ public class HitBox : MonoBehaviour {
 
     CarController _Car;
     BackDrive _CarBackDrive;
-    ParticlesSystemHitting _ParticlesSystem;
+    ParticlesHitting _ParticlesSystem;
     [SerializeField] internal CarInfo _CarInfo;
     [SerializeField] internal float _ArmorFactor = 1.0f;
     [SerializeField] internal float _HitBoxHealth = 100.0f;
@@ -42,7 +42,7 @@ public class HitBox : MonoBehaviour {
         }
 
         _Car = transform.root.GetComponent<CarController>();
-        _ParticlesSystem = _Car.GetComponent<ParticlesSystemHitting>();
+        _ParticlesSystem = _Car.GetComponent<ParticlesHitting>();
         _Collider = GetComponent<Collider>();
         _Mesh = GetComponent<MeshRenderer>();
         _HitBoxMaterial = _Mesh.material;
@@ -74,21 +74,18 @@ public class HitBox : MonoBehaviour {
     /// <summary>
     /// Передача урона игроку.
     /// </summary>
-    public void Hitted(float _damage, CarInfo _inCarInfo)
+    public void Hitted(float _damage)
     {
-        Damage(_damage, _inCarInfo);
+        Damage(_damage);
         Counting();
         ColoringBox();
 
         if (_CarInfo._Health <= 0.0f && _CarInfo._isAlive)
         {
-            _CarInfo.DiePlayer(_inCarInfo);
+            _CarInfo.DiePlayer();
         }
     }
 
-    /// <summary>
-    /// Метод обработки цвета у hitbox'ов.
-    /// </summary>
     void ColoringBox()
     {
         if (_HitBoxHealth >= _HealthFactor / 2.0f)
@@ -159,10 +156,6 @@ public class HitBox : MonoBehaviour {
         yield return null;
     }
 
-    /// <summary>
-    /// Метод спавна "частиц" колёс на месте отрывания.
-    /// </summary>
-    /// <param name="_wheelIndex">Индекс колеса</param>
     void SpawnWheel(int _wheelIndex)
     {
         _Car._WheelMeshes[_wheelIndex].SetActive(false);
@@ -231,11 +224,7 @@ public class HitBox : MonoBehaviour {
 
     }
 
-    /// <summary>
-    /// Обработка урона.
-    /// </summary>
-    /// <param name="_damage"></param>
-    void Damage(float _damage, CarInfo _inCarInfo)
+    void Damage(float _damage)
     {
         float _tmp = _damage / _ArmorFactor;
         
@@ -250,13 +239,8 @@ public class HitBox : MonoBehaviour {
         }
 
         _CarInfo._CurrentHealth -= _tmp;
-        if (_inCarInfo._Player)
-        {
-            GameplayInfo.Inscante._PointsNow += _tmp / _CarInfo._PercentHealthFactor;
-        }
-
-        _CarInfo.Counting();
-        
+        _CarInfo._Health = _CarInfo._CurrentHealth / _CarInfo._PercentHealthFactor;
+        _Car.TopSpeed = _CarInfo._TopSpeed *(_CarInfo._Health / 100.0f);
         Debugger.Instance.Log("Damaged " + transform.root.tag + " in " + transform.name + " component: " + _tmp + " Health: "+ _CarInfo._Health+"%");
     }
 
@@ -270,13 +254,20 @@ public class HitBox : MonoBehaviour {
             }
             else
             {
-                NPCCalculatePath.Instance.PathUpdate(_CarInfo._ID);
-                if (transform.name == "Forward")
-                {
-                    _CarBackDrive.Staying();
-                }
+                NPCCalculatePath.Instance.PathUpdate(_CarInfo._ID);    
+            } 
+            _col.GetComponent<HitBox>().Hitted(_CarInfo._CarSpeed);     
+        }
+    }
+
+    void OnTriggerStay(Collider _col)
+    {
+        if (_col.CompareTag("HitBox"))
+        {
+            if (!_CarInfo._Player && transform.name == "Forward")
+            {
+                _CarBackDrive._StayTimer += Time.deltaTime;
             }
-            _col.GetComponent<HitBox>().Hitted(_CarInfo._CarSpeed, _CarInfo);     
         }
     }
 
@@ -286,7 +277,7 @@ public class HitBox : MonoBehaviour {
         {
             if (!_CarInfo._Player)
             {
-                _CarBackDrive.UnStaying();
+                _CarBackDrive._StayTimer = 0.0f;
             }
         }
     }

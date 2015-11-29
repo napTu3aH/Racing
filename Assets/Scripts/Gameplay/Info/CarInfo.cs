@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
 using System.Collections;
 /// <summary>
 /// Класс, хранящий и взаимодействующий с характеристиками игрока.
@@ -9,24 +8,24 @@ namespace UnityStandardAssets.Vehicles.Car
 {
     public class CarInfo : MonoBehaviour
     {
-        Color _ColorHealthImage;
-        internal CarController _Car;
-        internal ParticlesSystemHitting _ParticlesSystem;
 
+        internal CarController _Car;
+        internal ParticlesHitting _ParticlesSystem;
         public int _ID;
-        public HitBox[] _HitBoxs;
-        public Transform _HitBoxParent;
         public bool _Player, _isAlive;
-        public Image _PlayerHealthImage;
+        [Header("Healths")]
         public float _Health = 0.0f, _PercentHealthFactor, _CurrentHealth;
-               
+
+        public Transform _HitBoxParent;
+        public HitBox[] _HitBoxs;
         public float _CarSpeed
         {
             set { value = _Car.CurrentSpeed; }
             get { return _Car.CurrentSpeed; }
         }
         public float _TopSpeed = 100.0f;
-        public float _TimeUpdateFactor, _TimeUpdate;     
+
+        public float _TimeUpdateFactor, _TimeUpdate;
 
         void Awake()
         {
@@ -35,20 +34,16 @@ namespace UnityStandardAssets.Vehicles.Car
 
         void Init()
         {
-            _isAlive = true;
             _Car = GetComponent<CarController>();
-            _ParticlesSystem = GetComponent<ParticlesSystemHitting>();
+            _ParticlesSystem = GetComponent<ParticlesHitting>();
 
             if (_Player)
             {
-                _PlayerHealthImage = GameObject.FindWithTag("HealthBar").GetComponent<Image>();
                 CarUserControl.Instance.m_Car = _Car;
                 CarGUI.Instance._Car = _Car;
                 CarUserControl.Instance._CameraTarget = transform.SearchChildWithTag("Target");
                 CarUserControl.Instance.SetCamera();
                 SpawnPlayers.Instance._PlayerSpawned = true;
-
-                _ColorHealthImage = new Color(1.0f, 1.0f, 1.0f, 0.0f);
             }
             else
             {
@@ -56,7 +51,8 @@ namespace UnityStandardAssets.Vehicles.Car
             }
             _HitBoxParent = transform.SearchChildWithTag("HitBoxsParent");
             _HitBoxs = _HitBoxParent.GetComponentsInChildren<HitBox>();
-            InitCounting();            
+            Counting();
+            _isAlive = true;
         }
 
         void Start()
@@ -67,10 +63,7 @@ namespace UnityStandardAssets.Vehicles.Car
             }
         }
 
-        /// <summary>
-        /// Метод подсчёта значений здоровья и процентажа здоровья при старте.
-        /// </summary>
-        void InitCounting()
+        void Counting()
         {
             foreach (HitBox _ht in _HitBoxs)
             {
@@ -78,48 +71,14 @@ namespace UnityStandardAssets.Vehicles.Car
                 _PercentHealthFactor += _ht._ArmorFactor;
             }
             _PercentHealthFactor -= _HitBoxs.Length;
-            Counting();
-            
-        }
-
-        /// <summary>
-        /// Метод обновления значений здоровья, скорости, цвета индикатора здоровья.
-        /// </summary>
-        public void Counting()
-        {
-            _Health = _CurrentHealth / _PercentHealthFactor;            
+            _Health = _CurrentHealth / _PercentHealthFactor;
             _Car.TopSpeed = _TopSpeed * (_Health / 100.0f);
-
-            if (_Player)
-            {
-                _ColorHealthImage.a = 1.0f - (_Health / 100.0f);
-                _PlayerHealthImage.color = _ColorHealthImage;
-            }
         }
 
-        void CountingPoints(CarInfo _NPC)
-        {
-            if (_NPC._Player && !_Player)
-            {
-                GameplayInfo.Inscante.Kills();
-            }
-            else
-                if (!_NPC._Player && _Player)
-            {
-                GameplayInfo.Inscante.Kills();     
-            }
-
-        }
-
-        /// <summary>
-        /// Метод обработки "смерти".
-        /// </summary>
-        public void DiePlayer(CarInfo _InCarInfo)
+        public void DiePlayer()
         {
             _isAlive = false;
-            WeaponRotate _rotate = GetComponent<WeaponRotate>();
-            CarController _car = GetComponent<CarController>();
-            CountingPoints(_InCarInfo);
+            _ParticlesSystem.Explosion(transform.position, transform.rotation, 0);
             if (!_Player)
             {
                 NPCCalculatePath.Instance._NPC_Cars.Remove(transform);
@@ -128,11 +87,10 @@ namespace UnityStandardAssets.Vehicles.Car
                 CarAIControl _carAi = GetComponent<CarAIControl>();
                 _carAi.enabled = false;
             }
-
             SpawnPlayers.Instance.RemovePlayer(_Player, _ID);
-            _rotate._Cars.Remove(transform);
+
+            CarController _car = GetComponent<CarController>();
             _car.enabled = false;
-            _ParticlesSystem.Explosion(transform.position, transform.rotation, 0);
             Destroy(this.gameObject);
         }
 
@@ -145,10 +103,6 @@ namespace UnityStandardAssets.Vehicles.Car
             }      
         }
 
-        /// <summary>
-        /// Сопрограмма частоты обновлений пути до цели для NPC.
-        /// </summary>
-        /// <returns></returns>
         IEnumerator MoveToPoint()
         {        
             while (_isAlive)

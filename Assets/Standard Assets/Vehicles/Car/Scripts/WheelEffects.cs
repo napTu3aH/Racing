@@ -48,7 +48,7 @@ namespace UnityStandardAssets.Vehicles.Car
             skidParticles.Emit(1);
             if (!skidding)
             {
-                //StartCoroutine(StartSkidTrail());
+                StartCoroutine(StartSkidTrail());
             }
         }
 

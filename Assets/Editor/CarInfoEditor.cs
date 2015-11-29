@@ -10,7 +10,6 @@ public class CarInfoEditor : Editor
     MonoScript _Script;
     SerializedProperty _Player;
     SerializedProperty _TopSpeed;
-    SerializedProperty _PlayerHealthImage;
     SerializedProperty _HitBoxParent, _HitBoxs;
 
     public void OnEnable()
@@ -21,7 +20,6 @@ public class CarInfoEditor : Editor
         _TopSpeed = serializedObject.FindProperty("_TopSpeed");
         _HitBoxParent = serializedObject.FindProperty("_HitBoxParent");
         _HitBoxs = serializedObject.FindProperty("_HitBoxs");
-        _PlayerHealthImage = serializedObject.FindProperty("_PlayerHealthImage");
     }
 
     public override void OnInspectorGUI()
@@ -47,7 +45,6 @@ public class CarInfoEditor : Editor
         }
         else
         {
-            EditorGUILayout.PropertyField(_PlayerHealthImage);
             _CarInfo._TimeUpdateFactor = 0.0f;
         }
         EditorGUILayout.Space();

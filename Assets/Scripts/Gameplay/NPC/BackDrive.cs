@@ -15,7 +15,7 @@ public class BackDrive : MonoBehaviour {
 
     Vector3 _StartPointBrake;
 
-	bool _HittedToWall, _AIStateChange, _Coroutined, _Counting;
+	bool _HittedToWall, _AIStateChange, _Coroutined;
 
 	void Awake () 
 	{
@@ -30,9 +30,6 @@ public class BackDrive : MonoBehaviour {
         _TimeForСheck = Random.Range(1.5f, 1.6f);
     }
 
-    /// <summary>
-    /// Метод запуска движения NPC назад при длительном столкновении.
-    /// </summary>
     public void HittedToWall()
     {
         _HittedToWall = true;
@@ -47,55 +44,6 @@ public class BackDrive : MonoBehaviour {
         
     }
 
-    /// <summary>
-    /// Метод запуска подсчёта времени застоя при столкновении.
-    /// </summary>
-    public void Staying()
-    {
-        if (!_Counting)
-        {
-            _Counting = true;
-            StartCoroutine(TimerStayCounting());
-        }
-    }
-
-    /// <summary>
-    /// Метод остановки подсчёта времени застоя при отсутсвия столкновения.
-    /// </summary>
-    public void UnStaying()
-    {
-        if (_Counting)
-        {
-            _Counting = false;
-            StopCoroutine(TimerStayCounting());
-            _StayTimer = 0.0f;
-        }
-    }
-
-    /// <summary>
-    /// Сопрограмма подсчёта времени столкновения.
-    /// </summary>
-    /// <returns></returns>
-    IEnumerator TimerStayCounting()
-    {
-        while (_Counting)
-        {
-            _StayTimer += Time.deltaTime;
-            if (_StayTimer >= _TimeForСheck)
-            {
-                _StartPointBrake = transform.position;
-                HittedToWall();
-                _Counting = false;
-            }
-            yield return null;
-        }
-        yield return null;
-    }
-
-    /// <summary>
-    /// Сопрограмма возврата значений скорости при движении NPC назад.
-    /// </summary>
-    /// <returns></returns>
     IEnumerator ResetSpeed()
     {
         while (_HittedToWall)
@@ -111,4 +59,17 @@ public class BackDrive : MonoBehaviour {
         _Coroutined = false;
         yield return null;
     }
+
+	void FixedUpdate () 
+	{
+		if(_StayTimer >= _TimeForСheck)
+		{
+			if(_CarControl._FullTorqueOverAllWheels == _StartSpeed)
+			{
+                _StartPointBrake = transform.position;
+                HittedToWall();				
+			}	
+		}
+
+	}
 }
