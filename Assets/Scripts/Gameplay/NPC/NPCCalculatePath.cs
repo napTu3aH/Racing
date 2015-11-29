@@ -8,12 +8,11 @@ public class NPCCalculatePath : MonoBehaviour
 
     public List<Transform> _NPC_Cars;
     public List<Transform> _CurrentWayPoints;
-    public GameObject _HeadNavPoints;
     public float _MinDistance = 5.0f;
     public int _MaximumNPC;
     public float[] _Distance;
 
-    Transform[] _NavPoints;
+    public List<Transform> _NavPoints;
     NavMeshPath[] _NavPath;
     int[] _NumberOfPoints;
     bool _Pathed;
@@ -26,15 +25,6 @@ public class NPCCalculatePath : MonoBehaviour
     void Init()
     {
         Instance = this;
-        if (!_HeadNavPoints)
-        {
-            _HeadNavPoints = GameObject.FindWithTag("Waypoints");
-        }
-
-        if (_NavPoints == null)
-        {
-            _NavPoints = _HeadNavPoints.GetComponentsInChildren<Transform>();
-        }
     }
 
     void Start()
@@ -51,7 +41,11 @@ public class NPCCalculatePath : MonoBehaviour
 
     void ChangeNumberPoint(int i)
     {
-        _NumberOfPoints[i] = Random.Range(1, _NavPoints.Length);
+        _NumberOfPoints[i] = Random.Range(0, _NavPoints.Count);
+        if (_NumberOfPoints[i] == i)
+        {
+            ChangeNumberPoint(i);
+        }
     }
 
     public void DistaceUpdate(int _Id_NPC)
@@ -72,7 +66,15 @@ public class NPCCalculatePath : MonoBehaviour
             {
                 Debugger.Instance.Line(_NavPath[_Id_NPC].corners[j], _NavPath[_Id_NPC].corners[j+1]);
             }
-            _CurrentWayPoints[_Id_NPC].position = _NavPath[_Id_NPC].corners[1];
+            if (_NavPath[_Id_NPC].corners.Length > 1)
+            {
+                _CurrentWayPoints[_Id_NPC].position = _NavPath[_Id_NPC].corners[1];
+            }
+            else
+            {
+                _CurrentWayPoints[_Id_NPC].position = _NavPath[_Id_NPC].corners[0];
+            }
+            
         }
         
         if (_Distance[_Id_NPC] < _MinDistance)

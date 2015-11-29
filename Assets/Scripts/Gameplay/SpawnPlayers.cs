@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using UnityStandardAssets.Vehicles.Car;
 
 /// <summary>
@@ -12,6 +13,7 @@ public class SpawnPlayers : MonoBehaviour {
     [Header("Spawn")]
     public bool _Spawn;
     public bool _PlayerSpawned;
+    public List<PlayerTargetPoint> _Targets;
 
     [Header("Prefabs")]
     [SerializeField] internal GameObject[] _PlayerCars;
@@ -35,9 +37,19 @@ public class SpawnPlayers : MonoBehaviour {
     {
         Instance = this;
         _SpawnPoints = GameObject.FindWithTag("Respawn").GetComponentsInChildren<Transform>();
-        _RandomPoints = new int[_SpawnPoints.Length - 1];      
-        RandomValueForPosition();
+        _RandomPoints = new int[_SpawnPoints.Length - 1];
         _HeaderWayPoints = GameObject.FindWithTag("Waypoints");
+
+        if (_HeaderWayPoints)
+        {
+            PlayerTargetPoint[] _tp = _HeaderWayPoints.GetComponentsInChildren<PlayerTargetPoint>();
+            foreach (PlayerTargetPoint _p in _tp)
+            {
+                _Targets.Add(_p);
+            }
+        }
+
+        RandomValueForPosition();
         if (_Spawn)
         {
             AddList();
@@ -118,7 +130,9 @@ public class SpawnPlayers : MonoBehaviour {
             CarAIControl _AI = _car.GetComponent<CarAIControl>();
             _AI.SetTarget(_waypoint.transform);
             _car.GetComponent<CarInfo>()._ID = _ID;
-        }       
+        }
+        _Targets[_CountPlayersNow]._PlayerTransform = _car.transform;
+        _Targets[_CountPlayersNow].Set();
         _CountPlayersNow++;
     }
 

@@ -1,22 +1,16 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class PlayerTargetPoint : MonoBehaviour {
+public class PlayerTargetPoint : MonoBehaviour
+{
 
+    [SerializeField]
     internal Transform _PlayerTransform;
 
-    void Start()
+    public void Set()
     {
-        _PlayerTransform = GameObject.FindWithTag("Player").GetComponent<Transform>();
-        StartCoroutine(WaitAndPrint(2.0F));
-    }
-    IEnumerator WaitAndPrint(float waitTime)
-    {
-        while (_PlayerTransform)
-        {
-            transform.position = _PlayerTransform.position;
-            yield return null;
-        }
-        yield return null;
+        transform.parent = _PlayerTransform;
+        transform.position = _PlayerTransform.position;
+        NPCCalculatePath.Instance._NavPoints.Add(this.transform);
     }
 }
