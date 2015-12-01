@@ -4,6 +4,7 @@ using UnityStandardAssets.Vehicles.Car;
 /// <summary>
 /// Класс обработки урона по игроку.
 /// </summary>
+[RequireComponent(typeof(HitBoxComponents))]
 public class HitBox : MonoBehaviour {
 
     CarController _Car;
@@ -21,9 +22,10 @@ public class HitBox : MonoBehaviour {
     public Color _CurrentColour;
     Color _ColorStart, _ColorEnd, _ColorChange;
 
+    internal MeshRenderer _Mesh;
     internal Collider _Collider;
     internal Material _HitBoxMaterial;
-    internal MeshRenderer _Mesh;
+    internal HitBoxComponents _HitBoxComponent;
     internal float _TimeChange = 0.0f;
     internal int _RandomValueLeftWheel, _RandomValueRightWheel, _RandomValueBackWheels;
     ParticleSystem _Particle;
@@ -46,6 +48,7 @@ public class HitBox : MonoBehaviour {
         _ParticlesSystem = _Car.GetComponent<ParticlesHitting>();
         _Collider = GetComponent<Collider>();
         _Mesh = GetComponent<MeshRenderer>();
+        _HitBoxComponent = GetComponent<HitBoxComponents>();
         _HitBoxMaterial = _Mesh.material;
 
         _ColorStart = new Color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -55,6 +58,7 @@ public class HitBox : MonoBehaviour {
         {
             _CurrentColour = _Colors[0];
         }
+
         _RandomValueLeftWheel = Random.Range(0, 2);
         _RandomValueRightWheel = Random.Range(0, 2);
         _RandomValueBackWheels = Random.Range(0, 2);
@@ -69,6 +73,7 @@ public class HitBox : MonoBehaviour {
         }
 
         Counting();
+        _HitBoxComponent.Init();
         _HealthFactor = _HitBoxHealth;
     }
 
@@ -241,6 +246,7 @@ public class HitBox : MonoBehaviour {
 
         _CarInfo._CurrentHealth -= _tmp;
         _CarInfo.Counting();
+        _HitBoxComponent.DestructComponent(_HitBoxHealth);
         Debugger.Instance.Log("Damaged " + transform.root.tag + " in " + transform.name + " component: " + _tmp + " Health: "+ _CarInfo._Health+"%");
     }
 
