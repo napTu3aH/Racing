@@ -18,7 +18,7 @@ public class WeaponRotate : MonoBehaviour {
     internal CarInfo _Car;
     internal bool _Targeted;
     internal CarController _PlayerCar;
-    internal float _DistanceForTarget, _DistanceToPlayer;
+    [SerializeField] internal float _DistanceForTarget, _DistanceToPlayer;
     internal List<Transform> _CarsTransform;
     internal Transform _PlayerTransform;
 
@@ -87,6 +87,7 @@ public class WeaponRotate : MonoBehaviour {
                             {
                                 _Target = _info._HitBoxs[j].transform;
                                 _TargetedHitBox = _info._HitBoxs[j];
+                                _ShootingScript._TargetedHitBox = _TargetedHitBox;
                                 _Targeted = true;
                             }
                         }

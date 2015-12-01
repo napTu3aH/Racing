@@ -76,7 +76,7 @@ public class ShootScript : MonoBehaviour
                     {
                         _TargetedHitBox.Hitted(_damage);
                         AudioController.Instance.PlayOneShot(_ParticlesSystemScript._HitShootSound[Random.Range(0, _ParticlesSystemScript._HitShootSound.Length)], 0.5f * _volume);
-                        _ParticlesSystemScript.ShootHit(_hit.point, Quaternion.LookRotation(_hit.normal, Vector3.up));
+                        _ParticlesSystemScript.ShootHit(_hit.point, Quaternion.LookRotation(_hit.normal, Vector3.up), _TargetedHitBox._CarInfo._Visibled);
                     }
                     Debugger.Instance.Line(_ray.origin, _hit.point);
                 }

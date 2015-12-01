@@ -38,6 +38,7 @@ public class GameSettings : MonoBehaviour {
     public bool _Vibrate;
     public bool _SlowMotion;
     public bool _Particles;
+    public bool _Destructions;
     [Range (0.0f, 1.0f)]public float _SlowValue;
     public float _SmoothRate = 0.005f;
 
@@ -63,6 +64,7 @@ public class GameSettings : MonoBehaviour {
         _Sound = PlayerPrefsHelper.GetFloat("Sound", 0.5f); _SoundSlider.value = _Sound;
         _Music = PlayerPrefsHelper.GetFloat("Music", 0.5f); _MusicSlider.value = _Music;
         _Particles = Convert.ToBoolean(PlayerPrefsHelper.GetInt("Particles", 1));
+        _Destructions = Convert.ToBoolean(PlayerPrefsHelper.GetInt("Destructions", 1));
         SetAudioSourceValue(_SoundSprite, _SoundButton, _SoundSource, _SoundSlider);
         SetAudioSourceValue(_MusicSprite, _MusicButton, _MusicSource, _MusicSlider);
 

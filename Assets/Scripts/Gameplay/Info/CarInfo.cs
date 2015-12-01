@@ -28,6 +28,8 @@ namespace UnityStandardAssets.Vehicles.Car
 
         public float _TimeUpdateFactor, _TimeUpdate;
 
+        internal bool _Visibled;
+
         void Awake()
         {
             Init();
@@ -40,6 +42,7 @@ namespace UnityStandardAssets.Vehicles.Car
 
             if (_Player)
             {
+                _Visibled = true;
                 CarUserControl.Instance.m_Car = _Car;
                 CarGUI.Instance._Car = _Car;
                 CarUserControl.Instance._CameraTarget = transform.SearchChildWithTag("Target");

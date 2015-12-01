@@ -42,19 +42,29 @@ public class HitBoxComponents : MonoBehaviour
 
     public void DestructComponent(float _currentHealth)
     {
-        if (_Components.Count > 0)
+        if (GameSettings.Instance._Destructions)
         {
-            if (_currentHealth < _HealthToDestruct * _FactorForDestruct)
+            if (_Components.Count > 0)
             {
-                _FactorForDestruct--;
-                GameObject _component = _Components[0];
-                _component.transform.SetParent(null);
-                _component.AddComponent<BoxCollider>();
-                _component.AddComponent<Rigidbody>();
-
-                _Components.Remove(_component);
-                Destroy(_component, 10.0f);
+                if (_currentHealth < _HealthToDestruct * _FactorForDestruct)
+                {
+                    _FactorForDestruct--;
+                    GameObject _component = _Components[0];                    
+                    if (_HitBox._CarInfo._Visibled)
+                    {
+                        _component.transform.SetParent(null);
+                        _component.AddComponent<BoxCollider>();
+                        _component.AddComponent<Rigidbody>();
+                        _Components.Remove(_component);
+                        Destroy(_component, 10.0f);
+                    }
+                    else
+                    {
+                        _Components.Remove(_component);
+                        Destroy(_component);
+                    }                                      
+                }
             }
-        }
+        }       
     }
 }

@@ -1,41 +1,36 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityStandardAssets.Vehicles.Car;
 
 public class MeshRendererOptimization : MonoBehaviour {
-    public Transform _MeshRoot;
-    public bool _Visible;
+    [SerializeField] internal Transform _MeshRoot;
+    [SerializeField] internal bool _Visible;
+    [SerializeField] internal MeshRenderer[] _Renderers;
+    [SerializeField] internal CarInfo _CarInfo;
 
-    MeshRenderer[] _Renderers;
-
-    void Awake()
-    {
-        Init();
-    }
-
+    [ContextMenu("Getting Components")]
     void Init()
     {
+        _CarInfo = transform.parent.GetComponent<CarInfo>();
         if (_MeshRoot)
         {
             _Renderers = _MeshRoot.GetComponentsInChildren<MeshRenderer>();
         }
     }
 
-    void Start()
-    {
-        Debug.Log(_Renderers[0].isVisible);
-    }
-
-    /*void OnBecameVisible()
+    void OnBecameVisible()
     {
         _Visible = true;
-        Visibling();
+        _CarInfo._Visibled = _Visible;
+        //Visibling();
     }
 
     void OnBecameInvisible()
     {
         _Visible = false;
-        Visibling();
-    }*/
+        _CarInfo._Visibled = _Visible;
+        //Visibling();
+    }
 
     void Visibling()
     {

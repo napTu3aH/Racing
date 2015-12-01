@@ -41,7 +41,9 @@ public class NPCCalculatePath : MonoBehaviour
 
     void ChangeNumberPoint(int i)
     {
-        _NumberOfPoints[i] = Random.Range(0, _NavPoints.Count);
+        if(_NavPoints[_NumberOfPoints[0]]) _NumberOfPoints[i] = Random.Range(0, _NavPoints.Count);
+        else _NumberOfPoints[i] = Random.Range(1, _NavPoints.Count);
+
         if (_NumberOfPoints[i] == i + 1)
         {
             ChangeNumberPoint(i);
@@ -52,7 +54,15 @@ public class NPCCalculatePath : MonoBehaviour
     {
         if (Instance)
         {
-            _Distance[_Id_NPC] = Vector3.Distance(_NPC_Cars[_Id_NPC].position, _NavPoints[_NumberOfPoints[_Id_NPC]].position);
+            if (_NavPoints[_NumberOfPoints[_Id_NPC]])
+            {
+                _Distance[_Id_NPC] = Vector3.Distance(_NPC_Cars[_Id_NPC].position, _NavPoints[_NumberOfPoints[_Id_NPC]].position);
+            }
+            else
+            {
+                ChangeNumberPoint(_Id_NPC);
+            }
+            
         }        
     }
 

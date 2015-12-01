@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityStandardAssets.Vehicles.Car;
 
 public class ParticlesHitting : MonoBehaviour
 {
@@ -14,6 +15,8 @@ public class ParticlesHitting : MonoBehaviour
     [SerializeField] internal GameObject[] _Explosions;
     [SerializeField] internal ParticleSystem[] _Muzzels;
 
+    internal CarInfo _CarInfo;
+    internal WeaponRotate _WeaponRotate;
     void Awake()
     {
         Init();
@@ -21,6 +24,8 @@ public class ParticlesHitting : MonoBehaviour
 
     void Init()
     {
+        _CarInfo = GetComponent<CarInfo>();
+        _WeaponRotate = GetComponent<WeaponRotate>();
         _Collider = transform.SearchChildWithTag("HitBoxsParent").GetComponent<Collider>();
     }
 
@@ -41,11 +46,18 @@ public class ParticlesHitting : MonoBehaviour
             {
                 for (int i = 0; i < _col.contacts.Length; i++)
                 {
-                    GameObject _hit = Instantiate(_HitParticle, _col.contacts[i].point, Quaternion.identity) as GameObject;
-                    AudioController.Instance.PlayOneShot(_HitColliderSound[Random.Range(0, _HitShootSound.Length + 1)], 0.25f);
+                    if (_CarInfo._Visibled)
+                    {
+                        GameObject _hit = Instantiate(_HitParticle, _col.contacts[i].point, Quaternion.identity) as GameObject;
+                    }                        
+                    
                 }
             }
         }
+        if(!_CarInfo._Player && _WeaponRotate._DistanceToPlayer > 0.0f)
+            AudioController.Instance.PlayOneShot(_HitColliderSound[Random.Range(0, _HitShootSound.Length + 1)], 0.25f * _WeaponRotate._DistanceToPlayer);
+        else if(_CarInfo._Player)
+            AudioController.Instance.PlayOneShot(_HitColliderSound[Random.Range(0, _HitShootSound.Length + 1)], 0.25f);
     }
 
     /// <summary>
@@ -53,11 +65,11 @@ public class ParticlesHitting : MonoBehaviour
     /// </summary>
     /// <param name="_hitPoint">Точка попадания</param>
     /// <param name="_quat">Необходимое вращение</param>
-    public void ShootHit(Vector3 _hitPoint, Quaternion _quat)
+    public void ShootHit(Vector3 _hitPoint, Quaternion _quat, bool _visibled)
     {
         if (GameSettings.Instance._Particles)
         {
-            Instantiate(_ShootHitParticle, _hitPoint, _quat);
+            if (_visibled) Instantiate(_ShootHitParticle, _hitPoint, _quat);
         }
     }
 
@@ -70,7 +82,7 @@ public class ParticlesHitting : MonoBehaviour
     {
         if (GameSettings.Instance._Particles)
         {
-            Instantiate(_Wheel, _wheelPosition, _wheelQuat);
+            if (_CarInfo._Visibled) Instantiate(_Wheel, _wheelPosition, _wheelQuat);
         }
     }
 
@@ -84,7 +96,7 @@ public class ParticlesHitting : MonoBehaviour
     {
         if (GameSettings.Instance._Particles)
         {
-            Instantiate(_Explosions[_index], _position, _quat);
+            if (_CarInfo._Visibled) Instantiate(_Explosions[_index], _position, _quat);
         }
     }
 }
