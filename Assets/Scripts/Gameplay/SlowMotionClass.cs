@@ -1,11 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class SlowMotion : MonoBehaviour {
+public class SlowMotionClass : MonoBehaviour {
+
+    public static SlowMotionClass Instance;
 
     public SphereCollider _SphereCollider;
     [Range (0, 100)] public int _MinimumValueChance;
     public float _SpeedTimeSlowing = 1.0f;
+    public bool _Slow { get { return _Slowing; } }
 
     float _TimeSlow;
     bool _Slowing;
@@ -17,6 +20,7 @@ public class SlowMotion : MonoBehaviour {
 
     void Init()
     {
+        Instance = this;
         _SphereCollider = GetComponent<SphereCollider>();
     }
 
@@ -43,13 +47,15 @@ public class SlowMotion : MonoBehaviour {
 
     IEnumerator CountingSlow()
     {
-        GameSettings.Instance.SlowMotion();
+        GameSettings.Instance.SlowMotion(false);
         while (_Slowing)
         {
             _TimeSlow += Time.deltaTime * _SpeedTimeSlowing;
             if (_TimeSlow > 1.0f)
             {
-                GameSettings.Instance.SlowMotion();
+                if(GameSettings.Instance._SettingsLayer.activeSelf)
+                    GameSettings.Instance.SlowMotion(true);
+                else GameSettings.Instance.SlowMotion(false);
                 _TimeSlow = 0.0f;
                 _Slowing = false;
             }

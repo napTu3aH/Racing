@@ -212,12 +212,11 @@ public class GameSettings : MonoBehaviour {
     /// </summary>
     public void ShowHideSettings()
     {
-        //Debugger.Instance.Log(Time.fixedDeltaTime);
         _SettingsLayer.SetActive(!_SettingsLayer.activeSelf);
         _ControlsLayer.SetActive(!_ControlsLayer.activeSelf);
         if (_SlowMotion)
         {
-            SlowMotion();
+            SlowMotion(SlowMotionClass.Instance._Slow);
         }
         else
         {
@@ -251,14 +250,17 @@ public class GameSettings : MonoBehaviour {
     /// <summary>
     /// Метод замедления времени.
     /// </summary>
-    public void SlowMotion()
+    public void SlowMotion(bool _Slow)
     {
-        _Slowed = !_Slowed;
-        if (!_SlowCoroutine)
+        if (!_Slow)
         {
-            _SlowCoroutine = true;
-            StartCoroutine(Slowing());
-        }
+            _Slowed = !_Slowed;
+            if (!_SlowCoroutine)
+            {
+                _SlowCoroutine = true;
+                StartCoroutine(Slowing());
+            }
+        }        
     }
 
     /// <summary>

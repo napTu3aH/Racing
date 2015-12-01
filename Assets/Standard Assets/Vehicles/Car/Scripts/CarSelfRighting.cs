@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 namespace UnityStandardAssets.Vehicles.Car
@@ -6,40 +7,37 @@ namespace UnityStandardAssets.Vehicles.Car
     public class CarSelfRighting : MonoBehaviour
     {
         // Automatically put the car the right way up, if it has come to rest upside-down.
-        [SerializeField] private float m_WaitTime = 3f;           // time to wait before self righting
-        [SerializeField] private float m_VelocityThreshold = 1f;  // the velocity below which the car is considered stationary for self-righting
-
-        private float m_LastOkTime; // the last time that the car was in an OK state
-        [SerializeField] private Rigidbody m_Rigidbody;
+        [SerializeField] float _WaitTime = 3f;           // time to wait before self righting
+        [SerializeField] float _VelocityThreshold = 1f;  // the velocity below which the car is considered stationary for self-righting
+        [SerializeField] Rigidbody _Rigidbody;
 
 
-        private void Start()
+        void Start()
         {
-            m_Rigidbody = GameObject.FindWithTag("Player").GetComponent<Rigidbody>();
+            _Rigidbody = GetComponent<Rigidbody>();
+            StartCoroutine(CarSelf());
         }
-
-
-        private void Update()
-        {
-            // is the car is the right way up
-            if (transform.up.y > 0f || m_Rigidbody.velocity.magnitude > m_VelocityThreshold)
-            {
-                m_LastOkTime = Time.time;
-            }
-
-            if (Time.time > m_LastOkTime + m_WaitTime)
-            {
-                RightCar();
-            }
-        }
-
 
         // put the car back the right way up:
-        private void RightCar()
+        void RightCar()
         {
             // set the correct orientation for the car, and lift it off the ground a little
             transform.position += Vector3.up;
             transform.rotation = Quaternion.LookRotation(transform.forward);
+        }
+
+        IEnumerator CarSelf()
+        {
+            while (_Rigidbody)
+            {
+                if (transform.up.y < 0f && _Rigidbody.velocity.magnitude < _VelocityThreshold)
+                {
+                    yield return new WaitForSeconds(_WaitTime);
+                    RightCar();
+                }
+                yield return null;
+            }
+            yield return null;
         }
     }
 }
