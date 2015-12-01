@@ -215,7 +215,6 @@ public class GameSettings : MonoBehaviour {
         //Debugger.Instance.Log(Time.fixedDeltaTime);
         _SettingsLayer.SetActive(!_SettingsLayer.activeSelf);
         _ControlsLayer.SetActive(!_ControlsLayer.activeSelf);
-        _Health.gameObject.SetActive(!_Health.gameObject.activeSelf);
         if (_SlowMotion)
         {
             SlowMotion();

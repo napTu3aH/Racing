@@ -20,7 +20,12 @@ public class MeshRendererOptimization : MonoBehaviour {
         }
     }
 
-    void OnBecameVisible()
+    void Start()
+    {
+        Debug.Log(_Renderers[0].isVisible);
+    }
+
+    /*void OnBecameVisible()
     {
         _Visible = true;
         Visibling();
@@ -30,7 +35,7 @@ public class MeshRendererOptimization : MonoBehaviour {
     {
         _Visible = false;
         Visibling();
-    }
+    }*/
 
     void Visibling()
     {
