@@ -23,6 +23,10 @@ public class HitBoxComponents : MonoBehaviour
     {
         if (_ParentMeshes)
         {
+            if (_Components.Count > 0)
+            {
+                _Components.Clear();
+            }
             MeshRenderer[] _meshRenderers = _ParentMeshes.GetComponentsInChildren<MeshRenderer>();
             foreach (MeshRenderer _ms in _meshRenderers)
             {
@@ -49,7 +53,11 @@ public class HitBoxComponents : MonoBehaviour
                 if (_currentHealth < _HealthToDestruct * _FactorForDestruct)
                 {
                     _FactorForDestruct--;
-                    GameObject _component = _Components[0];                    
+                    GameObject _component = _Components[0];
+                    if (_component.CompareTag("Wheel"))
+                    {
+                        _HitBox._Car._WheelColliders[_component.GetComponent<WheelIndex>()._Index].gameObject.SetActive(false);
+                    }            
                     if (_HitBox._CarInfo._Visibled)
                     {
                         _component.transform.SetParent(null);

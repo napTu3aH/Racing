@@ -7,7 +7,7 @@ using UnityStandardAssets.Vehicles.Car;
 [RequireComponent(typeof(HitBoxComponents))]
 public class HitBox : MonoBehaviour {
 
-    CarController _Car;
+    internal CarController _Car;
     BackDrive _CarBackDrive;
     ParticlesHitting _ParticlesSystem;
     [SerializeField] internal CarInfo _CarInfo;
@@ -27,7 +27,6 @@ public class HitBox : MonoBehaviour {
     internal Material _HitBoxMaterial;
     internal HitBoxComponents _HitBoxComponent;
     internal float _TimeChange = 0.0f;
-    internal int _RandomValueLeftWheel, _RandomValueRightWheel, _RandomValueBackWheels;
     ParticleSystem _Particle;
 
     void Awake()
@@ -58,10 +57,6 @@ public class HitBox : MonoBehaviour {
         {
             _CurrentColour = _Colors[0];
         }
-
-        _RandomValueLeftWheel = Random.Range(0, 2);
-        _RandomValueRightWheel = Random.Range(0, 2);
-        _RandomValueBackWheels = Random.Range(0, 2);
 
         if (transform.name == "Forward")
         {
@@ -191,42 +186,13 @@ public class HitBox : MonoBehaviour {
 
         if (transform.name == "Right")
         {
-            _Car._FactorRight = _UnDamagedFactor;
-            if (_HitBoxHealth == 0.0f && _Car._WheelMeshes[0].activeSelf)
-            {
-                if (_RandomValueRightWheel == 1)
-                {
-                    SpawnWheel(0);
-                }
-            }
+            _Car._FactorRight = _UnDamagedFactor;            
         }
 
         if (transform.name == "Left")
         {
             _Car._FactorLeft = _UnDamagedFactor;
-            if (_HitBoxHealth == 0.0f && _Car._WheelMeshes[1].activeSelf)
-            {
-                if (_RandomValueLeftWheel == 1)
-                {
-                    SpawnWheel(1);
-                }
-            }
-        }
-        
-        if (transform.name == "Back")
-        {
-            if (_HitBoxHealth == 0.0f && (_Car._WheelMeshes[2].activeSelf && _Car._WheelMeshes[3].activeSelf))
-            {
-                if (_RandomValueBackWheels == 0)
-                {
-                    SpawnWheel(2);
-                }
-                else
-                {
-                    SpawnWheel(3);
-                }
-            }
-        }
+        }                
 
     }
 
