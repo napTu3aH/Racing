@@ -68,7 +68,15 @@ public class NPCCalculatePath : MonoBehaviour
 
     public void PathUpdate(int _Id_NPC)
     {
-        _Pathed = NavMesh.CalculatePath(_NPC_Cars[_Id_NPC].position, _NavPoints[_NumberOfPoints[_Id_NPC]].position, -1, _NavPath[_Id_NPC]);
+        if (_NavPoints[_NumberOfPoints[_Id_NPC]])
+        {
+            _Pathed = NavMesh.CalculatePath(_NPC_Cars[_Id_NPC].position, _NavPoints[_NumberOfPoints[_Id_NPC]].position, -1, _NavPath[_Id_NPC]);
+        }
+        else
+        {
+            ChangeNumberPoint(_Id_NPC);
+        }
+        
 
         if (_Pathed)
         {
@@ -91,5 +99,12 @@ public class NPCCalculatePath : MonoBehaviour
         {
             ChangeNumberPoint(_Id_NPC);
         }   
+    }
+
+    public void RemoveNPC(int _id, Transform _transform)
+    {
+        _NPC_Cars.Remove(_transform);
+        Destroy(_CurrentWayPoints[_id].gameObject);
+        _CurrentWayPoints.Remove(_CurrentWayPoints[_id]);
     }
 }

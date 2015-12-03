@@ -23,12 +23,13 @@ namespace UnityStandardAssets.Vehicles.Car
             set { value = _Car.CurrentSpeed; }
             get { return _Car.CurrentSpeed; }
         }
-        public float _TopSpeed = 100.0f;
+        public float _TopSpeedMax = 100.0f;
 
-        public float _TimeUpdateFactor, _TimeUpdate;
+        public float _TimeUpdateFactor;
 
         internal bool _Visibled;
         internal WeaponRotate _WeaponRotate;
+        bool _Updated;
 
         void Awake()
         {
@@ -43,30 +44,22 @@ namespace UnityStandardAssets.Vehicles.Car
             {
                 _Visibled = true;
                 CarUserControl.Instance.m_Car = _Car;
-                CarGUI.Instance._Car = _Car;
                 CarUserControl.Instance._CameraTarget = transform.SearchChildWithTag("Target");
                 CarUserControl.Instance.SetCamera();
                 SpawnPlayers.Instance._PlayerSpawned = true;
 
-                //_PlayerHealthImage = GameObject.FindWithTag("HealthBar").GetComponent<Image>();
                 _ColorHealthImage = new Color(1.0f, 1.0f, 1.0f, 0.0f);
             }
             else
             {
                 NPCCalculatePath.Instance._NPC_Cars.Add(this.transform);
             }
+
             _HitBoxParent = transform.SearchChildWithTag("HitBoxsParent");
             _HitBoxs = _HitBoxParent.GetComponentsInChildren<HitBox>();
+
             InitCounting();
             _isAlive = true;
-        }
-
-        void Start()
-        {
-            if (!_Player)
-            {
-                StartCoroutine(MoveToPoint());
-            }
         }
 
         /// <summary>
@@ -84,10 +77,19 @@ namespace UnityStandardAssets.Vehicles.Car
 
         }
 
+        void Start()
+        {
+            if (!_Player)
+            {
+                StartCoroutine(NPC_Updater());
+            }
+        }
+
         public void Counting()
         {
             _Health = _CurrentHealth / _PercentHealthFactor;
-            _Car.TopSpeed = _TopSpeed * (_Health / 100.0f);
+            float _currentTopSpeed = _TopSpeedMax * (_Health / 100.0f);
+            _Car.TopSpeed = Mathf.Clamp(_currentTopSpeed, 50.0f, Mathf.Infinity);
 
             /*if (_Player)
             {
@@ -100,60 +102,46 @@ namespace UnityStandardAssets.Vehicles.Car
         {
             _isAlive = false;
             ParticlesHitting.Instance.Explosion(transform.position, transform.rotation, 0, this);
+
             if (!_Player)
             {
-                NPCCalculatePath.Instance._NPC_Cars.Remove(transform);
-                Destroy(NPCCalculatePath.Instance._CurrentWayPoints[_ID].gameObject);
-                NPCCalculatePath.Instance._CurrentWayPoints.Remove(NPCCalculatePath.Instance._CurrentWayPoints[_ID]);
-                CarAIControl _carAi = GetComponent<CarAIControl>();
-                _carAi.enabled = false;
+                NPCCalculatePath.Instance.RemoveNPC(_ID, transform);
             }
-            SpawnPlayers.Instance.RemovePlayer(_Player, _ID, transform);
 
-            CarController _car = GetComponent<CarController>();
-            _car.enabled = false;
+            SpawnPlayers.Instance.RemoveCar(_Player, _ID, transform);
             Destroy(this.gameObject);
         }
-
-        void FixedUpdate()
-        {
-            if (!_Player && _isAlive)
-            {
-                NPCCalculatePath.Instance.DistaceUpdate(_ID);
-                _TimeUpdateFactor = 1.0f + (NPCCalculatePath.Instance._Distance[_ID] / 100.0f);
-            }      
-        }
-
 
         void OnCollisionEnter(Collision _col)
         {
             ParticlesHitting.Instance.Hitting(_col, this, _WeaponRotate);
         }
 
-        IEnumerator MoveToPoint()
-        {        
+        IEnumerator NPC_Updater()
+        {
             while (_isAlive)
-            {                
-                if (_TimeUpdate < _TimeUpdateFactor)
+            {
+                if (!_Updated)
                 {
-                    _TimeUpdate += Time.deltaTime;
-                    if (_TimeUpdate > _TimeUpdateFactor)
-                    {                        
-                        NPCCalculatePath.Instance.PathUpdate(_ID);
-                        _TimeUpdate = 0.0f;
-                        yield return null;
-                    }
-                }else
-                    if (_TimeUpdate > _TimeUpdateFactor)
-                {
-                    NPCCalculatePath.Instance.PathUpdate(_ID);
-                    _TimeUpdate = 0.0f;
-                    yield return null;
+                    _Updated = true;
+                    Invoke("UpdatePath", _TimeUpdateFactor);
                 }
-
                 yield return null;
             }
             yield return null;
+        }
+
+        void UpdatePath()
+        {          
+            UpdateDistance();
+            NPCCalculatePath.Instance.PathUpdate(_ID);
+        }
+
+        void UpdateDistance()
+        {
+            NPCCalculatePath.Instance.DistaceUpdate(_ID);
+            _TimeUpdateFactor = 1.0f + (NPCCalculatePath.Instance._Distance[_ID] / 100.0f);
+            _Updated = false;
         }
     }
 }

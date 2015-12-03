@@ -9,7 +9,8 @@ public class DelegateScript : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        d = mainFunc;  
+        d += mainFunc;
+        d += Test;
     }
 
 
@@ -21,6 +22,10 @@ public class DelegateScript : MonoBehaviour {
     void mainFunc(string s)
     {
         Debug.Log(s);
+    }
+    void Test(string s)
+    {
+        Debug.Log(s+s);
     }
 
 }

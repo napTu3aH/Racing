@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using System.Collections;
 using UnityStandardAssets.Vehicles.Car;
 
@@ -31,10 +32,12 @@ public class ParticlesHitting : MonoBehaviour
     public void Hitting(Collision _col, CarInfo _car, WeaponRotate _weaponRotate)
     {
         if (GameSettings.Instance._Particles)
-        {
+        {       
             if (_col.contacts.Length > 0 && _HitParticle)
             {
-                for (int i = 0; i < _col.contacts.Length; i++)
+                double _contacts = Math.Round(_col.contacts.Length / 2.0);
+
+                for (int i = 0; i < _contacts; i++)
                 {
                     if (_car._Visibled)
                     {
@@ -45,9 +48,9 @@ public class ParticlesHitting : MonoBehaviour
             }
         }
         if(!_car._Player && _weaponRotate._DistanceToPlayer > 0.0f)
-            AudioController.Instance.PlayOneShot(_HitColliderSound[Random.Range(0, _HitShootSound.Length + 1)], 0.25f * _weaponRotate._DistanceToPlayer);
+            AudioController.Instance.PlayOneShot(_HitColliderSound[UnityEngine.Random.Range(0, _HitShootSound.Length + 1)], 0.25f * _weaponRotate._DistanceToPlayer);
         else if(_car._Player)
-            AudioController.Instance.PlayOneShot(_HitColliderSound[Random.Range(0, _HitShootSound.Length + 1)], 0.25f);
+            AudioController.Instance.PlayOneShot(_HitColliderSound[UnityEngine.Random.Range(0, _HitShootSound.Length + 1)], 0.25f);
     }
 
     /// <summary>

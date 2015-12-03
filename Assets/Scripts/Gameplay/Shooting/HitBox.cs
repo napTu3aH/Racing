@@ -35,17 +35,21 @@ public class HitBox : MonoBehaviour {
 
     void Init()
     {
+
         _CarInfo = transform.root.GetComponent<CarInfo>();
+
+        _Car = _CarInfo.GetComponent<CarController>();
         _CarWeapon = _CarInfo.GetComponent<WeaponRotate>();
+
+        _Mesh = GetComponent<MeshRenderer>();
+        _Collider = GetComponent<Collider>();  
+        _HitBoxComponent = GetComponent<HitBoxComponents>();
+
         if (!_CarInfo._Player)
         {
             _CarBackDrive = _CarInfo.GetComponent<BackDrive>();
         }
 
-        _Car = transform.root.GetComponent<CarController>();
-        _Collider = GetComponent<Collider>();
-        _Mesh = GetComponent<MeshRenderer>();
-        _HitBoxComponent = GetComponent<HitBoxComponents>();
         _HitBoxMaterial = _Mesh.material;
 
         _ColorStart = new Color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -189,22 +193,22 @@ public class HitBox : MonoBehaviour {
 
     void Damage(float _damage)
     {
-        float _tmp = _damage / _ArmorFactor;
+        float _CountedDamage = _damage / _ArmorFactor;
         
-        if (_HitBoxHealth > _tmp)
+        if (_HitBoxHealth > _CountedDamage)
         {
-            _HitBoxHealth -= _tmp;
-            if (_HitBoxHealth < _tmp)
+            _HitBoxHealth -= _CountedDamage;
+            if (_HitBoxHealth < _CountedDamage)
             {
                 _HitBoxHealth = 0.0f;
                 _ArmorFactor = 1.0f;
             } 
         }
 
-        _CarInfo._CurrentHealth -= _tmp;
+        _CarInfo._CurrentHealth -= _CountedDamage;
         _CarInfo.Counting();
         _HitBoxComponent.DestructComponent(_HitBoxHealth);
-        Debugger.Instance.Log("Damaged " + transform.root.tag + " in " + transform.name + " component: " + _tmp + " Health: "+ _CarInfo._Health+"%");
+        Debugger.Instance.Log("Damaged " + _Car.tag + " in " + transform.name + " component: " + _CountedDamage + " Health: "+ _CarInfo._Health+"%");
     }
 
     void OnTriggerEnter(Collider _col)

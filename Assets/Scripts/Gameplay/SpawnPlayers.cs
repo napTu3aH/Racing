@@ -130,7 +130,7 @@ public class SpawnPlayers : MonoBehaviour {
     /// <summary>
     /// Метод удаления игрока из списка целей.
     /// </summary>
-    public void RemovePlayer(bool _Player, int _ID, Transform _CarTransform)
+    public void RemoveCar(bool _Player, int _ID, Transform _CarTransform)
     {
         _CountPlayersNow--;
         _CarsOnScene.Remove(_CarTransform);

@@ -9,7 +9,7 @@ public class CarInfoEditor : Editor
 {
     MonoScript _Script;
     SerializedProperty _Player;
-    SerializedProperty _TopSpeed;
+    SerializedProperty _TopSpeedMax;
     SerializedProperty _PlayerHealthImage;
     SerializedProperty _HitBoxParent, _HitBoxs;
 
@@ -18,7 +18,7 @@ public class CarInfoEditor : Editor
         _Script = MonoScript.FromMonoBehaviour((CarInfo)target);
 
         _Player = serializedObject.FindProperty("_Player");
-        _TopSpeed = serializedObject.FindProperty("_TopSpeed");
+        _TopSpeedMax = serializedObject.FindProperty("_TopSpeedMax");
         _HitBoxParent = serializedObject.FindProperty("_HitBoxParent");
         _HitBoxs = serializedObject.FindProperty("_HitBoxs");
         _PlayerHealthImage = serializedObject.FindProperty("_PlayerHealthImage");
@@ -36,14 +36,13 @@ public class CarInfoEditor : Editor
         _CarInfo._CurrentHealth = EditorGUILayout.FloatField("Current Health", _CarInfo._CurrentHealth);
         _CarInfo._PercentHealthFactor = EditorGUILayout.FloatField("Percent Health Factor", _CarInfo._PercentHealthFactor);
         EditorGUILayout.Space();
-        _TopSpeed.floatValue = EditorGUILayout.FloatField("Top Speed", _TopSpeed.floatValue);
+        _TopSpeedMax.floatValue = EditorGUILayout.FloatField("Top Speed", _TopSpeedMax.floatValue);
         EditorGUILayout.Space();
         _Player.boolValue = EditorGUILayout.Toggle("Player", _Player.boolValue);
         if (!_Player.boolValue)
         {
             _CarInfo._ID = EditorGUILayout.IntField("ID NPC", _CarInfo._ID);
-            _CarInfo._TimeUpdateFactor = EditorGUILayout.FloatField("Time Update Factor", _CarInfo._TimeUpdateFactor);
-            _CarInfo._TimeUpdate = EditorGUILayout.FloatField("Time Update", _CarInfo._TimeUpdate);
+            _CarInfo._TimeUpdateFactor = EditorGUILayout.FloatField("Time Update Factor", _CarInfo._TimeUpdateFactor);            
         }
         else
         {

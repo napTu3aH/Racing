@@ -17,7 +17,7 @@ public class WeaponRotate : MonoBehaviour {
 
     internal CarInfo _Car;
     internal bool _Targeted;
-    internal CarController _PlayerCar;
+    internal CarController _CarController;
     [SerializeField] internal float _DistanceForTarget, _DistanceToPlayer;
     internal List<Transform> _CarsTransform;
     internal Transform _PlayerTransform;
@@ -30,18 +30,20 @@ public class WeaponRotate : MonoBehaviour {
 	}
 	
     void Init()
-    {
-        _ShootingScript = GetComponent<ShootScript>();
+    {      
         _Car = GetComponent<CarInfo>();
-        _PlayerTransform = GameObject.FindWithTag("Player").GetComponent<Transform>();
-        if (this.CompareTag("PlayerLogic"))
+        _ShootingScript = GetComponent<ShootScript>();
+        _CarController = GetComponent<CarController>();
+
+        if (!_Car._Player)
         {
-            _PlayerCar = CarUserControl.Instance.m_Car;
+            GameObject _go = GameObject.FindWithTag("Player");
+            if (_go)
+            {
+                _PlayerTransform = _go.GetComponent<Transform>();
+            }           
         }
-        else
-        {
-            _PlayerCar = GetComponent<CarController>();
-        }
+        
 
         if (_Weapons.Length != 0)
         {
@@ -114,7 +116,7 @@ public class WeaponRotate : MonoBehaviour {
     {
         if (_Targeted && _Target)
         {
-            _DistanceForTarget = Vector3.Distance(_PlayerCar.transform.position, _Target.position);
+            _DistanceForTarget = Vector3.Distance(_CarController.transform.position, _Target.position);
             if (_DistanceForTarget > _Radius || _TargetedHitBox._HitBoxHealth <= 0.0f)
             {
                 _Target = null;
