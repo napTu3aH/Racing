@@ -4,19 +4,16 @@ using UnityStandardAssets.Vehicles.Car;
 
 public class ParticlesHitting : MonoBehaviour
 {
+    public static ParticlesHitting Instance;
 
-
-    [SerializeField] internal Collider _Collider;
+    
     [SerializeField] internal AudioClip[] _HitColliderSound;
     [SerializeField] internal AudioClip[] _HitShootSound;
     [SerializeField] internal GameObject _HitParticle;
-    [SerializeField] internal GameObject _Wheel;
     [SerializeField] internal GameObject _ShootHitParticle;
     [SerializeField] internal GameObject[] _Explosions;
-    [SerializeField] internal ParticleSystem[] _Muzzels;
 
-    internal CarInfo _CarInfo;
-    internal WeaponRotate _WeaponRotate;
+    
     void Awake()
     {
         Init();
@@ -24,21 +21,14 @@ public class ParticlesHitting : MonoBehaviour
 
     void Init()
     {
-        _CarInfo = GetComponent<CarInfo>();
-        _WeaponRotate = GetComponent<WeaponRotate>();
-        _Collider = transform.SearchChildWithTag("HitBoxsParent").GetComponent<Collider>();
-    }
-
-    void OnCollisionEnter(Collision _col)
-    {
-        Hitting(_col);
+        Instance = this;               
     }
 
     /// <summary>
     /// Метод "выброса" частиц на месте столкновения collider'ов.
     /// </summary>
     /// <param name="_col">Collider</param>
-    void Hitting(Collision _col)
+    public void Hitting(Collision _col, CarInfo _car, WeaponRotate _weaponRotate)
     {
         if (GameSettings.Instance._Particles)
         {
@@ -46,7 +36,7 @@ public class ParticlesHitting : MonoBehaviour
             {
                 for (int i = 0; i < _col.contacts.Length; i++)
                 {
-                    if (_CarInfo._Visibled)
+                    if (_car._Visibled)
                     {
                         GameObject _hit = Instantiate(_HitParticle, _col.contacts[i].point, Quaternion.identity) as GameObject;
                     }                        
@@ -54,9 +44,9 @@ public class ParticlesHitting : MonoBehaviour
                 }
             }
         }
-        if(!_CarInfo._Player && _WeaponRotate._DistanceToPlayer > 0.0f)
-            AudioController.Instance.PlayOneShot(_HitColliderSound[Random.Range(0, _HitShootSound.Length + 1)], 0.25f * _WeaponRotate._DistanceToPlayer);
-        else if(_CarInfo._Player)
+        if(!_car._Player && _weaponRotate._DistanceToPlayer > 0.0f)
+            AudioController.Instance.PlayOneShot(_HitColliderSound[Random.Range(0, _HitShootSound.Length + 1)], 0.25f * _weaponRotate._DistanceToPlayer);
+        else if(_car._Player)
             AudioController.Instance.PlayOneShot(_HitColliderSound[Random.Range(0, _HitShootSound.Length + 1)], 0.25f);
     }
 
@@ -74,29 +64,16 @@ public class ParticlesHitting : MonoBehaviour
     }
 
     /// <summary>
-    /// Спавн колёс.
-    /// </summary>
-    /// <param name="_wheelPosition">Позиция колеса</param>
-    /// <param name="_wheelQuat">Вращение колеса</param>
-    public void WheelSpawn(Vector3 _wheelPosition, Quaternion _wheelQuat)
-    {
-        if (GameSettings.Instance._Particles)
-        {
-            if (_CarInfo._Visibled) Instantiate(_Wheel, _wheelPosition, _wheelQuat);
-        }
-    }
-
-    /// <summary>
     /// Спавн взрыва.
     /// </summary>
     /// <param name="_position">Позиция взрыва</param>
     /// <param name="_quat">Вращение взрыва</param>
     /// <param name="_index">Индекс с массива частиц взрыва</param>
-    public void Explosion(Vector3 _position, Quaternion _quat, int _index)
+    public void Explosion(Vector3 _position, Quaternion _quat, int _index, CarInfo _car)
     {
         if (GameSettings.Instance._Particles)
         {
-            if (_CarInfo._Visibled) Instantiate(_Explosions[_index], _position, _quat);
+            if (_car._Visibled) Instantiate(_Explosions[_index], _position, _quat);
         }
     }
 }

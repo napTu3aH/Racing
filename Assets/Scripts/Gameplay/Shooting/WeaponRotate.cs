@@ -144,8 +144,8 @@ public class WeaponRotate : MonoBehaviour {
                 {
                     float _volume = 1.0f - (Mathf.Clamp(_DistanceForTarget, 0, _Radius) / _Radius);
 
-                    if (_Car._Player) _ShootingScript.Shoot(_wp._Damage, _wp._TimeBetweenShot, _wp._Clip, _volume);
-                    else _ShootingScript.Shoot(_wp._Damage, _wp._TimeBetweenShot, _wp._Clip, _DistanceToPlayer);
+                    if (_Car._Player) _ShootingScript.Shoot(_wp._Muzzle, _wp._Damage, _wp._TimeBetweenShot, _wp._Clip, _volume);
+                    else _ShootingScript.Shoot(_wp._Muzzle, _wp._Damage, _wp._TimeBetweenShot, _wp._Clip, _DistanceToPlayer);
 
                     RotateWeapon(_wp._WeaponTransform, _wp._WeaponCollider, _wp._Quat, _wp._SpeedRotate, 1, 1, 0);
                     if (_wp._Tower._TowerTransform)
@@ -214,6 +214,7 @@ public class Weapon
     public Collider _WeaponCollider;
     public HitBox _HitBox;
     public AudioClip _Clip;
+    public ParticleSystem _Muzzle;
     public float _TimeBetweenShot = 0.1f;
     public float _Damage = 1.0f;
     [Range(1.0f, 5.0f)] public float _SpeedRotate;

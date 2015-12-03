@@ -9,7 +9,6 @@ public class HitBox : MonoBehaviour {
 
     internal CarController _Car;
     BackDrive _CarBackDrive;
-    ParticlesHitting _ParticlesSystem;
     [SerializeField] internal CarInfo _CarInfo;
     [SerializeField] internal WeaponRotate _CarWeapon;
     [SerializeField] internal float _ArmorFactor = 1.0f;
@@ -44,7 +43,6 @@ public class HitBox : MonoBehaviour {
         }
 
         _Car = transform.root.GetComponent<CarController>();
-        _ParticlesSystem = _Car.GetComponent<ParticlesHitting>();
         _Collider = GetComponent<Collider>();
         _Mesh = GetComponent<MeshRenderer>();
         _HitBoxComponent = GetComponent<HitBoxComponents>();
@@ -155,13 +153,6 @@ public class HitBox : MonoBehaviour {
         _TimeChange = 0.0f;
         _CoroutineColor = false;
         yield return null;
-    }
-
-    void SpawnWheel(int _wheelIndex)
-    {
-        _Car._WheelMeshes[_wheelIndex].SetActive(false);
-        _Car._WheelColliders[_wheelIndex].gameObject.SetActive(false);
-        _ParticlesSystem.WheelSpawn(_Car._WheelMeshes[_wheelIndex].transform.position, _Car._WheelMeshes[_wheelIndex].transform.rotation);
     }
 
     /// <summary>

@@ -11,7 +11,6 @@ namespace UnityStandardAssets.Vehicles.Car
     {
         Color _ColorHealthImage;
         internal CarController _Car;
-        internal ParticlesHitting _ParticlesSystem;
         public int _ID;
         public bool _Player, _isAlive;
         [Header("Healths")]
@@ -29,6 +28,7 @@ namespace UnityStandardAssets.Vehicles.Car
         public float _TimeUpdateFactor, _TimeUpdate;
 
         internal bool _Visibled;
+        internal WeaponRotate _WeaponRotate;
 
         void Awake()
         {
@@ -38,8 +38,7 @@ namespace UnityStandardAssets.Vehicles.Car
         void Init()
         {
             _Car = GetComponent<CarController>();
-            _ParticlesSystem = GetComponent<ParticlesHitting>();
-
+            _WeaponRotate = GetComponent<WeaponRotate>();
             if (_Player)
             {
                 _Visibled = true;
@@ -100,7 +99,7 @@ namespace UnityStandardAssets.Vehicles.Car
         public void DiePlayer()
         {
             _isAlive = false;
-            _ParticlesSystem.Explosion(transform.position, transform.rotation, 0);
+            ParticlesHitting.Instance.Explosion(transform.position, transform.rotation, 0, this);
             if (!_Player)
             {
                 NPCCalculatePath.Instance._NPC_Cars.Remove(transform);
@@ -123,6 +122,12 @@ namespace UnityStandardAssets.Vehicles.Car
                 NPCCalculatePath.Instance.DistaceUpdate(_ID);
                 _TimeUpdateFactor = 1.0f + (NPCCalculatePath.Instance._Distance[_ID] / 100.0f);
             }      
+        }
+
+
+        void OnCollisionEnter(Collision _col)
+        {
+            ParticlesHitting.Instance.Hitting(_col, this, _WeaponRotate);
         }
 
         IEnumerator MoveToPoint()
