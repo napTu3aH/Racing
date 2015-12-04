@@ -22,6 +22,7 @@ public class ShootScript : MonoBehaviour
 
     float _Time;
     bool player; // true - player, false - NPC
+    CarInfo _CarInfo;
 
     void Awake()
     {
@@ -29,6 +30,7 @@ public class ShootScript : MonoBehaviour
     }
     public void Init()
     {
+        _CarInfo = GetComponent<CarInfo>();
         _WeaponRotateScript = GetComponent<WeaponRotate>();
         _DistanceForShooting = _WeaponRotateScript._Radius;
         if (transform.CompareTag("Player"))
@@ -72,7 +74,7 @@ public class ShootScript : MonoBehaviour
                         _TargetedHitBox = _hit.collider.GetComponent<HitBox>();
                     } else
                     {
-                        _TargetedHitBox.Hitted(_damage);
+                        _TargetedHitBox.Hitted(_damage, _CarInfo);
                         AudioController.Instance.PlayOneShot(ParticlesHitting.Instance._HitShootSound[Random.Range(0, ParticlesHitting.Instance._HitShootSound.Length)], 0.5f * _volume);
                         ParticlesHitting.Instance.ShootHit(_hit.point, Quaternion.LookRotation(_hit.normal, Vector3.up), _TargetedHitBox._CarInfo._Visibled);
                     }

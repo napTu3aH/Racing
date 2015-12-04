@@ -1,7 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.UI;
-using System.Collections;
 using System.Collections.Generic;
 using UnityStandardAssets.Cameras;
 
@@ -43,7 +41,14 @@ namespace UnityStandardAssets.Vehicles.Car
 
         }
 
-        public void SetCamera()
+        public void CarSet(CarController _controller, Transform _carTransform)
+        {
+            m_Car = _controller;
+            _CameraTarget = _carTransform.FindChild("CameraTarget");
+            SetCamera();
+        }
+
+        void SetCamera()
         {
             _AutoCam.SetTarget(_CameraTarget);
         }

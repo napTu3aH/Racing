@@ -11,6 +11,8 @@ namespace UnityStandardAssets.Vehicles.Car
     {
         Color _ColorHealthImage;
         internal CarController _Car;
+        internal CarAIControl _AiLogic;
+        internal BackDrive _BackDrive;
         public int _ID;
         public bool _Player, _isAlive;
         [Header("Healths")]
@@ -29,7 +31,7 @@ namespace UnityStandardAssets.Vehicles.Car
 
         internal bool _Visibled;
         internal WeaponRotate _WeaponRotate;
-        bool _Updated;
+        bool _UpdatedPath;
 
         void Awake()
         {
@@ -43,9 +45,7 @@ namespace UnityStandardAssets.Vehicles.Car
             if (_Player)
             {
                 _Visibled = true;
-                CarUserControl.Instance.m_Car = _Car;
-                CarUserControl.Instance._CameraTarget = transform.SearchChildWithTag("Target");
-                CarUserControl.Instance.SetCamera();
+                CarUserControl.Instance.CarSet(_Car, transform);                
                 SpawnPlayers.Instance._PlayerSpawned = true;
 
                 _ColorHealthImage = new Color(1.0f, 1.0f, 1.0f, 0.0f);
@@ -53,6 +53,8 @@ namespace UnityStandardAssets.Vehicles.Car
             else
             {
                 NPCCalculatePath.Instance._NPC_Cars.Add(this.transform);
+                _AiLogic = GetComponent<CarAIControl>();
+                _BackDrive = GetComponent<BackDrive>();
             }
 
             _HitBoxParent = transform.SearchChildWithTag("HitBoxsParent");
@@ -73,7 +75,7 @@ namespace UnityStandardAssets.Vehicles.Car
                 _PercentHealthFactor += _ht._ArmorFactor;
             }
             _PercentHealthFactor -= _HitBoxs.Length;
-            Counting();
+            Counting(0);
 
         }
 
@@ -85,8 +87,9 @@ namespace UnityStandardAssets.Vehicles.Car
             }
         }
 
-        public void Counting()
+        public void Counting(float _damage)
         {
+            _CurrentHealth -= _damage;
             _Health = _CurrentHealth / _PercentHealthFactor;
             float _currentTopSpeed = _TopSpeedMax * (_Health / 100.0f);
             _Car.TopSpeed = Mathf.Clamp(_currentTopSpeed, 50.0f, Mathf.Infinity);
@@ -98,18 +101,28 @@ namespace UnityStandardAssets.Vehicles.Car
             }*/
         }
 
-        public void DiePlayer()
+        public void DiePlayer(CarInfo _info)
         {
             _isAlive = false;
-            ParticlesHitting.Instance.Explosion(transform.position, transform.rotation, 0, this);
-
             if (!_Player)
             {
-                NPCCalculatePath.Instance.RemoveNPC(_ID, transform);
+                if (_info._Player) GameplayInfo.Inscante.Kills();
+                NPCCalculatePath.Instance.RemoveNPC(_ID, transform, _AiLogic, _BackDrive);
             }
 
             SpawnPlayers.Instance.RemoveCar(_Player, _ID, transform);
-            Destroy(this.gameObject);
+            //Destroy(this.gameObject);
+
+            ParticlesHitting.Instance.Explosion(transform.position, transform.rotation, 0, this);
+            Destroy(_Car);
+            for (int i = 0; i < _HitBoxs.Length; i++)
+            {
+                _HitBoxs[i].DieHitBox();
+            }
+            Destroy(_WeaponRotate._ShootingScript);
+            Destroy(_WeaponRotate);
+            gameObject.AddComponent<CarDestroyed>();                        
+            Destroy(this);
         }
 
         void OnCollisionEnter(Collision _col)
@@ -121,9 +134,9 @@ namespace UnityStandardAssets.Vehicles.Car
         {
             while (_isAlive)
             {
-                if (!_Updated)
+                if (!_UpdatedPath)
                 {
-                    _Updated = true;
+                    _UpdatedPath = true;
                     Invoke("UpdatePath", _TimeUpdateFactor);
                 }
                 yield return null;
@@ -141,7 +154,7 @@ namespace UnityStandardAssets.Vehicles.Car
         {
             NPCCalculatePath.Instance.DistaceUpdate(_ID);
             _TimeUpdateFactor = 1.0f + (NPCCalculatePath.Instance._Distance[_ID] / 100.0f);
-            _Updated = false;
+            _UpdatedPath = false;
         }
     }
 }

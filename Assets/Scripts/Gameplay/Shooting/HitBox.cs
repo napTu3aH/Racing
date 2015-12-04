@@ -4,7 +4,6 @@ using UnityStandardAssets.Vehicles.Car;
 /// <summary>
 /// Класс обработки урона по игроку.
 /// </summary>
-[RequireComponent(typeof(HitBoxComponents))]
 public class HitBox : MonoBehaviour {
 
     internal CarController _Car;
@@ -74,19 +73,82 @@ public class HitBox : MonoBehaviour {
         _HealthFactor = _HitBoxHealth;
     }
 
+    public void DieHitBox()
+    {
+        _HitBoxHealth = 0.0f;
+        Counting();
+        for (int i = 0; i < _HitBoxComponent._FactorForDestruct; i++)
+        {
+            _HitBoxComponent.DestructComponent(_HitBoxHealth);
+        }
+        Destroy(_HitBoxComponent);
+        Destroy(_Mesh);
+        Destroy(this);  
+    }
+
     /// <summary>
     /// Передача урона игроку.
     /// </summary>
-    public void Hitted(float _damage)
+    public void Hitted(float _damage, CarInfo _Info)
     {
-        Damage(_damage);
+        Damage(_damage, _Info._Player);
         Counting();
         ColoringBox();
 
         if (_CarInfo._Health <= 0.0f && _CarInfo._isAlive)
         {
-            _CarInfo.DiePlayer();
+            _CarInfo.DiePlayer(_Info);
         }
+    }
+
+    void Damage(float _damage, bool _Player)
+    {
+        float _CountedDamage = _damage / _ArmorFactor;
+
+        if (_HitBoxHealth > _CountedDamage)
+        {
+            _HitBoxHealth -= _CountedDamage;
+            if (_HitBoxHealth < _CountedDamage)
+            {
+                _HitBoxHealth = 0.0f;
+                _ArmorFactor = 1.0f;
+            }
+        }
+      
+        _CarInfo.Counting(_CountedDamage);
+        if (_Player) GameplayInfo.Inscante.StartCounting(_CountedDamage / _CarInfo._PercentHealthFactor);
+        _HitBoxComponent.DestructComponent(_HitBoxHealth);
+    }
+    /// <summary>
+    /// Метод подсчёта значений защиты.
+    /// </summary>
+    void Counting()
+    {
+        _ArmorFactor = 1 + (_HitBoxHealth / 100.0f);
+        _UnDamagedFactor = _ArmorFactor - 1;
+
+        if (transform.name == "Forward")
+        {
+            if (_HitBoxHealth == 0.0f && _Particle && GameSettings.Instance._Particles)
+            {
+                if (!_Particle.gameObject.activeSelf)
+                {
+                    _Particle.gameObject.SetActive(true);
+                }
+
+            }
+        }
+
+        if (transform.name == "Right")
+        {
+            _Car._FactorRight = _UnDamagedFactor;
+        }
+
+        if (transform.name == "Left")
+        {
+            _Car._FactorLeft = _UnDamagedFactor;
+        }
+
     }
 
     void ColoringBox()
@@ -159,58 +221,6 @@ public class HitBox : MonoBehaviour {
         yield return null;
     }
 
-    /// <summary>
-    /// Метод подсчёта значений защиты.
-    /// </summary>
-    void Counting()
-    {
-        _ArmorFactor = 1 + (_HitBoxHealth / 100.0f);
-        _UnDamagedFactor = _ArmorFactor - 1;
-
-        if (transform.name == "Forward")
-        {
-            if (_HitBoxHealth == 0.0f && _Particle && GameSettings.Instance._Particles)
-            {
-                if (!_Particle.gameObject.activeSelf)
-                {
-                    _Particle.gameObject.SetActive(true);
-                }
-                
-            }
-        }
-
-        if (transform.name == "Right")
-        {
-            _Car._FactorRight = _UnDamagedFactor;            
-        }
-
-        if (transform.name == "Left")
-        {
-            _Car._FactorLeft = _UnDamagedFactor;
-        }                
-
-    }
-
-    void Damage(float _damage)
-    {
-        float _CountedDamage = _damage / _ArmorFactor;
-        
-        if (_HitBoxHealth > _CountedDamage)
-        {
-            _HitBoxHealth -= _CountedDamage;
-            if (_HitBoxHealth < _CountedDamage)
-            {
-                _HitBoxHealth = 0.0f;
-                _ArmorFactor = 1.0f;
-            } 
-        }
-
-        _CarInfo._CurrentHealth -= _CountedDamage;
-        _CarInfo.Counting();
-        _HitBoxComponent.DestructComponent(_HitBoxHealth);
-        Debugger.Instance.Log("Damaged " + _Car.tag + " in " + transform.name + " component: " + _CountedDamage + " Health: "+ _CarInfo._Health+"%");
-    }
-
     void OnTriggerEnter(Collider _col)
     {
         if (_col.CompareTag("HitBox"))
@@ -221,14 +231,19 @@ public class HitBox : MonoBehaviour {
             }
             else
             {
-                NPCCalculatePath.Instance.PathUpdate(_CarInfo._ID);
+                NPCCalculatePath.Instance.PathUpdate(_CarInfo._ID);                              
                 if (transform.name == "Forward")
                 {
                     _CarBackDrive.Staying();
                 }
             }
+
             _CarWeapon.ChangeTarget(_col);
-            _col.GetComponent<HitBox>().Hitted(_CarInfo._CarSpeed);     
+            HitBox _box = _col.GetComponent<HitBox>();
+            if (_box)
+            {
+                _box.Hitted(_CarInfo._CarSpeed, _CarInfo);
+            }            
         }
     }
 

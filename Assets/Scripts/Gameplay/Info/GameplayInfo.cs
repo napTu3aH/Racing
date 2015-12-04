@@ -5,34 +5,17 @@ public class GameplayInfo : MonoBehaviour {
 
     public static GameplayInfo Inscante;
 
-    public float _AllPoints
-    {
-        get { return _allPoints; }
-    }
+    [Header("Points")]
+    [SerializeField] internal float _LastPoints;
+    [SerializeField] internal float _SpeedLerpPoints = 1.0f;
 
-    public float _GameplayTime
-    {
-        get { return _GameplayingTime; }
-    }
-    public int _CountKill
-    {
-        set { _CountingKill = value; }
-        get { return _CountingKill; }
-    }
+    [Header("Kills")]
+    [SerializeField] internal int _CountKill;
 
-    public float _Points
-    {
-        set { _LastPoints = value; }
-        get { return _LastPoints; }
-    }
-
-    public float _PointsNow;
-
-    int _CountingKill;
-    float _GameplayingTime, _allPoints;
-
-    public float _LastPoints, _PointsTimeLerp;
-
+    bool _Counting;
+    float _TimeLerp;
+    internal float _PointsNow;
+    
     void Awake()
     {
         Init();
@@ -45,42 +28,39 @@ public class GameplayInfo : MonoBehaviour {
 
     public void Kills()
     {
-        _CountingKill++;
+        _CountKill++;
     }
 
-    void TimeGameplay()
+    public void StartCounting(float _points)
     {
-        _GameplayingTime += Time.deltaTime;
-
-        if (_PointsTimeLerp < 1.0f)
+        _PointsNow += _points;
+        if (!_Counting)
         {
-            _PointsTimeLerp += Time.deltaTime * 0.1f;
+            _Counting = true;
+            StartCoroutine(Counting());
         }
-        else
-        {
-            _PointsTimeLerp = 0.0f;
-        }
-        
     }
 
-    void PointsCounting()
-    {
-        if (_LastPoints < _PointsNow)
-        {
-            _LastPoints = Mathf.Lerp(_LastPoints, _PointsNow, _PointsTimeLerp);
-        }
-        else
-        if(_LastPoints > _PointsNow)
-        {
-            _LastPoints = _PointsNow;
-        }
 
-        TimeGameplay();
+    IEnumerator Counting()
+    {
+        while (_Counting)
+        {
+            _TimeLerp += _SpeedLerpPoints * Time.deltaTime;
+            if (_TimeLerp < 1.0f)
+            {
+                _LastPoints = Mathf.Lerp(_LastPoints, _PointsNow, _TimeLerp);
+            }
+            else
+            if (_TimeLerp > 1.0f)
+            {
+                _TimeLerp = 0.0f;
+                _LastPoints = _PointsNow;
+                _Counting = false;
+                yield return null;
+            }
+            yield return null;
+        }
+        yield return null;
     }
-
-    /*void Update()
-    {
-        TimeGameplay();
-        PointsCounting();
-    }*/
 }

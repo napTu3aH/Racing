@@ -7,7 +7,6 @@ using UnityStandardAssets.Vehicles.Car;
 /// <summary>
 /// Класс, предназначенный для вращения оружия.
 /// </summary>
-[RequireComponent(typeof(ShootScript))]
 public class WeaponRotate : MonoBehaviour {
 
     [SerializeField] internal ShootScript _ShootingScript;
@@ -195,14 +194,22 @@ public class WeaponRotate : MonoBehaviour {
 
     public void ChangeTarget(Collider _col)
     {
-        if (_col.CompareTag("HitBox") && _col.GetComponent<HitBox>()._HitBoxHealth > 0.0f)
+        if (_col.CompareTag("HitBox"))
         {
-            _Target = _col.transform;
-            _TargetedHitBox = _col.GetComponent<HitBox>();
-            if (!_Targeted)
+            HitBox _hitBox = _col.GetComponent<HitBox>();
+            if (_hitBox)
             {
-                _Targeted = true;
-            }         
+                if (_hitBox._HitBoxHealth > 0.0f)
+                {
+                    _Target = _col.transform;
+                    _TargetedHitBox = _col.GetComponent<HitBox>();
+                    if (!_Targeted)
+                    {
+                        _Targeted = true;
+                    }
+                }                
+            }
+            
         }       
     }
 

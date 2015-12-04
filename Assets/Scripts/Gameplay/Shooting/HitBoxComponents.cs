@@ -11,12 +11,14 @@ public class HitBoxComponents : MonoBehaviour
     [SerializeField] internal List<Vector3> _Positions;
     [SerializeField] internal float _TimeToDeactivate = 10.0f;
 
-    int _FactorForDestruct, _IndexComponent;
+    Color _ColorComponent;
+    internal int _FactorForDestruct, _IndexComponent;
     float _HealthToDestruct;
 
     public void Init()
     {
         _HitBox = GetComponent<HitBox>();
+        _ColorComponent = new Color(0.15f, 0.15f, 0.15f);
         CountingHealthForDestruct();
     }
 
@@ -71,7 +73,8 @@ public class HitBoxComponents : MonoBehaviour
                     if (_HitBox._CarInfo._Visibled)
                     {
                         _clonedComponent.AddComponent<BoxCollider>();
-                        _clonedComponent.AddComponent<Rigidbody>();
+                        _clonedComponent.AddComponent<Rigidbody>().mass = 100.0f;
+                        _clonedComponent.GetComponent<MeshRenderer>().material.color = _ColorComponent;
                         Destroy(_clonedComponent, _TimeToDeactivate);
                     }
                     else

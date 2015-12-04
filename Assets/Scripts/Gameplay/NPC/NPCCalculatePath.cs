@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityStandardAssets.Vehicles.Car;
 
 public class NPCCalculatePath : MonoBehaviour
 {
@@ -101,10 +102,13 @@ public class NPCCalculatePath : MonoBehaviour
         }   
     }
 
-    public void RemoveNPC(int _id, Transform _transform)
+    public void RemoveNPC(int _id, Transform _transform, CarAIControl _aiControl, BackDrive _backDrive)
     {
         _NPC_Cars.Remove(_transform);
         Destroy(_CurrentWayPoints[_id].gameObject);
         _CurrentWayPoints.Remove(_CurrentWayPoints[_id]);
+        Destroy(_aiControl);
+        Destroy(_backDrive);
+
     }
 }
