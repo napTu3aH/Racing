@@ -42,7 +42,7 @@ public class GameSettings : MonoBehaviour {
     [Range (0.0f, 1.0f)]public float _SlowValue;
     public float _SmoothRate = 0.005f;
 
-    float _SlowingFactor = 1.0f;
+    internal float _SlowingFactor = 1.0f;
     bool _Slowed, _SlowCoroutine;
 
     void Awake()

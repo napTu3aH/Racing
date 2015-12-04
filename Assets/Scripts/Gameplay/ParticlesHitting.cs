@@ -10,6 +10,7 @@ public class ParticlesHitting : MonoBehaviour
     
     [SerializeField] internal AudioClip[] _HitColliderSound;
     [SerializeField] internal AudioClip[] _HitShootSound;
+    [SerializeField] internal AudioClip[] _ExplosionsSound;
     [SerializeField] internal GameObject _HitParticle;
     [SerializeField] internal GameObject _ShootHitParticle;
     [SerializeField] internal GameObject[] _Explosions;
@@ -47,10 +48,10 @@ public class ParticlesHitting : MonoBehaviour
                 }
             }
         }
-        if(!_car._Player && _weaponRotate._DistanceToPlayer > 0.0f)
-            AudioController.Instance.PlayOneShot(_HitColliderSound[UnityEngine.Random.Range(0, _HitShootSound.Length + 1)], 0.25f * _weaponRotate._DistanceToPlayer);
+        if(!_car._Player && _weaponRotate._DistanceFromPlayer > 0.0f)
+            AudioController.Instance.PlayOneShot(_HitColliderSound[UnityEngine.Random.Range(0, _HitShootSound.Length)], 0.25f * _weaponRotate._DistanceFromPlayer);
         else if(_car._Player)
-            AudioController.Instance.PlayOneShot(_HitColliderSound[UnityEngine.Random.Range(0, _HitShootSound.Length + 1)], 0.25f);
+            AudioController.Instance.PlayOneShot(_HitColliderSound[UnityEngine.Random.Range(0, _HitShootSound.Length)], 0.25f);
     }
 
     /// <summary>
@@ -77,6 +78,11 @@ public class ParticlesHitting : MonoBehaviour
         if (GameSettings.Instance._Particles)
         {
             if (_car._Visibled) Instantiate(_Explosions[_index], _position, _quat);
+
+            if (!_car._Player && _car._WeaponRotate._DistanceFromPlayer > 0.0f)
+                AudioController.Instance.PlayOneShot(_ExplosionsSound[UnityEngine.Random.Range(0, _ExplosionsSound.Length)], 1.0f * _car._WeaponRotate._DistanceFromPlayer);
+            else if (_car._Player)
+                AudioController.Instance.PlayOneShot(_ExplosionsSound[UnityEngine.Random.Range(0, _ExplosionsSound.Length)], 1.0f);
         }
     }
 }

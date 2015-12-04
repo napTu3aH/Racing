@@ -17,7 +17,7 @@ public class WeaponRotate : MonoBehaviour {
     internal CarInfo _Car;
     internal bool _Targeted;
     internal CarController _CarController;
-    [SerializeField] internal float _DistanceForTarget, _DistanceToPlayer;
+    [SerializeField] internal float _DistanceForTarget, _DistanceFromPlayer;
     internal List<Transform> _CarsTransform;
     internal Transform _PlayerTransform;
 
@@ -102,8 +102,8 @@ public class WeaponRotate : MonoBehaviour {
     {
         if (!_Car._Player && _PlayerTransform)
         {
-            _DistanceToPlayer = Vector3.Distance(transform.position, _PlayerTransform.position);
-            _DistanceToPlayer = 1.0f - (Mathf.Clamp(_DistanceToPlayer, 0, _Radius) / _Radius);
+            _DistanceFromPlayer = Vector3.Distance(transform.position, _PlayerTransform.position);
+            _DistanceFromPlayer = 1.0f - (Mathf.Clamp(_DistanceFromPlayer, 0, _Radius) / _Radius);
         }
     }
 
@@ -146,7 +146,7 @@ public class WeaponRotate : MonoBehaviour {
                     float _volume = 1.0f - (Mathf.Clamp(_DistanceForTarget, 0, _Radius) / _Radius);
 
                     if (_Car._Player) _ShootingScript.Shoot(_wp._Muzzle, _wp._Damage, _wp._TimeBetweenShot, _wp._Clip, _volume);
-                    else _ShootingScript.Shoot(_wp._Muzzle, _wp._Damage, _wp._TimeBetweenShot, _wp._Clip, _DistanceToPlayer);
+                    else _ShootingScript.Shoot(_wp._Muzzle, _wp._Damage, _wp._TimeBetweenShot, _wp._Clip, _DistanceFromPlayer);
 
                     RotateWeapon(_wp._WeaponTransform, _wp._WeaponCollider, _wp._Quat, _wp._SpeedRotate, 1, 1, 0);
                     if (_wp._Tower._TowerTransform)

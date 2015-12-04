@@ -11,8 +11,11 @@ namespace UnityStandardAssets.Vehicles.Car
     {
         Color _ColorHealthImage;
         internal CarController _Car;
-        internal CarAIControl _AiLogic;
         internal BackDrive _BackDrive;
+        internal CarAIControl _AiLogic;
+        internal CarAudioManager _CarAudio;
+        internal CarSelfRighting _CarSelfRighting;        
+        internal WeaponRotate _WeaponRotate;
         public int _ID;
         public bool _Player, _isAlive;
         [Header("Healths")]
@@ -30,8 +33,9 @@ namespace UnityStandardAssets.Vehicles.Car
         public float _TimeUpdateFactor;
 
         internal bool _Visibled;
-        internal WeaponRotate _WeaponRotate;
+        
         bool _UpdatedPath;
+        SlowMotionClass _SlowMotion;
 
         void Awake()
         {
@@ -42,11 +46,14 @@ namespace UnityStandardAssets.Vehicles.Car
         {
             _Car = GetComponent<CarController>();
             _WeaponRotate = GetComponent<WeaponRotate>();
+            _CarAudio = GetComponent<CarAudioManager>();
+            _CarSelfRighting = GetComponent<CarSelfRighting>();
             if (_Player)
             {
                 _Visibled = true;
                 CarUserControl.Instance.CarSet(_Car, transform);                
                 SpawnPlayers.Instance._PlayerSpawned = true;
+                _SlowMotion = GetComponentInChildren<SlowMotionClass>();
 
                 _ColorHealthImage = new Color(1.0f, 1.0f, 1.0f, 0.0f);
             }
@@ -109,19 +116,27 @@ namespace UnityStandardAssets.Vehicles.Car
                 if (_info._Player) GameplayInfo.Inscante.Kills();
                 NPCCalculatePath.Instance.RemoveNPC(_ID, transform, _AiLogic, _BackDrive);
             }
+            else
+            {
+                Destroy(_SlowMotion);
+            }
 
             SpawnPlayers.Instance.RemoveCar(_Player, _ID, transform);
             //Destroy(this.gameObject);
 
             ParticlesHitting.Instance.Explosion(transform.position, transform.rotation, 0, this);
-            Destroy(_Car);
+
             for (int i = 0; i < _HitBoxs.Length; i++)
             {
                 _HitBoxs[i].DieHitBox();
             }
+            GetComponent<Rigidbody>().mass *= 5.0f;
+            Destroy(_Car);
             Destroy(_WeaponRotate._ShootingScript);
             Destroy(_WeaponRotate);
-            gameObject.AddComponent<CarDestroyed>();                        
+            Destroy(_CarSelfRighting);
+            _CarAudio.Destroying();
+            gameObject.AddComponent<CarDestroyed>();                      
             Destroy(this);
         }
 
