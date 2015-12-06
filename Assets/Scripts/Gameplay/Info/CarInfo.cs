@@ -9,7 +9,6 @@ namespace UnityStandardAssets.Vehicles.Car
 {
     public class CarInfo : MonoBehaviour
     {
-        Color _ColorHealthImage;
         internal CarController _Car;
         internal BackDrive _BackDrive;
         internal CarAIControl _AiLogic;
@@ -20,7 +19,6 @@ namespace UnityStandardAssets.Vehicles.Car
         public bool _Player, _isAlive;
         [Header("Healths")]
         public float _Health = 0.0f, _PercentHealthFactor, _CurrentHealth;
-        public Image _PlayerHealthImage;
         public Transform _HitBoxParent;
         public HitBox[] _HitBoxs;
         public float _CarSpeed
@@ -55,7 +53,6 @@ namespace UnityStandardAssets.Vehicles.Car
                 SpawnPlayers.Instance._PlayerSpawned = true;
                 _SlowMotion = GetComponentInChildren<SlowMotionClass>();
 
-                _ColorHealthImage = new Color(1.0f, 1.0f, 1.0f, 0.0f);
             }
             else
             {
@@ -74,8 +71,10 @@ namespace UnityStandardAssets.Vehicles.Car
         /// <summary>
         /// Метод подсчёта значений здоровья и процентажа здоровья при старте.
         /// </summary>
-        void InitCounting()
+        public void InitCounting()
         {
+            _CurrentHealth = 0.0f;
+            _PercentHealthFactor = 0.0f;
             foreach (HitBox _ht in _HitBoxs)
             {
                 _CurrentHealth += _ht._HitBoxHealth;
@@ -101,11 +100,11 @@ namespace UnityStandardAssets.Vehicles.Car
             float _currentTopSpeed = _TopSpeedMax * (_Health / 100.0f);
             _Car.TopSpeed = Mathf.Clamp(_currentTopSpeed, 50.0f, Mathf.Infinity);
 
-            /*if (_Player)
+            if (_Player)
             {
-                _ColorHealthImage.a = 1.0f - (_Health / 100.0f);
-                _PlayerHealthImage.color = _ColorHealthImage;
-            }*/
+                float _hp = 1.0f - (_Health / 100.0f);
+                FrostEffect.Instance.FrostAmount = _hp;
+            }
         }
 
         public void DiePlayer(CarInfo _info)
@@ -122,7 +121,8 @@ namespace UnityStandardAssets.Vehicles.Car
             }
 
             SpawnPlayers.Instance.RemoveCar(_Player, _ID, transform);
-            //Destroy(this.gameObject);
+
+            BonusesLogic.Instance.SpawnBonus(transform);
 
             ParticlesHitting.Instance.Explosion(transform.position, transform.rotation, 0, this);
 
@@ -136,7 +136,7 @@ namespace UnityStandardAssets.Vehicles.Car
             Destroy(_WeaponRotate);
             Destroy(_CarSelfRighting);
             _CarAudio.Destroying();
-            gameObject.AddComponent<CarDestroyed>();                      
+            gameObject.AddComponent<CarDestroyed>();
             Destroy(this);
         }
 

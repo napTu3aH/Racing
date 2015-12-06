@@ -27,6 +27,8 @@ public class HitBox : MonoBehaviour {
     internal float _TimeChange = 0.0f;
     ParticleSystem _Particle;
 
+    float _MaxHP;
+
     void Awake()
     {
         Init();
@@ -67,7 +69,7 @@ public class HitBox : MonoBehaviour {
                 _Particle.gameObject.SetActive(false);
             }
         }
-
+        _MaxHP = _HitBoxHealth;
         Counting();
         _HitBoxComponent.Init();
         _HealthFactor = _HitBoxHealth;
@@ -86,6 +88,14 @@ public class HitBox : MonoBehaviour {
         Destroy(this);  
     }
 
+    public void Repair()
+    {
+        _HitBoxHealth = _MaxHP;
+        Counting();
+        _CarInfo.InitCounting();
+        _HitBoxComponent.ReturnToBack();
+    }
+
     /// <summary>
     /// Передача урона игроку.
     /// </summary>
@@ -93,8 +103,6 @@ public class HitBox : MonoBehaviour {
     {
         Damage(_damage, _Info._Player);
         Counting();
-        ColoringBox();
-
         if (_CarInfo._Health <= 0.0f && _CarInfo._isAlive)
         {
             _CarInfo.DiePlayer(_Info);
@@ -126,16 +134,20 @@ public class HitBox : MonoBehaviour {
     {
         _ArmorFactor = 1 + (_HitBoxHealth / 100.0f);
         _UnDamagedFactor = _ArmorFactor - 1;
-
+        ColoringBox();
         if (transform.name == "Forward")
         {
-            if (_HitBoxHealth == 0.0f && _Particle && GameSettings.Instance._Particles)
+            if (GameSettings.Instance._Particles && _Particle)
             {
-                if (!_Particle.gameObject.activeSelf)
+                if (_HitBoxHealth == 0.0f && !_Particle.gameObject.activeSelf)
                 {
-                    _Particle.gameObject.SetActive(true);
+                     _Particle.gameObject.SetActive(true);                    
                 }
-
+                else
+                    if (_HitBoxHealth > 0.0f && _Particle.gameObject.activeSelf)
+                {
+                    _Particle.gameObject.SetActive(false);                    
+                }
             }
         }
 

@@ -94,6 +94,10 @@ public class HitBoxComponents : MonoBehaviour
             if (!_Components[i].activeSelf)
             {
                 _Components[i].SetActive(true);
+                if (_Components[i].CompareTag("Wheel"))
+                {
+                    _HitBox._Car._WheelColliders[_Components[i].GetComponent<WheelIndex>()._Index].gameObject.SetActive(true);
+                }
             }
         }
     }

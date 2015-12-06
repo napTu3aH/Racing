@@ -1,13 +1,13 @@
 fileFormatVersion: 2
-guid: 16b25e4cbf4901048b5679e3b4ffbca9
-timeCreated: 1448804692
+guid: 598bb44c90957f94cb098538791b5735
+timeCreated: 1449421354
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName: {}
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
-    enableMipMap: 1
+    enableMipMap: 0
     linearTexture: 0
     correctGamma: 0
     fadeOut: 0
@@ -29,8 +29,8 @@ TextureImporter:
   textureFormat: -1
   maxTextureSize: 2048
   textureSettings:
-    filterMode: 1
-    aniso: 16
+    filterMode: -1
+    aniso: 1
     mipBias: -1
     wrapMode: 1
   nPOTScale: 0
@@ -49,7 +49,7 @@ TextureImporter:
   textureType: 8
   buildTargetSettings:
   - buildTarget: Android
-    maxTextureSize: 1024
+    maxTextureSize: 256
     textureFormat: -1
     compressionQuality: 100
     allowsAlphaSplitting: 1
