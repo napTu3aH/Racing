@@ -3,23 +3,8 @@ using System.Collections;
 
 public class LoadingLevelLogics : MonoBehaviour
 {
-    private static LoadingLevelLogics _LoadingLevelLogics;
-    public static LoadingLevelLogics Instance
-    {
-        get
-        {
-            if (_LoadingLevelLogics != null)
-            {
-                return _LoadingLevelLogics;
-            }
-            else
-            {
-                _LoadingLevelLogics = new GameObject("LoadingLevelLogics", typeof(LoadingLevelLogics)).GetComponent<LoadingLevelLogics>();
-                return _LoadingLevelLogics;
-            }
-        }
-    }
     [SerializeField] internal Indicator _IndicatorLogic;
+    [SerializeField] internal Canvas _Canvas;
     [SerializeField] internal float _PercentLoaded;
     [SerializeField] internal bool _ActivateScene;
     bool _Loading;
@@ -31,9 +16,8 @@ public class LoadingLevelLogics : MonoBehaviour
 
     void Init()
     {
-        _LoadingLevelLogics = this;
         _IndicatorLogic = GetComponent<Indicator>();
-        DontDestroyOnLoad(gameObject);
+        _Canvas = GetComponentInChildren<Canvas>();
     }
 
     public void LoadingLevel(int _index)
@@ -57,6 +41,7 @@ public class LoadingLevelLogics : MonoBehaviour
         _Loading = false;
         _ActivateScene = false;
         _PercentLoaded = 1.0f;
+        //_Canvas.worldCamera = GameObject.FindWithTag("CameraUI").GetComponent<Camera>();
         yield return null;
     }
 }

@@ -237,8 +237,8 @@ public class GameSettings : MonoBehaviour {
     /// Метод загрузки меню.
     /// </summary>
     public void MenuButton()
-    {      
-        StartCoroutine(LoadingLevel(0));
+    {
+        StartCoroutine(LoadingLevelCoroutine(1));
     }
 
     /// <summary>
@@ -246,7 +246,7 @@ public class GameSettings : MonoBehaviour {
     /// </summary>
     public void RestartButton()
     {
-        StartCoroutine(LoadingLevel(Application.loadedLevel));
+        StartCoroutine(LoadingLevelCoroutine(Application.loadedLevel));        
     }
 
     /// <summary>
@@ -317,18 +317,27 @@ public class GameSettings : MonoBehaviour {
         yield return null;
     }
 
-    IEnumerator LoadingLevel(int _index)
-    {
-#if UNITY_IPHONE
-            Handheld.SetActivityIndicatorStyle(iOS.ActivityIndicatorStyle.Gray);
-#elif UNITY_ANDROID
-        Handheld.SetActivityIndicatorStyle(AndroidActivityIndicatorStyle.Large);
-#endif
+    IEnumerator LoadingLevelCoroutine(int _index)
+    {        
         _MenuButton.interactable = false;
-        _RestartButton.interactable = false;
-        Handheld.StartActivityIndicator();
+        _RestartButton.interactable = false;     
         yield return new WaitForSeconds(0);
-        Application.LoadLevel(_index);
+        if (_SlowMotion)
+        {
+            SlowMotion(SlowMotionClass.Instance._Slow);
+        }
+        else
+        {
+            if (Time.timeScale == 1.0f)
+            {
+                Time.timeScale = 0.0f;
+            }
+            else
+            {
+                Time.timeScale = 1.0f;
+            }
+        }
+        LoadingLevel.Instance._Indicator.Init(_index);
     }
 
 }

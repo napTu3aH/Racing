@@ -103,7 +103,7 @@ namespace UnityStandardAssets.Vehicles.Car
             if (_Player)
             {
                 float _hp = 1.0f - (_Health / 100.0f);
-                FrostEffect.Instance.FrostAmount = _hp;
+                //FrostEffect.Instance.FrostAmount = _hp;
             }
         }
 

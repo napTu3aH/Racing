@@ -3,23 +3,19 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
-public class SplashLoading : MonoBehaviour
+public class ImageLoading : MonoBehaviour
 {
     [SerializeField] internal ImageComponent[] _Images;
     [SerializeField] internal bool _isDone;
-    Color _ColorStart, _ColorEnd;
-    bool _SettedColor;
+    Color _ColorStart, _ColorEnd, _ColorAlpha;
+    bool _SettedColor, _AlphaColor;
     float _TimeLerp;
     int _Index;
 
-    void Start()
-    {
-        Init();
-    }
-
-    void Init()
+    internal void Init()
     {
         _isDone = false;
+        _Index = 0;
         ColorInited();
         ColoringImages();
     }
@@ -30,7 +26,7 @@ public class SplashLoading : MonoBehaviour
         {
             for (int i = 0; i < _Images.Length; i++)
             {
-                _Images[i]._Image.color = _Images[i]._ColorStart;
+                _Images[i]._CurrentColor = _Images[i]._ColorStart;
             }
         }
     }
@@ -54,9 +50,20 @@ public class SplashLoading : MonoBehaviour
         }
         else
         {
-            _isDone = true;
-            LoadingLevelLogics.Instance._IndicatorLogic.Init();
+            if (!_isDone)
+            {
+                _isDone = true;
+                if (Application.loadedLevel == 0)
+                    LoadingLevel.Instance._LoadingLevelLogics._IndicatorLogic.Init(1);
+            }
         }
+    }
+
+    internal void ColorAlpha()
+    {
+        _AlphaColor = true;
+        _SettedColor = false;
+        StartCoroutine(_ColorChanger(_Images[_Index - 1]._Image, 1.0f, _Images[_Index - 1]._TimeToLerpColor));
     }
 
     IEnumerator _ColorChanger(Image _Image, float _seconds, float _speed)
@@ -64,11 +71,13 @@ public class SplashLoading : MonoBehaviour
         while (!_SettedColor)
         {
             _TimeLerp += Time.deltaTime * _speed;
-            _Image.color = Color.Lerp(_ColorStart, _ColorEnd, _TimeLerp);
+            if(!_AlphaColor) _Image.color = Color.Lerp(_ColorStart, _ColorEnd, _TimeLerp);
+            else _Image.color = Color.Lerp(_ColorEnd, _ColorAlpha, _TimeLerp);
             if (_TimeLerp >= 1.0f)
             {
                 _TimeLerp = 0.0f;
                 _SettedColor = true;
+                _AlphaColor = false;
                 yield return null;
             }
             yield return null;
@@ -83,7 +92,7 @@ public class ImageComponent
 {
     [SerializeField] internal string _Name;
     [SerializeField] internal Image _Image;
-    [SerializeField] internal Color _ColorStart, _ColorEnd;
+    [SerializeField] internal Color _ColorStart, _CurrentColor, _ColorEnd;
     [SerializeField] internal float _TimeToLerpColor = 1.0f;
     [SerializeField] internal float _TimeWaiting = 1.0f;
 }

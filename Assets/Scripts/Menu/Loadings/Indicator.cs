@@ -14,18 +14,28 @@ public class Indicator : MonoBehaviour
     [SerializeField] internal TypeIndicator _Type;
     [SerializeField] internal Image _Indicator;
     [SerializeField] internal int _LevelNumber;
-    [SerializeField] internal bool _Clockwise, _DontWaiting;
+    [SerializeField] internal bool _Clockwise, _DontWaiting, _ShowBackground;
     [SerializeField] internal float _SpeedRotate = 1.0f, _SpeedLerping = 1.0f, _PreloadingWaitingTime = 1.0f;
     [SerializeField] internal Color _ColorStart, _ColorEnd;
 
-    bool _isDone, _isHided, _isStartedProcess, _StartRotate;
+    bool _isDone, _isHided, _isStartedProcess, _StartRotate, _isLoading;
     float _TimeLerp;
 
-    internal void Init()
+    internal void Init(int _lvl)
     {
-        _Indicator.color = _ColorStart;
-        _isHided = System.Convert.ToBoolean(1 - _Indicator.color.a);
-        StartCoroutine(ShowIndicator());  
+        if(!_isLoading)
+        {
+            _LevelNumber = _lvl;
+            _Indicator.color = _ColorStart;
+            _isHided = System.Convert.ToBoolean(1 - _Indicator.color.a);
+
+            if (_ShowBackground)
+            {
+                LoadingLevel.Instance._ImageLoading.Init();
+            }
+            StartCoroutine(ShowIndicator());
+            _isLoading = true;
+        }        
     }
 
     IEnumerator ShowIndicator()
@@ -50,7 +60,7 @@ public class Indicator : MonoBehaviour
 
     internal void ProcessingStart()
     {
-        LoadingLevelLogics.Instance.LoadingLevel(_LevelNumber);
+        LoadingLevel.Instance._LoadingLevelLogics.LoadingLevel(_LevelNumber);
         StartCoroutine(Progressing());
         _isStartedProcess = true;
     }
@@ -76,9 +86,13 @@ public class Indicator : MonoBehaviour
             if (_Indicator) ColorChanger(_ColorEnd, _ColorStart, true);
             yield return null;
         }
-        LoadingLevelLogics.Instance._ActivateScene = true;
+        LoadingLevel.Instance._LoadingLevelLogics._ActivateScene = true;
+        _isDone = false;
+        _isLoading = false;
+        if(_ShowBackground) LoadingLevel.Instance._ImageLoading.ColorAlpha();
         yield return null;
     }
+
 
     IEnumerator Progressing()
     {
@@ -114,12 +128,13 @@ public class Indicator : MonoBehaviour
     }
     IEnumerator RotateCircle()
     {
-        while (_Indicator && LoadingLevelLogics.Instance._PercentLoaded != 1.0f)
+        while (_Indicator && LoadingLevel.Instance._LoadingLevelLogics._PercentLoaded != 1.0f)
         {
             if (_Clockwise) _Indicator.rectTransform.Rotate(0.0f, 0.0f, 1.0f * _SpeedRotate);
-            else _Indicator.rectTransform.Rotate(0.0f, 0.0f, -1.0f * _SpeedRotate);            
+            else _Indicator.rectTransform.Rotate(0.0f, 0.0f, -1.0f * _SpeedRotate);
             yield return null;
         }
+        _StartRotate = false;
         yield return null;
     }
 
@@ -130,7 +145,7 @@ public class Indicator : MonoBehaviour
 
     void ProcessingLoading()
     {
-        float _fillValue = LoadingLevelLogics.Instance._PercentLoaded;
+        float _fillValue = LoadingLevel.Instance._LoadingLevelLogics._PercentLoaded;
         if(_Type == TypeIndicator.ProgressBar) _Indicator.fillAmount = _fillValue;
         if (_fillValue == 0.9f)
         {
