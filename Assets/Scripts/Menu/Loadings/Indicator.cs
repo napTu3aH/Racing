@@ -12,7 +12,7 @@ public class Indicator : MonoBehaviour
     }
     
     [SerializeField] internal TypeIndicator _Type;
-    [SerializeField] internal Image _Indicator;
+    [SerializeField] internal UISprite _Indicator;
     [SerializeField] internal int _LevelNumber;
     [SerializeField] internal bool _Clockwise, _DontWaiting, _ShowBackground;
     [SerializeField] internal float _SpeedRotate = 1.0f, _SpeedLerping = 1.0f, _PreloadingWaitingTime = 1.0f;
@@ -58,7 +58,7 @@ public class Indicator : MonoBehaviour
         
     }
 
-    internal void ProcessingStart()
+    void ProcessingStart()
     {
         LoadingLevel.Instance._LoadingLevelLogics.LoadingLevel(_LevelNumber);
         StartCoroutine(Progressing());
@@ -78,8 +78,7 @@ public class Indicator : MonoBehaviour
 
     IEnumerator HideIndicator()
     {
-        if (_Type == TypeIndicator.None) _PreloadingWaitingTime = 0.0f;
-        yield return new WaitForSeconds(_PreloadingWaitingTime);
+        if (_Type != TypeIndicator.None) yield return new WaitForSeconds(_PreloadingWaitingTime);
 
         while (!_isHided)
         {
@@ -126,12 +125,13 @@ public class Indicator : MonoBehaviour
         }
         ProcessingLoading();
     }
+
     IEnumerator RotateCircle()
     {
         while (_Indicator && LoadingLevel.Instance._LoadingLevelLogics._PercentLoaded != 1.0f)
         {
-            if (_Clockwise) _Indicator.rectTransform.Rotate(0.0f, 0.0f, 1.0f * _SpeedRotate);
-            else _Indicator.rectTransform.Rotate(0.0f, 0.0f, -1.0f * _SpeedRotate);
+            if (_Clockwise) _Indicator.transform.Rotate(0.0f, 0.0f, 1.0f * _SpeedRotate);
+            else _Indicator.transform.Rotate(0.0f, 0.0f, -1.0f * _SpeedRotate);
             yield return null;
         }
         _StartRotate = false;

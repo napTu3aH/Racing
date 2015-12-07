@@ -44,7 +44,7 @@ public class AutoSave : EditorWindow
     void Update()
     {
         _ScenePath = EditorApplication.currentScene;
-        if (_AutoSaveScene)
+        if (_AutoSaveScene && !Application.isPlaying)
         {
             if (DateTime.Now.Minute >= (_LastSaveTimeScene.Minute + _IntervalScene) || DateTime.Now.Minute == 59 && DateTime.Now.Second == 59)
             {

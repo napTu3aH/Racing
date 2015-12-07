@@ -66,7 +66,7 @@ public class ImageLoading : MonoBehaviour
         StartCoroutine(_ColorChanger(_Images[_Index - 1]._Image, 1.0f, _Images[_Index - 1]._TimeToLerpColor));
     }
 
-    IEnumerator _ColorChanger(Image _Image, float _seconds, float _speed)
+    IEnumerator _ColorChanger(UISprite _Image, float _seconds, float _speed)
     {
         while (!_SettedColor)
         {
@@ -91,7 +91,7 @@ public class ImageLoading : MonoBehaviour
 public class ImageComponent
 {
     [SerializeField] internal string _Name;
-    [SerializeField] internal Image _Image;
+    [SerializeField] internal UISprite _Image;
     [SerializeField] internal Color _ColorStart, _CurrentColor, _ColorEnd;
     [SerializeField] internal float _TimeToLerpColor = 1.0f;
     [SerializeField] internal float _TimeWaiting = 1.0f;

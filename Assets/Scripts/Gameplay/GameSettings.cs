@@ -18,19 +18,18 @@ public class GameSettings : MonoBehaviour {
     [Header("Canvas layers")]
     public GameObject _SettingsLayer;
     public GameObject _ControlsLayer;
-    public Image _Health;
 
     [Header("Sound")]
-    public Sprite[] _SoundSprite; // 0 - off, 1 - on
-    public Button _SoundButton;
-    public Slider _SoundSlider;
+    public string[] _SoundSprite; // 0 - off, 1 - on
+    public UISprite _SoundButton;
+    public UISlider _SoundSlider;
     public AudioSource _SoundSource;
     public float _Sound;
 
     [Header("Music")]
-    public Sprite[] _MusicSprite; // 0 - off, 1 - on
-    public Button _MusicButton;
-    public Slider _MusicSlider;
+    public string[] _MusicSprite; // 0 - off, 1 - on
+    public UISprite _MusicButton;
+    public UISlider _MusicSlider;
     public AudioSource _MusicSource;
     public float _Music;
 
@@ -73,7 +72,7 @@ public class GameSettings : MonoBehaviour {
             _SlowCoroutine = true;
             _SlowingFactor = 0.0f;
             StartCoroutine(Slowing());
-        }
+        }        
     }
 
 
@@ -134,7 +133,7 @@ public class GameSettings : MonoBehaviour {
     /// <param name="_source">AudioSource</param>
     /// <param name="_nameChangerFloat">Название типа AudioSource'а для ползунка громкости</param>
     /// <param name="_nameChangerBool">Название типа AudioSource'а для bool значения</param>
-    void SetAudioSourceValueButton(Slider _slider, AudioSource _source, string _nameChangerFloat, string _nameChangerBool)
+    void SetAudioSourceValueButton(UISlider _slider, AudioSource _source, string _nameChangerFloat, string _nameChangerBool)
     {
         if (_slider.value > 0.0f)
         {
@@ -163,17 +162,17 @@ public class GameSettings : MonoBehaviour {
     /// <param name="_btn">Кнопка</param>
     /// <param name="_source">AudioSource</param>
     /// <param name="_slider">Слайдер</param>
-    void SetAudioSourceValue(Sprite[] _sprites, Button _btn, AudioSource _source, Slider _slider)
+    void SetAudioSourceValue(string[] _sprites, UISprite _btn, AudioSource _source, UISlider _slider)
     {
         _source.volume = _slider.value;
-        if (_source.volume > 0.0f && _btn.GetComponent<Image>().sprite != _sprites[1])
+        if (_source.volume > 0.0f && _btn.spriteName != _sprites[1])
         {
-            _btn.GetComponent<Image>().sprite = _sprites[1];
+            _btn.spriteName = _sprites[1];
         }
         else
             if (_source.volume == 0.0f)
         {
-            _btn.GetComponent<Image>().sprite = _sprites[0];
+            _btn.spriteName = _sprites[0];
         }
     }
 
