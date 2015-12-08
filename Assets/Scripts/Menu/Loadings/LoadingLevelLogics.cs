@@ -4,7 +4,7 @@ using System.Collections;
 public class LoadingLevelLogics : MonoBehaviour
 {
     [SerializeField] internal Indicator _IndicatorLogic;
-    [SerializeField] internal Canvas _Canvas;
+    [SerializeField] internal UIPanel _UIPanel;
     [SerializeField] internal float _PercentLoaded;
     [SerializeField] internal bool _ActivateScene;
     bool _Loading;
@@ -17,7 +17,7 @@ public class LoadingLevelLogics : MonoBehaviour
     void Init()
     {
         _IndicatorLogic = GetComponent<Indicator>();
-        _Canvas = GetComponentInChildren<Canvas>();
+        _UIPanel = GetComponentInChildren<UIPanel>();
     }
 
     public void LoadingLevel(int _index)
@@ -39,6 +39,8 @@ public class LoadingLevelLogics : MonoBehaviour
             yield return null;
         }
         _Loading = false;
+        _UIPanel.enabled = false;
+        _UIPanel.enabled = true;
         _ActivateScene = false;
         _PercentLoaded = 1.0f;
         yield return null;

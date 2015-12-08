@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
 using System.Collections;
 
 public class Indicator : MonoBehaviour
@@ -13,6 +12,7 @@ public class Indicator : MonoBehaviour
     
     [SerializeField] internal TypeIndicator _Type;
     [SerializeField] internal UISprite _Indicator;
+    [SerializeField] internal TweenTransform _TweenTransform;
     [SerializeField] internal int _LevelNumber;
     [SerializeField] internal bool _Clockwise, _DontWaiting, _ShowBackground;
     [SerializeField] internal float _SpeedRotate = 1.0f, _SpeedLerping = 1.0f, _PreloadingWaitingTime = 1.0f;
@@ -28,6 +28,7 @@ public class Indicator : MonoBehaviour
             _LevelNumber = _lvl;
             _ShowBackground = _background;
             _Indicator.color = _ColorStart;
+            if (!_TweenTransform) _TweenTransform = _Indicator.GetComponent<TweenTransform>();
             _isHided = System.Convert.ToBoolean(1 - _Indicator.color.a);
 
             if (_ShowBackground)
@@ -45,6 +46,7 @@ public class Indicator : MonoBehaviour
         {
             ProcessingStart();
         }
+        _TweenTransform.PlayForward();
         while (_isHided && _Type != TypeIndicator.None)
         {
             if (_Indicator) ColorChanger(_ColorStart, _ColorEnd, false);
@@ -80,16 +82,23 @@ public class Indicator : MonoBehaviour
     IEnumerator HideIndicator()
     {
         if (_Type != TypeIndicator.None) yield return new WaitForSeconds(_PreloadingWaitingTime);
-
+        bool _back = false;
         while (!_isHided)
         {
             if (_Indicator) ColorChanger(_ColorEnd, _ColorStart, true);
+            if (!_back)
+            {
+                _back = true;
+                _TweenTransform.PlayReverse();
+            } 
             yield return null;
         }
         LoadingLevel.Instance._LoadingLevelLogics._ActivateScene = true;
+        yield return new WaitForSeconds(0.5f);
+
+        if (_ShowBackground) LoadingLevel.Instance._ImageLoading.ColorAlpha();
         _isDone = false;
-        _isLoading = false;
-        if(_ShowBackground) LoadingLevel.Instance._ImageLoading.ColorAlpha();
+        _isLoading = false;        
         yield return null;
     }
 
@@ -129,7 +138,7 @@ public class Indicator : MonoBehaviour
 
     IEnumerator RotateCircle()
     {
-        while (_Indicator && LoadingLevel.Instance._LoadingLevelLogics._PercentLoaded != 1.0f)
+        while (_Indicator && _isLoading)
         {
             if (_Clockwise) _Indicator.transform.Rotate(0.0f, 0.0f, 1.0f * _SpeedRotate);
             else _Indicator.transform.Rotate(0.0f, 0.0f, -1.0f * _SpeedRotate);

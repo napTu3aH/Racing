@@ -16,6 +16,7 @@ public class GameSettings : MonoBehaviour {
     public UIButton _RestartButton;
 
     [Header("Canvas layers")]
+    public GameObject _GameplayUI;
     public GameObject _SettingsLayer;
     public GameObject _ControlsLayer;
 
@@ -339,6 +340,7 @@ public class GameSettings : MonoBehaviour {
                 Time.timeScale = 1.0f;
             }
         }
+        _GameplayUI.SetActive(false);
         LoadingLevel.Instance._Indicator.Init(_index, _ShowBackgroundForLoading);
     }
 
