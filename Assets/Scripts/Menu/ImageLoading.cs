@@ -54,7 +54,7 @@ public class ImageLoading : MonoBehaviour
             {
                 _isDone = true;
                 if (Application.loadedLevel == 0)
-                    LoadingLevel.Instance._LoadingLevelLogics._IndicatorLogic.Init(1);
+                    LoadingLevel.Instance._LoadingLevelLogics._IndicatorLogic.Init(1, false);
             }
         }
     }

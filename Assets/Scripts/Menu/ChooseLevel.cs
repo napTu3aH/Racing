@@ -8,8 +8,7 @@ public class ChooseLevel : MonoBehaviour
 
     public void Load()
     {
-        LoadingLevel.Instance._Indicator._ShowBackground = _ShowBackground;
-        LoadingLevel.Instance._Indicator.Init(_LevelNumber);
+        LoadingLevel.Instance._Indicator.Init(_LevelNumber, _ShowBackground);
     }
 	
 }

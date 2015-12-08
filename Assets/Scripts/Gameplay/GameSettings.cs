@@ -12,8 +12,8 @@ public class GameSettings : MonoBehaviour {
     public bool _ActiveScript;
 
     [Header("Main buttons")]
-    public Button _MenuButton;
-    public Button _RestartButton;
+    public UIButton _MenuButton;
+    public UIButton _RestartButton;
 
     [Header("Canvas layers")]
     public GameObject _SettingsLayer;
@@ -38,6 +38,7 @@ public class GameSettings : MonoBehaviour {
     public bool _SlowMotion;
     public bool _Particles;
     public bool _Destructions;
+    public bool _ShowBackgroundForLoading;
     [Range (0.0f, 1.0f)]public float _SlowValue;
     public float _SmoothRate = 0.005f;
 
@@ -168,11 +169,13 @@ public class GameSettings : MonoBehaviour {
         if (_source.volume > 0.0f && _btn.spriteName != _sprites[1])
         {
             _btn.spriteName = _sprites[1];
+            _btn.MarkAsChanged();
         }
         else
             if (_source.volume == 0.0f)
         {
             _btn.spriteName = _sprites[0];
+            _btn.MarkAsChanged();
         }
     }
 
@@ -318,8 +321,8 @@ public class GameSettings : MonoBehaviour {
 
     IEnumerator LoadingLevelCoroutine(int _index)
     {        
-        _MenuButton.interactable = false;
-        _RestartButton.interactable = false;     
+        _MenuButton.isEnabled = false;
+        _RestartButton.isEnabled = false;     
         yield return new WaitForSeconds(0);
         if (_SlowMotion)
         {
@@ -336,7 +339,7 @@ public class GameSettings : MonoBehaviour {
                 Time.timeScale = 1.0f;
             }
         }
-        LoadingLevel.Instance._Indicator.Init(_index);
+        LoadingLevel.Instance._Indicator.Init(_index, _ShowBackgroundForLoading);
     }
 
 }

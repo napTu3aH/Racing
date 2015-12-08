@@ -30,7 +30,7 @@ public class LoadingLevelLogics : MonoBehaviour
     }
 
     IEnumerator Load(int _index)
-    {
+    {        
         AsyncOperation _async = Application.LoadLevelAsync(_index);
         while (!_async.isDone)
         {
@@ -41,7 +41,7 @@ public class LoadingLevelLogics : MonoBehaviour
         _Loading = false;
         _ActivateScene = false;
         _PercentLoaded = 1.0f;
-        //_Canvas.worldCamera = GameObject.FindWithTag("CameraUI").GetComponent<Camera>();
         yield return null;
     }
+
 }

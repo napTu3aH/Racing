@@ -21,11 +21,12 @@ public class Indicator : MonoBehaviour
     bool _isDone, _isHided, _isStartedProcess, _StartRotate, _isLoading;
     float _TimeLerp;
 
-    internal void Init(int _lvl)
+    internal void Init(int _lvl, bool _background)
     {
         if(!_isLoading)
         {
             _LevelNumber = _lvl;
+            _ShowBackground = _background;
             _Indicator.color = _ColorStart;
             _isHided = System.Convert.ToBoolean(1 - _Indicator.color.a);
 
