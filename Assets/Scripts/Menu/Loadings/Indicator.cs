@@ -70,7 +70,7 @@ public class Indicator : MonoBehaviour
 
     void ColorChanger(Color _start, Color _end, bool _hiding)
     {
-        _TimeLerp += Time.deltaTime * _SpeedLerping;
+        _TimeLerp += RealTime.deltaTime * _SpeedLerping;
         _Indicator.color = Color.Lerp(_start, _end, _TimeLerp);
         if (_TimeLerp > 1.0f)
         {
@@ -81,7 +81,16 @@ public class Indicator : MonoBehaviour
 
     IEnumerator HideIndicator()
     {
-        if (_Type != TypeIndicator.None) yield return new WaitForSeconds(_PreloadingWaitingTime);
+        float _time = 0.0f;
+        if (_Type != TypeIndicator.None)
+        {
+            while (_time <= _PreloadingWaitingTime)
+            {
+                _time += RealTime.deltaTime;
+                yield return null;
+            }            
+        }
+
         bool _back = false;
         while (!_isHided)
         {
@@ -94,7 +103,13 @@ public class Indicator : MonoBehaviour
             yield return null;
         }
         LoadingLevel.Instance._LoadingLevelLogics._ActivateScene = true;
-        yield return new WaitForSeconds(0.5f);
+
+        _time = 0.0f;
+        while (_time <= 0.5f)
+        {
+            _time += RealTime.deltaTime;
+            yield return null;
+        }
 
         if (_ShowBackground) LoadingLevel.Instance._ImageLoading.ColorAlpha();
         _isDone = false;

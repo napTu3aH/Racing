@@ -68,9 +68,11 @@ public class ImageLoading : MonoBehaviour
 
     IEnumerator _ColorChanger(UISprite _Image, float _seconds, float _speed)
     {
+        float _time = 0.0f;
+
         while (!_SettedColor)
         {
-            _TimeLerp += Time.deltaTime * _speed;
+            _TimeLerp += RealTime.deltaTime * _speed;
             if(!_AlphaColor) _Image.color = Color.Lerp(_ColorStart, _ColorEnd, _TimeLerp);
             else _Image.color = Color.Lerp(_ColorEnd, _ColorAlpha, _TimeLerp);
             if (_TimeLerp >= 1.0f)
@@ -82,7 +84,11 @@ public class ImageLoading : MonoBehaviour
             }
             yield return null;
         }
-        yield return new WaitForSeconds(_seconds);
+        while (_time <= _seconds)
+        {
+            _time += RealTime.deltaTime;
+            yield return null;
+        }        
         ColoringImages();
     }
 }

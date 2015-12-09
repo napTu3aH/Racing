@@ -124,7 +124,12 @@ public class HitBox : MonoBehaviour {
         }
       
         _CarInfo.Counting(_CountedDamage);
-        if (_Player) GameplayInfo.Inscante.StartCounting(_CountedDamage / _CarInfo._PercentHealthFactor);
+        if (_Player)
+        {
+            float _points = _CountedDamage / _CarInfo._PercentHealthFactor;
+            GameplayInfo.Inscante.StartCounting(_points);
+            Notification.Instance.NotificateStatic(_points.ToString());
+        } 
         _HitBoxComponent.DestructComponent(_HitBoxHealth);
     }
     /// <summary>

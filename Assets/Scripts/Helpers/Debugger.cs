@@ -18,7 +18,6 @@ public class Debugger : MonoBehaviour {
             else
             {
                 _Debugger = new GameObject("Debugger", typeof(Debugger)).GetComponent<Debugger>();
-
                 return _Debugger;
             }
         }

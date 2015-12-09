@@ -69,12 +69,7 @@ public class GameSettings : MonoBehaviour {
         SetAudioSourceValue(_SoundSprite, _SoundButton, _SoundSource, _SoundSlider);
         SetAudioSourceValue(_MusicSprite, _MusicButton, _MusicSource, _MusicSlider);
 
-        if (!_SlowCoroutine && Time.timeScale < 1.0f)
-        {
-            _SlowCoroutine = true;
-            _SlowingFactor = 0.0f;
-            StartCoroutine(Slowing());
-        }        
+        ReturnerTimeScale.Instance.ReturnTimeScale();       
     }
 
 
@@ -188,7 +183,16 @@ public class GameSettings : MonoBehaviour {
         _Vibrate = !_Vibrate;
         PlayerPrefsHelper.SetInt("Vibration", Convert.ToInt32(_Vibrate));
         Vibrate();
-        Debugger.Instance.Log("Vibration: "+_Vibrate);
+        if (_Vibrate)
+        {
+            Notification.Instance.Notificate("Vibrate On");
+        }
+        else
+        {
+            Notification.Instance.Notificate("Vibrate Off");
+        }
+        
+
     }
 
     /// <summary>
@@ -209,7 +213,15 @@ public class GameSettings : MonoBehaviour {
     {
         _Particles = !_Particles;
         PlayerPrefsHelper.SetInt("Particles", Convert.ToInt32(_Particles));
-        Debugger.Instance.Log("Particles: " + _Particles);
+
+        if (_Particles)
+        {
+            Notification.Instance.Notificate("Particles On");
+        }
+        else
+        {
+            Notification.Instance.Notificate("Particles Off");
+        }
     }
 
     /// <summary>
@@ -325,21 +337,6 @@ public class GameSettings : MonoBehaviour {
         _MenuButton.isEnabled = false;
         _RestartButton.isEnabled = false;     
         yield return new WaitForSeconds(0);
-        if (_SlowMotion)
-        {
-            SlowMotion(SlowMotionClass.Instance._Slow);
-        }
-        else
-        {
-            if (Time.timeScale == 1.0f)
-            {
-                Time.timeScale = 0.0f;
-            }
-            else
-            {
-                Time.timeScale = 1.0f;
-            }
-        }
         _GameplayUI.SetActive(false);
         LoadingLevel.Instance._Indicator.Init(_index, _ShowBackgroundForLoading);
     }

@@ -31,14 +31,13 @@ namespace UnityStandardAssets.Vehicles.Car
         void Awake()
         {
             Instance = this;
-            
-#if UNITY_STANDALONE || UNITY_EDITOR
 
+#if UNITY_STANDALONE || UNITY_EDITOR            
+            ChangeInput();
 #elif !UNITY_STANDALONE || !UNITY_EDITOR
+            _NumberInput++;
             ChangeInput();
 #endif
-            ChangeInput();
-
         }
 
         public void CarSet(CarController _controller, Transform _carTransform)
@@ -61,18 +60,25 @@ namespace UnityStandardAssets.Vehicles.Car
             }
             else
             {
+#if UNITY_STANDALONE || UNITY_EDITOR
                 _NumberInput = 1;
+#elif !UNITY_STANDALONE || !UNITY_EDITOR
+                _NumberInput = 2;
+#endif
                 _TypesControl = (_TypeControl)_NumberInput;
             }
+
             _left = false;
             _right = false;
             _forward = false;
             _back = false;
 
+            Notification.Instance.Notificate("Input changet to: " + _TypesControl.ToString());
+
             foreach (GameObject _gm in _ImagesTypesControl)
             {
                 if (_gm.name == _TypesControl.ToString())
-                {
+                {                    
                     _gm.SetActive(true);
                     continue;
                 }
