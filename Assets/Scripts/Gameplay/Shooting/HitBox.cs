@@ -81,7 +81,7 @@ public class HitBox : MonoBehaviour {
         Counting();
         for (int i = 0; i < _HitBoxComponent._FactorForDestruct; i++)
         {
-            _HitBoxComponent.DestructComponent(_HitBoxHealth);
+            _HitBoxComponent.DestructComponent(_HitBoxHealth, false, true);
         }
         Destroy(_HitBoxComponent);
         Destroy(_Mesh);
@@ -128,9 +128,8 @@ public class HitBox : MonoBehaviour {
         {
             float _points = _CountedDamage / _CarInfo._PercentHealthFactor;
             GameplayInfo.Inscante.StartCounting(_points);
-            Notification.Instance.NotificateStatic(_points.ToString());
-        } 
-        _HitBoxComponent.DestructComponent(_HitBoxHealth);
+        }
+        _HitBoxComponent.DestructComponent(_HitBoxHealth, _Player, false);
     }
     /// <summary>
     /// Метод подсчёта значений защиты.
@@ -244,7 +243,7 @@ public class HitBox : MonoBehaviour {
         {
             if (_CarInfo._Player)
             {
-                GameSettings.Instance.Vibrate();
+                GameSettings.Instance.Vibrate();                
             }
             else
             {

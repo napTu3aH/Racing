@@ -49,18 +49,18 @@ public class HitBoxComponents : MonoBehaviour
         }
     }
 
-    public void DestructComponent(float _currentHealth)
+    public void DestructComponent(float _currentHealth, bool _player, bool _die)
     {
-        if (GameSettings.Instance._Destructions)
+
+        if (_Components.Count > 0)
         {
-            if (_Components.Count > 0)
+            if (_currentHealth < _HealthToDestruct * _FactorForDestruct)
             {
-                if (_currentHealth < _HealthToDestruct * _FactorForDestruct)
+                if (GameSettings.Instance._Destructions)
                 {
                     _FactorForDestruct--;
                     GameObject _component = _Components[_IndexComponent];
                     
-
                     if (_component.CompareTag("Wheel"))
                     {
                         _HitBox._Car._WheelColliders[_component.GetComponent<WheelIndex>()._Index].gameObject.SetActive(false);
@@ -83,12 +83,31 @@ public class HitBoxComponents : MonoBehaviour
                     }
                     _IndexComponent++;
                 }
+                if (!_die)
+                {
+                    NotifyMessage(_player);
+                }
             }
         }       
     }
 
+    void NotifyMessage(bool _player)
+    {
+        if (_HitBox._CarInfo._Player && !_player)
+        {
+            TextForNotify.Instance.PushText(4);
+        }
+        else
+        if(!_HitBox._CarInfo._Player && _player)
+        {
+            TextForNotify.Instance.PushText(1);
+        }
+    }
+
     public void ReturnToBack()
     {
+        _FactorForDestruct = _Components.Count;
+        _IndexComponent = 0;
         for (int i = 0; i < _Components.Count; i++)
         {
             if (!_Components[i].activeSelf)

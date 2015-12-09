@@ -28,5 +28,6 @@ public class FPSCounter : MonoBehaviour {
             m_FpsNextPeriod += fpsMeasurePeriod;
             m_Text.text = string.Format(display, m_CurrentFps);
         }
+        Debug.Log("AZAZAAZA");
     }
 }

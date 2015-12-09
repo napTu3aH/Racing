@@ -15,7 +15,7 @@ public class GameSettings : MonoBehaviour {
     public UIButton _MenuButton;
     public UIButton _RestartButton;
 
-    [Header("Canvas layers")]
+    [Header("UI layers")]
     public GameObject _GameplayUI;
     public GameObject _SettingsLayer;
     public GameObject _ControlsLayer;

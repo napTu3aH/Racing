@@ -22,7 +22,7 @@ namespace UnityStandardAssets.Vehicles.Car
         public Transform _CameraTarget;
         [SerializeField] internal _TypeControl _TypesControl;
         [SerializeField] internal List<GameObject> _ImagesTypesControl; // 0 - Type1, 1 - Type2 ... n - TypeN+1
-        [HideInInspector] public bool _shooting;
+        internal bool _shooting;
         
         float h, v, j, _ChangeSpeed = 2.5f;
         bool _left, _right, _forward, _back;

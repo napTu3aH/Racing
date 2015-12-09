@@ -112,12 +112,17 @@ namespace UnityStandardAssets.Vehicles.Car
             _isAlive = false;
             if (!_Player)
             {
-                if (_info._Player) GameplayInfo.Inscante.Kills();
+                if (_info._Player)
+                {
+                    GameplayInfo.Inscante.Kills();
+                    TextForNotify.Instance.PushText(3);
+                }
                 NPCCalculatePath.Instance.RemoveNPC(_ID, transform, _AiLogic, _BackDrive);
             }
             else
             {
                 Destroy(_SlowMotion);
+                TextForNotify.Instance.PushText(5);
             }
 
             SpawnPlayers.Instance.RemoveCar(_Player, _ID, transform);

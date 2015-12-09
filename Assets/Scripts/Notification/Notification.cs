@@ -4,17 +4,27 @@ using System.Collections.Generic;
 
 public class Notification : MonoBehaviour
 {
-    [SerializeField] internal GameObject _LabelPrefab;
-    [SerializeField] internal Transform _StaticLabelTransform, _StaticTransformFrom, _StaticTransformTo;
-    [SerializeField] internal Transform _Parent, _TransformFrom, _TransformTo;
+    [Header("Static Label")]
+    
+    [SerializeField] internal Transform _StaticLabelTransform;
+    [SerializeField] internal Transform _OtherTransform;
+    [SerializeField] internal Transform _StaticTransformFrom;
+    [SerializeField] internal Transform _StaticTransformTo;
 
-    internal int _Index;
-    float _Time, _TimeStay;
+    [Header("Dynamic Label")]
+    [SerializeField] internal GameObject _LabelPrefab;
+    [SerializeField] internal Transform _Parent;
+    [SerializeField] internal Transform _TransformFrom;
+    [SerializeField] internal Transform _TransformTo;
+
     bool _Showed;
+    internal int _Index;
+    float _Time, _TimeStay;   
     GameObject _LabelGameObject;
     internal UILabel _Label, _StaticLabel;
     internal List<TweeningText> _TweeningText;
-    internal TweenTransform _StaticTweenTransform;
+    internal TweenTransform _StaticTweenTransform, _OtherTweenTransform;
+
     private static Notification _Notification;
     public static Notification Instance
     {
@@ -37,8 +47,19 @@ public class Notification : MonoBehaviour
     {
         _Notification = this;
         _TweeningText = new List<TweeningText>();
+
         _StaticTweenTransform = _StaticLabelTransform.GetComponent<TweenTransform>();
         _StaticLabel = _StaticLabelTransform.GetComponentInChildren<UILabel>();
+    }
+
+    internal void OtherTransformSet(Transform _transform)
+    {
+        _OtherTransform = _transform;
+        _OtherTweenTransform = _OtherTransform.GetComponent<TweenTransform>();
+        if (!_OtherTweenTransform)
+        {          
+            Debug.LogWarning("Other tween transform don't added!");
+        }
     }
 
     void Awake()
@@ -75,6 +96,7 @@ public class Notification : MonoBehaviour
         {
             _Showed = true;
             _StaticTweenTransform.PlayForward();
+            if (_OtherTweenTransform) _OtherTweenTransform.PlayForward();
             StartCoroutine(StaticNotify());
         }         
     }
@@ -120,6 +142,7 @@ public class Notification : MonoBehaviour
             yield return null;
         }
         _StaticTweenTransform.PlayReverse();
+        if (_OtherTweenTransform) _OtherTweenTransform.PlayReverse();
         _Showed = false;
         yield return null;
     }
