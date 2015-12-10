@@ -180,7 +180,9 @@ namespace UnityStandardAssets.Vehicles.Car
             {
                 _HitBoxs[i].DieHitBox();
             }
-            GetComponent<Rigidbody>().mass *= 5.0f;
+            Rigidbody _rig = GetComponent<Rigidbody>();
+            _rig.drag = 15.0f;
+            _rig.angularDrag = 15.0f;
             Destroy(_Car);
             Destroy(_WeaponRotate._ShootingScript);
             Destroy(_WeaponRotate);
