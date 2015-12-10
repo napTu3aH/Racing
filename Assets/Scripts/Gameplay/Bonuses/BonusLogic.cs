@@ -5,6 +5,7 @@ public class BonusLogic : MonoBehaviour
 {
     [SerializeField] internal BonusEffect _Bonus;
     [SerializeField] internal float _FactorObject;
+    [SerializeField] internal float _Time;
     [SerializeField] internal AudioClip _Clip;
     [SerializeField] internal float _GrowFactor;
 
@@ -20,15 +21,11 @@ public class BonusLogic : MonoBehaviour
         Repair
     }
 
-    /*void Awake()
-    {
-        StartCoroutine(_Rotate());
-    }*/
-
-    internal void Init(int _number, float _factor, AudioClip _clip)
+    internal void Init(int _number, float _factor, float _time, AudioClip _clip)
     {
         _Bonus = (BonusEffect)_number;
         _FactorObject = _factor;
+        _Time = _time;
         _Clip = _clip;
         StartCoroutine(_Rotate());
     }
@@ -42,6 +39,11 @@ public class BonusLogic : MonoBehaviour
             if (_box)
             {
                 CarInfo _car = _box._CarInfo;
+                if (_car._Player)
+                {
+                    TextForNotify.Instance.PushText(4);
+                    Notification.Instance.Notificate(_Bonus.ToString());
+                }
                 GettingBonus(_car);
                 _Uppded = true;
             }
@@ -53,19 +55,19 @@ public class BonusLogic : MonoBehaviour
         switch (_Bonus)
         {
             case BonusEffect.Armor:
+                _car.ArmorFactoring(_FactorObject, _Time);
                 break;
 
             case BonusEffect.Damage:
+                _car.Damage(_FactorObject, _Time);
                 break;
 
             case BonusEffect.Repair:
-                foreach (HitBox _hitBox in _car._HitBoxs)
-                {
-                    _hitBox.Repair();
-                }
+                _car.Repair();
                 break;
 
             case BonusEffect.Speed:
+                _car.TopSpeedFactoring(_FactorObject, _Time);
                 break;
         }
         AudioController.Instance.PlayOneShot(_Clip, 1.0f);

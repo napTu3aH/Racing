@@ -8,10 +8,11 @@ public class GameplayInfo : MonoBehaviour {
     [Header("Points")]
     [SerializeField] internal float _LastPoints;
     [SerializeField] internal float _SpeedLerpPoints = 1.0f;
+    [SerializeField] internal UILabel _ScoreText;
 
     [Header("Kills")]
     [SerializeField] internal int _CountKill;
-
+    [SerializeField] internal UILabel _KillText;
     bool _Counting;
     float _TimeLerp;
     internal float _PointsNow;
@@ -24,11 +25,14 @@ public class GameplayInfo : MonoBehaviour {
     void Init()
     {
         Inscante = this;
+        _KillText.text = "Kills: " + _CountKill;
+        _ScoreText.text = "Points: " + _LastPoints.ToString("0");
     }
 
     public void Kills()
     {
         _CountKill++;
+        _KillText.text = "Kills: " + _CountKill;
     }
 
     public void StartCounting(float _points)
@@ -59,6 +63,7 @@ public class GameplayInfo : MonoBehaviour {
                 _Counting = false;
                 yield return null;
             }
+            _ScoreText.text = "Points: " + _LastPoints.ToString("0");
             yield return null;
         }
         yield return null;

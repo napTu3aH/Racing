@@ -31,8 +31,10 @@ namespace UnityStandardAssets.Vehicles.Car
         public float _TimeUpdateFactor;
 
         internal bool _Visibled;
-        
-        bool _UpdatedPath;
+        internal float _TopSpeedFactor = 1.0f, _TimeToping,
+            _ArmorFactor = 1.0f, _TimeArmor,
+            _DamageFactor = 1.0f, _TimeDamage;
+        bool _UpdatedPath, _TopSpeedCoroutine, _ArmorCoroutine, _DamageCoroutine;
         SlowMotionClass _SlowMotion;
 
         void Awake()
@@ -71,7 +73,7 @@ namespace UnityStandardAssets.Vehicles.Car
         /// <summary>
         /// Метод подсчёта значений здоровья и процентажа здоровья при старте.
         /// </summary>
-        public void InitCounting()
+        internal void InitCounting()
         {
             _CurrentHealth = 0.0f;
             _PercentHealthFactor = 0.0f;
@@ -93,12 +95,55 @@ namespace UnityStandardAssets.Vehicles.Car
             }
         }
 
-        public void Counting(float _damage)
+        internal void TopSpeedFactoring(float _newTopSpeed, float _time)
+        {            
+            if (!_TopSpeedCoroutine)
+            {
+                _TopSpeedCoroutine = true;
+                _TopSpeedFactor = _newTopSpeed;
+                _TimeToping = _time;
+                Counting(0);
+                StartCoroutine(TopSpeedCoroutine());
+            }
+        }
+
+        internal void ArmorFactoring(float _newArmorFactor, float _time)
+        {
+            if (!_ArmorCoroutine)
+            {
+                _ArmorCoroutine = true;
+                _ArmorFactor = _newArmorFactor;
+                _TimeArmor = _time;
+                Counting(0);
+                StartCoroutine(ArmorCoroutine());
+            }
+        }
+
+        internal void Repair()
+        {
+            foreach (HitBox _hitBox in _HitBoxs)
+            {
+                _hitBox.Repair();
+            }
+        }
+
+        internal void Damage(float _damageFactor, float _time)
+        {
+            if (!_DamageCoroutine)
+            {
+                _DamageCoroutine = true;
+                _DamageFactor = _damageFactor;
+                _TimeDamage = _time;
+                StartCoroutine(DamageFactor());
+            }
+        }
+
+        internal void Counting(float _damage)
         {
             _CurrentHealth -= _damage;
-            _Health = _CurrentHealth / _PercentHealthFactor;
+            _Health = (_CurrentHealth / _PercentHealthFactor) * _ArmorFactor;
             float _currentTopSpeed = _TopSpeedMax * (_Health / 100.0f);
-            _Car.TopSpeed = Mathf.Clamp(_currentTopSpeed, 50.0f, Mathf.Infinity);
+            _Car.TopSpeed = Mathf.Clamp(_currentTopSpeed, 50.0f, Mathf.Infinity) * _TopSpeedFactor;
 
             if (_Player)
             {
@@ -107,7 +152,7 @@ namespace UnityStandardAssets.Vehicles.Car
             }
         }
 
-        public void DiePlayer(CarInfo _info)
+        internal void DiePlayer(CarInfo _info)
         {
             _isAlive = false;
             if (!_Player)
@@ -115,14 +160,14 @@ namespace UnityStandardAssets.Vehicles.Car
                 if (_info._Player)
                 {
                     GameplayInfo.Inscante.Kills();
-                    TextForNotify.Instance.PushText(3);
+                    TextForNotify.Instance.PushText(2);
                 }
                 NPCCalculatePath.Instance.RemoveNPC(_ID, transform, _AiLogic, _BackDrive);
             }
             else
             {
                 Destroy(_SlowMotion);
-                TextForNotify.Instance.PushText(5);
+                TextForNotify.Instance.PushText(3);
             }
 
             SpawnPlayers.Instance.RemoveCar(_Player, _ID, transform);
@@ -148,6 +193,26 @@ namespace UnityStandardAssets.Vehicles.Car
         void OnCollisionEnter(Collision _col)
         {
             ParticlesHitting.Instance.Hitting(_col, this, _WeaponRotate);
+        }
+
+        IEnumerator TopSpeedCoroutine()
+        {
+            yield return new WaitForSeconds(_TimeToping);
+            _TopSpeedFactor = 1.0f;
+            Counting(0);
+        }
+
+        IEnumerator ArmorCoroutine()
+        {
+            yield return new WaitForSeconds(_TimeArmor);
+            _ArmorFactor = 1.0f;
+            Counting(0);
+        }
+
+        IEnumerator DamageFactor()
+        {
+            yield return new WaitForSeconds(_TimeDamage);
+            _DamageFactor = 1.0f;
         }
 
         IEnumerator NPC_Updater()

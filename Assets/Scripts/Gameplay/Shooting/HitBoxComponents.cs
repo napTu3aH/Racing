@@ -74,6 +74,7 @@ public class HitBoxComponents : MonoBehaviour
                     {
                         _clonedComponent.AddComponent<BoxCollider>();
                         _clonedComponent.AddComponent<Rigidbody>().mass = 100.0f;
+                        _clonedComponent.AddComponent<PhysicsComponent>();
                         _clonedComponent.GetComponent<MeshRenderer>().material.color = _ColorComponent;
                         Destroy(_clonedComponent, _TimeToDeactivate);
                     }
@@ -95,12 +96,12 @@ public class HitBoxComponents : MonoBehaviour
     {
         if (_HitBox._CarInfo._Player && !_player)
         {
-            TextForNotify.Instance.PushText(4);
+            TextForNotify.Instance.PushText(1);
         }
         else
         if(!_HitBox._CarInfo._Player && _player)
         {
-            TextForNotify.Instance.PushText(1);
+            TextForNotify.Instance.PushText(0);
         }
     }
 

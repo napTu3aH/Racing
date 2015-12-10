@@ -21,10 +21,10 @@ public class BonusesLogic : MonoBehaviour
     {
         int _randomBonus = UnityEngine.Random.Range(0, _Bonuses.Length);
         int _numberBonus = (int)_Bonuses[_randomBonus]._Bonus;
-        GameObject _bonus = Instantiate(_Bonuses[_randomBonus]._Prefab, _position.position, Quaternion.identity) as GameObject;
+        GameObject _bonus = Instantiate(_Bonuses[_randomBonus]._Prefab, _position.position + Vector3.up, Quaternion.identity) as GameObject;
         BonusLogic _logic = _bonus.GetComponent<BonusLogic>();
 
-        _logic.Init(_numberBonus, _Bonuses[_randomBonus]._Factor, _Bonuses[_randomBonus]._Clip);
+        _logic.Init(_numberBonus, _Bonuses[_randomBonus]._Factor, _Bonuses[_randomBonus]._Time, _Bonuses[_randomBonus]._Clip);
     }
 }
 
@@ -43,5 +43,6 @@ public class Bonus
     [SerializeField] internal BonusEffect _Bonus;
     [SerializeField] internal GameObject _Prefab;
     [SerializeField] internal float _Factor;
+    [SerializeField] internal float _Time;
     [SerializeField] internal AudioClip _Clip;
 }

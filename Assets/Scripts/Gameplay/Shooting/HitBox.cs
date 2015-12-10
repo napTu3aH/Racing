@@ -96,11 +96,14 @@ public class HitBox : MonoBehaviour {
         _HitBoxComponent.ReturnToBack();
     }
 
+
+
     /// <summary>
     /// Передача урона игроку.
     /// </summary>
     public void Hitted(float _damage, CarInfo _Info)
     {
+        _damage = _damage * _Info._DamageFactor;
         Damage(_damage, _Info._Player);
         Counting();
         if (_CarInfo._Health <= 0.0f && _CarInfo._isAlive)
