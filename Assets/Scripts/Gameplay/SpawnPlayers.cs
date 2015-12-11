@@ -36,8 +36,8 @@ public class SpawnPlayers : MonoBehaviour {
     void Init()
     {
         Instance = this;
-        _SpawnPoints = GameObject.FindWithTag("Respawn").GetComponentsInChildren<Transform>();
-        _RandomPoints = new int[_SpawnPoints.Length - 1];
+        //_SpawnPoints = GameObject.FindWithTag("Respawn").GetComponentsInChildren<Transform>();
+        _RandomPoints = new int[_SpawnPoints.Length];
 
         RandomValueForPosition();
         if (_Spawn)
@@ -79,7 +79,7 @@ public class SpawnPlayers : MonoBehaviour {
     {
         for (int i = 0; i < _RandomPoints.Length; i++)
         {
-            int _p = Random.Range(1, _SpawnPoints.Length);
+            int _p = Random.Range(0, _SpawnPoints.Length);
             _RandomPoints[i] = _p;
             if (i > 0)
             {
@@ -104,11 +104,11 @@ public class SpawnPlayers : MonoBehaviour {
         GameObject _car, _waypoint;
         if (_player)
         {
-            _car = Instantiate(_PlayerCars[i], _SpawnPoints[j].position, Quaternion.identity) as GameObject;
+            _car = Instantiate(_PlayerCars[i], _SpawnPoints[j].position, _SpawnPoints[j].rotation) as GameObject;
         }
         else
         {
-            _car = Instantiate(_Cars[i], _SpawnPoints[j].position, Quaternion.identity) as GameObject;
+            _car = Instantiate(_Cars[i], _SpawnPoints[j].position, _SpawnPoints[j].rotation) as GameObject;
             _waypoint = Instantiate(_CurrentWayPoint, transform.position, Quaternion.identity) as GameObject;
             NPCCalculatePath.Instance._CurrentWayPoints.Add(_waypoint.transform);
 
