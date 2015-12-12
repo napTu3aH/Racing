@@ -4,7 +4,24 @@ using System.Collections;
 
 public class BonusesLogic : MonoBehaviour
 {
-    public static BonusesLogic Instance;
+    private static BonusesLogic _BonusesLogic;
+    public static BonusesLogic Instance
+    {
+        get
+        {
+            if (_BonusesLogic != null)
+            {
+                return _BonusesLogic;
+            }
+            else
+            {
+                GameObject _prefab = Instantiate(Resources.Load("Gameplay/Bonuses/_Bonuses", typeof(GameObject))) as GameObject;
+                _BonusesLogic = _prefab.GetComponent<BonusesLogic>();
+                return _BonusesLogic;
+            }
+        }
+    }
+    [SerializeField] internal Vector3 _SpawnPosition;
     [SerializeField] internal Bonus[] _Bonuses;
 
     void Awake()
@@ -14,14 +31,15 @@ public class BonusesLogic : MonoBehaviour
 
     void Init()
     {
-        Instance = this;
+        _BonusesLogic = this;
     }
 
-    internal void SpawnBonus(Transform _position)
+    internal void SpawnBonus(Transform _position, Vector3 _upper)
     {
         int _randomBonus = UnityEngine.Random.Range(0, _Bonuses.Length);
         int _numberBonus = (int)_Bonuses[_randomBonus]._Bonus;
-        GameObject _bonus = Instantiate(_Bonuses[_randomBonus]._Prefab, _position.position + Vector3.up, Quaternion.identity) as GameObject;
+        _SpawnPosition = _upper;
+        GameObject _bonus = Instantiate(_Bonuses[_randomBonus]._Prefab, _position.position + _SpawnPosition, Quaternion.identity) as GameObject;
         BonusLogic _logic = _bonus.GetComponent<BonusLogic>();
 
         _logic.Init(_numberBonus, _Bonuses[_randomBonus]._Factor, _Bonuses[_randomBonus]._Time, _Bonuses[_randomBonus]._Clip);

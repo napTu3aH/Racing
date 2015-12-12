@@ -37,20 +37,21 @@ namespace UnityStandardAssets.Vehicles.Car
         [SerializeField] private float m_SlipLimit;
         [SerializeField] private float m_BrakeTorque;
 
-        private Quaternion[] m_WheelMeshLocalRotations;
-        private Vector3 m_Prevpos, m_Pos;
-        private float m_SteerAngle;
-        private int m_GearNum;
-        private float m_GearFactor;
-        private float m_OldRotation;
-        private float m_CurrentTorque;
-        private Rigidbody m_Rigidbody;
-        private const float k_ReversingThreshold = 0.01f;
+        Quaternion[] m_WheelMeshLocalRotations;
+        Vector3 m_Prevpos, m_Pos;
+        float m_SteerAngle;
+        int m_GearNum;
+        float m_GearFactor;
+        float m_OldRotation;
+        float m_CurrentTorque;
+        Rigidbody m_Rigidbody;
+        const float k_ReversingThreshold = 0.01f;
 
         public float TopSpeed {
             get { return m_Topspeed; }
             set { m_Topspeed = value; }
         }
+        public float _CurrentTorque { get { return m_CurrentTorque; } }
         public WheelCollider[] _WheelColliders { get { return m_WheelColliders; } }
         public GameObject[] _WheelMeshes { get { return m_WheelMeshes; } }
         public float _FactorLeft, _FactorRight;
@@ -68,7 +69,7 @@ namespace UnityStandardAssets.Vehicles.Car
         public float AccelInput { get; private set; }
 
         // Use this for initialization
-        private void Start()
+        private void Awake()
         {
             m_WheelMeshLocalRotations = new Quaternion[4];
             for (int i = 0; i < 4; i++)

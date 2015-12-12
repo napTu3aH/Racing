@@ -1,6 +1,6 @@
 ﻿using System;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using System.Collections;
 
 /// <summary>
@@ -35,6 +35,8 @@ public class GameSettings : MonoBehaviour {
     public float _Music;
 
     [Header("Other settings")]
+    public int _MainMenuLevel;
+    public int _ThisSceneLevel;
     public bool _Vibrate;
     public bool _SlowMotion;
     public bool _Particles;
@@ -253,7 +255,7 @@ public class GameSettings : MonoBehaviour {
     /// </summary>
     public void MenuButton()
     {
-        StartCoroutine(LoadingLevelCoroutine(1));
+        StartCoroutine(LoadingLevelCoroutine(_MainMenuLevel));
     }
 
     /// <summary>
@@ -261,7 +263,7 @@ public class GameSettings : MonoBehaviour {
     /// </summary>
     public void RestartButton()
     {
-        StartCoroutine(LoadingLevelCoroutine(Application.loadedLevel));        
+        StartCoroutine(LoadingLevelCoroutine(_ThisSceneLevel));        
     }
 
     /// <summary>
@@ -336,9 +338,9 @@ public class GameSettings : MonoBehaviour {
     {        
         _MenuButton.isEnabled = false;
         _RestartButton.isEnabled = false;     
-        yield return new WaitForSeconds(0);
         _GameplayUI.SetActive(false);
         LoadingLevel.Instance._Indicator.Init(_index, _ShowBackgroundForLoading);
+        yield return null;
     }
 
 }

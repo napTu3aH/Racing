@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 using System.Collections;
 
 public class LoadingLevelLogics : MonoBehaviour
@@ -31,7 +32,7 @@ public class LoadingLevelLogics : MonoBehaviour
 
     IEnumerator Load(int _index)
     {        
-        AsyncOperation _async = Application.LoadLevelAsync(_index);
+        AsyncOperation _async = SceneManager.LoadSceneAsync(_index);
         while (!_async.isDone)
         {
             _PercentLoaded = _async.progress;

@@ -81,16 +81,7 @@ public class Indicator : MonoBehaviour
 
     IEnumerator HideIndicator()
     {
-        float _time = 0.0f;
-        if (_Type != TypeIndicator.None)
-        {
-            while (_time <= _PreloadingWaitingTime)
-            {
-                _time += RealTime.deltaTime;
-                yield return null;
-            }            
-        }
-
+        yield return new WaitForSecondsRealTime(_PreloadingWaitingTime);
         bool _back = false;
         while (!_isHided)
         {
@@ -104,12 +95,7 @@ public class Indicator : MonoBehaviour
         }
         LoadingLevel.Instance._LoadingLevelLogics._ActivateScene = true;
 
-        _time = 0.0f;
-        while (_time <= 0.5f)
-        {
-            _time += RealTime.deltaTime;
-            yield return null;
-        }
+        yield return new WaitForSecondsRealTime(0.5f);
 
         if (_ShowBackground) LoadingLevel.Instance._ImageLoading.ColorAlpha();
         _isDone = false;

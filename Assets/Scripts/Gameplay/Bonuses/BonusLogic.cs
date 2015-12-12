@@ -9,6 +9,7 @@ public class BonusLogic : MonoBehaviour
     [SerializeField] internal AudioClip _Clip;
     [SerializeField] internal float _GrowFactor;
 
+    Rigidbody _Rig;
     bool _Grow, _Uppded;
     float _Timer;
     Vector3 _ScaleFactor, _LittleScale;
@@ -27,6 +28,7 @@ public class BonusLogic : MonoBehaviour
         _FactorObject = _factor;
         _Time = _time;
         _Clip = _clip;
+        _Rig = GetComponent<Rigidbody>();
         StartCoroutine(_Rotate());
     }
 

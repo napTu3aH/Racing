@@ -5,13 +5,25 @@ using UnityStandardAssets.Vehicles.Car;
 
 public class NPCCalculatePath : MonoBehaviour
 {
-    public static NPCCalculatePath Instance;
+    private static NPCCalculatePath _NPCCalculatePath;
+    public static NPCCalculatePath Instance
+    {
+        get
+        {
+            if (_NPCCalculatePath != null)
+            {
+                return _NPCCalculatePath;
+            }
+            else
+            {
+                _NPCCalculatePath = new GameObject("_NPCCalculatePath", typeof(NPCCalculatePath)).GetComponent<NPCCalculatePath>();
+                return _NPCCalculatePath;
+            }
+        }
+    }
 
-    public List<Transform> _NPC_Cars;
-    public List<Transform> _CurrentWayPoints;
     public float _MinDistance = 5.0f;
-    public int _MaximumNPC;
-    public float[] _Distance;
+    internal int _MaximumNPC;
 
     public List<Transform> _NavPoints;
     NavMeshPath[] _NavPath;
@@ -25,14 +37,13 @@ public class NPCCalculatePath : MonoBehaviour
 
     void Init()
     {
-        Instance = this;
+        _NPCCalculatePath = this;
     }
 
     void Start()
     {
         _NumberOfPoints = new int[_MaximumNPC];
         _NavPath = new NavMeshPath[_MaximumNPC];
-        _Distance = new float[_MaximumNPC];
         for (int i = 0; i < _NumberOfPoints.Length; i++)
         {
             _NavPath[i] = new NavMeshPath();
@@ -51,64 +62,47 @@ public class NPCCalculatePath : MonoBehaviour
         }
     }
 
-    public void DistaceUpdate(int _Id_NPC)
+    public void PathUpdate(CarAiController _AI, Transform _currentPoint)
     {
-        if (Instance)
+        if (_NavPoints[_NumberOfPoints[_AI._ID]])
         {
-            if (_NavPoints[_NumberOfPoints[_Id_NPC]])
-            {
-                _Distance[_Id_NPC] = Vector3.Distance(_NPC_Cars[_Id_NPC].position, _NavPoints[_NumberOfPoints[_Id_NPC]].position);
-            }
-            else
-            {
-                ChangeNumberPoint(_Id_NPC);
-            }
-            
-        }        
-    }
-
-    public void PathUpdate(int _Id_NPC)
-    {
-        if (_NavPoints[_NumberOfPoints[_Id_NPC]])
-        {
-            _Pathed = NavMesh.CalculatePath(_NPC_Cars[_Id_NPC].position, _NavPoints[_NumberOfPoints[_Id_NPC]].position, -1, _NavPath[_Id_NPC]);
+            _Pathed = NavMesh.CalculatePath(_AI.transform.position, _NavPoints[_NumberOfPoints[_AI._ID]].position, -1, _NavPath[_AI._ID]);
         }
         else
         {
-            ChangeNumberPoint(_Id_NPC);
+            ChangeNumberPoint(_AI._ID);
         }
         
-
         if (_Pathed)
         {
-            for (int j = 0; j < _NavPath[_Id_NPC].corners.Length - 1; j++)
+            if (Debugger.Instance._DebugLine)
             {
-                Debugger.Instance.Line(_NavPath[_Id_NPC].corners[j], _NavPath[_Id_NPC].corners[j+1]);
+                for (int j = 0; j < _NavPath[_AI._ID].corners.Length - 1; j++)
+                {
+                    Debugger.Instance.Line(_NavPath[_AI._ID].corners[j], _NavPath[_AI._ID].corners[j + 1]);
+                }
             }
-            if (_NavPath[_Id_NPC].corners.Length > 1)
+                       
+            if (_NavPath[_AI._ID].corners.Length > 1)
             {
-                _CurrentWayPoints[_Id_NPC].position = _NavPath[_Id_NPC].corners[1];
+                _currentPoint.position = _NavPath[_AI._ID].corners[1];
             }
             else
             {
-                _CurrentWayPoints[_Id_NPC].position = _NavPath[_Id_NPC].corners[0];
+                _currentPoint.position = _NavPath[_AI._ID].corners[0];
             }
             
         }
-        
-        if (_Distance[_Id_NPC] < _MinDistance)
+                
+        if (_AI._Distance < _MinDistance)
         {
-            ChangeNumberPoint(_Id_NPC);
+            ChangeNumberPoint(_AI._ID);
         }   
     }
 
-    public void RemoveNPC(int _id, Transform _transform, CarAIControl _aiControl, BackDrive _backDrive)
+    public void RemoveNPC(CarAiController _aiControl, BackDrive _backDrive)
     {
-        _NPC_Cars.Remove(_transform);
-        Destroy(_CurrentWayPoints[_id].gameObject);
-        _CurrentWayPoints.Remove(_CurrentWayPoints[_id]);
         Destroy(_aiControl);
         Destroy(_backDrive);
-
     }
 }

@@ -19,7 +19,7 @@ public class Notification : MonoBehaviour
 
     bool _Showed;
     internal int _Index;
-    float _Time, _TimeStay;   
+    float _TimeStay;   
     GameObject _LabelGameObject;
     internal UILabel _Label, _StaticLabel;
     internal List<TweeningText> _TweeningText;
@@ -90,7 +90,6 @@ public class Notification : MonoBehaviour
     void SendTextStatic(string _text, float _timestay)
     {
         _StaticLabel.text = _text;
-        _Time = 0.0f;
         _TimeStay = _timestay;
         if (!_Showed)
         {
@@ -136,11 +135,7 @@ public class Notification : MonoBehaviour
 
     IEnumerator StaticNotify()
     {
-        while (_Time < _TimeStay)
-        {
-            _Time += RealTime.deltaTime;
-            yield return null;
-        }
+        yield return new WaitForSecondsRealTime(_TimeStay);
         _StaticTweenTransform.PlayReverse();
         if (_OtherTweenTransform) _OtherTweenTransform.PlayReverse();
         _Showed = false;

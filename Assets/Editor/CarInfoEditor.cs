@@ -8,7 +8,6 @@ using UnityStandardAssets.Vehicles.Car;
 public class CarInfoEditor : Editor
 {
     MonoScript _Script;
-    SerializedProperty _Player;
     SerializedProperty _TopSpeedMax;
     SerializedProperty _HitBoxParent, _HitBoxs;
 
@@ -16,7 +15,6 @@ public class CarInfoEditor : Editor
     {
         _Script = MonoScript.FromMonoBehaviour((CarInfo)target);
 
-        _Player = serializedObject.FindProperty("_Player");
         _TopSpeedMax = serializedObject.FindProperty("_TopSpeedMax");
         _HitBoxParent = serializedObject.FindProperty("_HitBoxParent");
         _HitBoxs = serializedObject.FindProperty("_HitBoxs");
@@ -35,17 +33,6 @@ public class CarInfoEditor : Editor
         _CarInfo._PercentHealthFactor = EditorGUILayout.FloatField("Percent Health Factor", _CarInfo._PercentHealthFactor);
         EditorGUILayout.Space();
         _TopSpeedMax.floatValue = EditorGUILayout.FloatField("Top Speed", _TopSpeedMax.floatValue);
-        EditorGUILayout.Space();
-        _Player.boolValue = EditorGUILayout.Toggle("Player", _Player.boolValue);
-        if (!_Player.boolValue)
-        {
-            _CarInfo._ID = EditorGUILayout.IntField("ID NPC", _CarInfo._ID);
-            _CarInfo._TimeUpdateFactor = EditorGUILayout.FloatField("Time Update Factor", _CarInfo._TimeUpdateFactor);            
-        }
-        else
-        {
-            _CarInfo._TimeUpdateFactor = 0.0f;
-        }
         EditorGUILayout.Space();
         EditorGUILayout.PropertyField(_HitBoxParent);
         EditorGUILayout.PropertyField(_HitBoxs, true);      

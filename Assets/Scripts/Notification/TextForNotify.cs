@@ -47,7 +47,6 @@ public class TextForNotify : MonoBehaviour
 
     void PushLogic(int _indexClassification, int _textIndex)
     {
-        //int _Chance = UnityEngine.Random.Range(1, 100);
         if (_Classifications[_indexClassification] != null)
         {
             if (_Classifications[_indexClassification]._Texts[_textIndex] != null)

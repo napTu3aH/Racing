@@ -11,11 +11,12 @@ namespace UnityStandardAssets.Vehicles.Car
     {
         internal CarController _Car;
         internal BackDrive _BackDrive;
-        internal CarAIControl _AiLogic;
+        //internal CarAIControl _AiLogic;
+        internal CarAiController _AiLogic;
         internal CarAudioManager _CarAudio;
         internal CarSelfRighting _CarSelfRighting;        
         internal WeaponRotate _WeaponRotate;
-        public int _ID;
+
         public bool _Player, _isAlive;
         [Header("Healths")]
         public float _Health = 0.0f, _PercentHealthFactor, _CurrentHealth;
@@ -28,13 +29,11 @@ namespace UnityStandardAssets.Vehicles.Car
         }
         public float _TopSpeedMax = 100.0f;
 
-        public float _TimeUpdateFactor;
-
         internal bool _Visibled;
         internal float _TopSpeedFactor = 1.0f, _TimeToping,
             _ArmorFactor = 1.0f, _TimeArmor,
             _DamageFactor = 1.0f, _TimeDamage;
-        bool _UpdatedPath, _TopSpeedCoroutine, _ArmorCoroutine, _DamageCoroutine;
+        bool _TopSpeedCoroutine, _ArmorCoroutine, _DamageCoroutine;
         SlowMotionClass _SlowMotion;
 
         void Awake()
@@ -51,15 +50,15 @@ namespace UnityStandardAssets.Vehicles.Car
             if (_Player)
             {
                 _Visibled = true;
-                CarUserControl.Instance.CarSet(_Car, transform);                
-                SpawnPlayers.Instance._PlayerSpawned = true;
+                CarUserControl.Instance.CarSet(_Car, transform);
+                //SpawnPlayers.Instance._PlayerSpawned = true;
+                RespawnCars.Instance._PlayerSpawned = true;
                 _SlowMotion = GetComponentInChildren<SlowMotionClass>();
 
             }
             else
             {
-                NPCCalculatePath.Instance._NPC_Cars.Add(this.transform);
-                _AiLogic = GetComponent<CarAIControl>();
+                _AiLogic = GetComponent<CarAiController>();
                 _BackDrive = GetComponent<BackDrive>();
             }
 
@@ -85,14 +84,6 @@ namespace UnityStandardAssets.Vehicles.Car
             _PercentHealthFactor -= _HitBoxs.Length;
             Counting(0);
 
-        }
-
-        void Start()
-        {
-            if (!_Player)
-            {
-                StartCoroutine(NPC_Updater());
-            }
         }
 
         internal void TopSpeedFactoring(float _newTopSpeed, float _time)
@@ -162,17 +153,19 @@ namespace UnityStandardAssets.Vehicles.Car
                     GameplayInfo.Inscante.Kills();
                     TextForNotify.Instance.PushText(2);
                 }
-                NPCCalculatePath.Instance.RemoveNPC(_ID, transform, _AiLogic, _BackDrive);
+                NPCCalculatePath.Instance.RemoveNPC(_AiLogic, _BackDrive);
+                RespawnCars.Instance.RemoveCar(_Player, _AiLogic._ID, transform);
+                //SpawnPlayers.Instance.RemoveCar(_Player, _AiLogic._ID, transform);
             }
             else
             {
                 Destroy(_SlowMotion);
                 TextForNotify.Instance.PushText(3);
+                RespawnCars.Instance.RemoveCar(_Player, -1, transform);
+                //SpawnPlayers.Instance.RemoveCar(_Player, -1, transform);
             }
 
-            SpawnPlayers.Instance.RemoveCar(_Player, _ID, transform);
-
-            BonusesLogic.Instance.SpawnBonus(transform);
+            BonusesLogic.Instance.SpawnBonus(transform, new Vector3(0.0f, 5.0f, 0.0f));
 
             ParticlesHitting.Instance.Explosion(transform.position, transform.rotation, 0, this);
 
@@ -217,32 +210,6 @@ namespace UnityStandardAssets.Vehicles.Car
             _DamageFactor = 1.0f;
         }
 
-        IEnumerator NPC_Updater()
-        {
-            while (_isAlive)
-            {
-                if (!_UpdatedPath)
-                {
-                    _UpdatedPath = true;
-                    Invoke("UpdatePath", _TimeUpdateFactor);
-                }
-                yield return null;
-            }
-            yield return null;
-        }
-
-        void UpdatePath()
-        {          
-            UpdateDistance();
-            NPCCalculatePath.Instance.PathUpdate(_ID);
-        }
-
-        void UpdateDistance()
-        {
-            NPCCalculatePath.Instance.DistaceUpdate(_ID);
-            _TimeUpdateFactor = 1.0f + (NPCCalculatePath.Instance._Distance[_ID] / 100.0f);
-            _UpdatedPath = false;
-        }
     }
 }
 

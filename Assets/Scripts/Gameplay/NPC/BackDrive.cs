@@ -5,17 +5,18 @@ using UnityStandardAssets.Vehicles.Car;
 public class BackDrive : MonoBehaviour {
 	
 	CarController _CarControl;
-	CarAIControl _AILogic;
-	
-	public float _StayTimer;
+    CarAiController _AILogic;
 
+    [SerializeField] internal float _StayTimer;
+    [SerializeField] internal float _Distance = 1.1f;
+    [SerializeField] internal Transform[] _Dots;
     float _StartSpeed;
     float _TimeForСheck;
     float _DistanceFromStart;
 
     Vector3 _StartPointBrake;
 
-	bool _HittedToWall, _AIStateChange, _Coroutined, _Counting;
+	bool _HittedToWall, _Coroutined, _Counting;
 
 	void Awake () 
 	{
@@ -25,10 +26,13 @@ public class BackDrive : MonoBehaviour {
     void Init()
     {
         _CarControl = GetComponent<CarController>();
-        _AILogic = GetComponent<CarAIControl>();
+        _AILogic = GetComponent<CarAiController>();
+        _Dots = transform.Find("Rays").GetComponentsInChildren<Transform>();
         _StartSpeed = _CarControl._FullTorqueOverAllWheels;
         _TimeForСheck = Random.Range(1.5f, 1.6f);
+        StartCoroutine(Raying());
     }
+
 
 
     /// <summary>
@@ -37,8 +41,8 @@ public class BackDrive : MonoBehaviour {
     public void HittedToWall()
     {
         _HittedToWall = true;
-        _StayTimer = 0.0f;
-        _CarControl._FullTorqueOverAllWheels = -5000f;
+        _StayTimer = 0.0f;        
+        _CarControl._FullTorqueOverAllWheels = -2500f;
         _DistanceFromStart = 0.0f;
         if (!_Coroutined)
         {
@@ -51,7 +55,7 @@ public class BackDrive : MonoBehaviour {
     /// <summary>
     /// Метод запуска подсчёта времени застоя при столкновении.
     /// </summary>
-    public void Staying()
+    void Staying()
     {
         if (!_Counting)
         {
@@ -63,7 +67,7 @@ public class BackDrive : MonoBehaviour {
     /// <summary>
     /// Метод остановки подсчёта времени застоя при отсутсвия столкновения.
     /// </summary>
-    public void UnStaying()
+    void UnStaying()
     {
         if (_Counting)
         {
@@ -72,6 +76,35 @@ public class BackDrive : MonoBehaviour {
             _StayTimer = 0.0f;
         }
     }
+
+
+    IEnumerator Raying()
+    {
+        RaycastHit _hit;
+        Vector3 _direction = Vector3.zero;
+
+        Ray[] _Ray = new Ray[_Dots.Length];
+
+        while (true)
+        {
+            for (int i = 0; i < _Ray.Length; i++)
+            {
+                _Ray[i].origin = _Dots[i].position; _Ray[i].direction = _Dots[i].forward;
+                _direction = _Ray[i].direction * _Distance;
+                
+                if (Physics.Raycast(_Ray[i].origin, _Ray[i].direction, out _hit, _Distance))
+                {
+                    if (_hit.collider.CompareTag("Walls") || _hit.collider.CompareTag("HitBox"))
+                    {
+                        Staying();
+                        Debug.DrawRay(_Ray[i].origin, _direction, Color.red);
+                    }
+                }
+            }
+            yield return null;
+        }
+    }
+
 
     /// <summary>
     /// Сопрограмма возврата значений скорости при движении NPC назад.
@@ -90,6 +123,17 @@ public class BackDrive : MonoBehaviour {
             yield return null;
         }
         _Coroutined = false;
+        yield return null;
+    }
+
+    IEnumerator Steering()
+    {
+        _AILogic._SteerFactor = -1;
+        while (_CarControl._CurrentTorque < 0.0f)
+        {
+            yield return null;
+        }
+        _AILogic._SteerFactor = 1;
         yield return null;
     }
 

@@ -70,9 +70,9 @@ public class WeaponRotate : MonoBehaviour {
     {
         if (!_Targeted)
         {
-            if (_CarsTransform == null || _CarsTransform.Count < SpawnPlayers.Instance._MaximumCountPlayers)
+            if (_CarsTransform == null || _CarsTransform.Count < RespawnCars.Instance._MaximumCountPlayers)
             {
-                _CarsTransform = SpawnPlayers.Instance._CarsOnScene;
+                _CarsTransform = RespawnCars.Instance._CarsOnScene;
             }
                         
             for (int i = 0; i < _CarsTransform.Count; i++)

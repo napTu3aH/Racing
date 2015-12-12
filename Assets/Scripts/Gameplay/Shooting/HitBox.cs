@@ -246,15 +246,7 @@ public class HitBox : MonoBehaviour {
         {
             if (_CarInfo._Player)
             {
-                GameSettings.Instance.Vibrate();                
-            }
-            else
-            {
-                NPCCalculatePath.Instance.PathUpdate(_CarInfo._ID);                              
-                if (transform.name == "Forward")
-                {
-                    _CarBackDrive.Staying();
-                }
+                GameSettings.Instance.Vibrate();
             }
 
             _CarWeapon.ChangeTarget(_col);
@@ -262,18 +254,8 @@ public class HitBox : MonoBehaviour {
             if (_box)
             {
                 _box.Hitted(_CarInfo._CarSpeed, _CarInfo);
-            }            
-        }
+            }
+        }        
     }
 
-    void OnTriggerExit(Collider _col)
-    {
-        if (_col.CompareTag("HitBox"))
-        {
-            if (!_CarInfo._Player)
-            {
-                _CarBackDrive.UnStaying();
-            }
-        }
-    }
 }
