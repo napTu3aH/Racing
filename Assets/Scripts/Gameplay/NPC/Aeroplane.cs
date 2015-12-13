@@ -23,15 +23,27 @@ public class Aeroplane : MonoBehaviour
     void Init()
     {
         _Plane = gameObject;
-        transform.position = _StartPoint.position;
-        transform.rotation = Quaternion.LookRotation(_EndPoint.position - transform.position);
+        AeroplaneEvent.Instance._Aeroplane = this;
+
         _Source = GetComponent<AudioSource>();
         _ColorAlpha = new Color(1.0f, 1.0f, 1.0f, 0.0f);
         _ColorNormal = Color.white;
         _PlaneMaterial.color = _ColorAlpha;
+        _Plane.SetActive(false);
+    }
+
+    internal void SetValues(Transform _start, Transform _end)
+    {
+        _Plane.SetActive(true);
+        _StartPoint = _start;
+        _EndPoint = _end;
+        _Alive = true;
+        _TimeFlight = 0.0f;
+        transform.position = _StartPoint.position;
+        transform.rotation = Quaternion.LookRotation(_EndPoint.position - transform.position);
 
         SetDistance();
-        StartCoroutine(Flight());    
+        StartCoroutine(Flight());
     }
 
     void SetDistance()
@@ -55,11 +67,11 @@ public class Aeroplane : MonoBehaviour
             _volume = 1.0f - _TimeFlight;
         }
         _Source.volume = GameSettings.Instance._SoundSlider.value * (2 * _volume);
+        _Source.pitch = GameSettings.Instance._SoundSource.pitch;
     }
 
     IEnumerator Colored(Color _colorFrom, Color _colorTo)
-    {
-        _TimeChangeColor = 0.0f;
+    {        
         while (_TimeChangeColor < 1.0f)
         {
             _TimeChangeColor += Time.deltaTime * _SpeedColoring;
@@ -68,11 +80,15 @@ public class Aeroplane : MonoBehaviour
         }
         if (_Ended)
         {
-            _Ended = false;
-            _Plane.SetActive(false);
+            _Ended = false;            
             _CountDropping = _CountDrop;
             _Source.volume = 0.0f;
+            _Source.pitch = 1.0f;
+            _Plane.SetActive(false);
+            AeroplaneEvent.Instance._Flighted = false;
+            AeroplaneEvent.Instance._StartedRandom = false;
         }
+        _TimeChangeColor = 0.0f;
         yield return null;
     }
 

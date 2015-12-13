@@ -30,6 +30,7 @@ public class BonusLogic : MonoBehaviour
         _Clip = _clip;
         _Rig = GetComponent<Rigidbody>();
         StartCoroutine(_Rotate());
+        StartCoroutine(DestructBonus());
     }
 
 
@@ -107,5 +108,11 @@ public class BonusLogic : MonoBehaviour
             transform.Rotate(0.0f, 1.0f, 0.0f);
             yield return null;
         }        
+    }
+
+    IEnumerator DestructBonus()
+    {
+        yield return new WaitForSeconds(45.0f);
+        Destroy(gameObject);
     }
 }
