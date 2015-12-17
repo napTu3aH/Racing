@@ -43,7 +43,7 @@ namespace UnityStandardAssets.Vehicles.Car
         public void CarSet(CarController _controller, Transform _carTransform)
         {
             m_Car = _controller;
-            _CameraTarget = _carTransform.FindChild("CameraTarget");
+            _CameraTarget = _carTransform.SearchChildWithName("CameraTarget");
             SetCamera();
         }
 

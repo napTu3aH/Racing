@@ -145,6 +145,11 @@ public class WeaponRotate : MonoBehaviour {
             {
                 _RelativePos = transform.forward;
             }
+            //float step = 1.0f * Time.deltaTime;
+            //Vector3 _newDir = Vector3.RotateTowards(_weaponTransform.forward, _RelativePos, step, 0.0f);
+            //Debug.DrawRay(_weaponTransform.position, _newDir, Color.red);
+            //_quat = Quaternion.LookRotation(_newDir);
+            //_weaponTransform.rotation = _quat;
             _quat = Quaternion.Slerp(_quat, Quaternion.LookRotation(_RelativePos), _speedRotate * Time.deltaTime);
             _weaponTransform.rotation = Quaternion.Euler(_x * _quat.eulerAngles.x, _y * _quat.eulerAngles.y, _z * _quat.eulerAngles.z);
             if (_weaponCollider)
