@@ -17,6 +17,7 @@ public class NPCCalculatePath : MonoBehaviour
             else
             {
                 _NPCCalculatePath = new GameObject("_NPCCalculatePath", typeof(NPCCalculatePath)).GetComponent<NPCCalculatePath>();
+                _NPCCalculatePath.transform.SetParent(GameObject.FindWithTag("InstanceLogics").transform);
                 return _NPCCalculatePath;
             }
         }
@@ -37,7 +38,11 @@ public class NPCCalculatePath : MonoBehaviour
 
     void Init()
     {
-        _NPCCalculatePath = this;
+        if (!_NPCCalculatePath)
+        {
+            _NPCCalculatePath = this;
+        }
+        _NavPoints = new List<Transform>();
     }
 
     void Start()

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 /// <summary>
 /// Класс, хранящий и взаимодействующий с характеристиками игрока.
 /// </summary>
@@ -11,7 +11,6 @@ namespace UnityStandardAssets.Vehicles.Car
     {
         internal CarController _Car;
         internal BackDrive _BackDrive;
-        //internal CarAIControl _AiLogic;
         internal CarAiController _AiLogic;
         internal CarAudioManager _CarAudio;
         internal CarSelfRighting _CarSelfRighting;        
@@ -21,7 +20,7 @@ namespace UnityStandardAssets.Vehicles.Car
         [Header("Healths")]
         public float _Health = 0.0f, _PercentHealthFactor, _CurrentHealth;
         public Transform _HitBoxParent;
-        public HitBox[] _HitBoxs;
+        public List<HitBox> _HitBoxs;
         public float _CarSpeed
         {
             set { value = _Car.CurrentSpeed; }
@@ -63,10 +62,16 @@ namespace UnityStandardAssets.Vehicles.Car
             }
 
             _HitBoxParent = transform.SearchChildWithTag("HitBoxsParent");
-            _HitBoxs = _HitBoxParent.GetComponentsInChildren<HitBox>();
 
+            HitBox[] _hitBoxs = _HitBoxParent.GetComponentsInChildren<HitBox>();
+            
+            foreach (HitBox _box in _hitBoxs)
+            {
+                _HitBoxs.Add(_box);
+            }
             InitCounting();
             _isAlive = true;
+            _WeaponRotate.Init();
         }
 
         /// <summary>
@@ -81,7 +86,7 @@ namespace UnityStandardAssets.Vehicles.Car
                 _CurrentHealth += _ht._HitBoxHealth;
                 _PercentHealthFactor += _ht._ArmorFactor;
             }
-            _PercentHealthFactor -= _HitBoxs.Length;
+            _PercentHealthFactor -= _HitBoxs.Count;
             Counting(0);
 
         }
@@ -155,21 +160,19 @@ namespace UnityStandardAssets.Vehicles.Car
                 }
                 NPCCalculatePath.Instance.RemoveNPC(_AiLogic, _BackDrive);
                 RespawnCars.Instance.RemoveCar(_Player, _AiLogic._ID, transform);
-                //SpawnPlayers.Instance.RemoveCar(_Player, _AiLogic._ID, transform);
             }
             else
             {
                 Destroy(_SlowMotion);
                 TextForNotify.Instance.PushText(3);
                 RespawnCars.Instance.RemoveCar(_Player, -1, transform);
-                //SpawnPlayers.Instance.RemoveCar(_Player, -1, transform);
             }
 
             BonusesLogic.Instance.SpawnBonus(transform, new Vector3(0.0f, 5.0f, 0.0f));
 
             ParticlesHitting.Instance.Explosion(transform.position, transform.rotation, 0, this);
 
-            for (int i = 0; i < _HitBoxs.Length; i++)
+            for (int i = 0; i < _HitBoxs.Count; i++)
             {
                 _HitBoxs[i].DieHitBox();
             }

@@ -44,8 +44,7 @@ public class BonusLogic : MonoBehaviour
                 CarInfo _car = _box._CarInfo;
                 if (_car._Player)
                 {
-                    TextForNotify.Instance.PushText(4);
-                    Notification.Instance.Notificate(_Bonus.ToString());
+                    TextForNotify.Instance.PushText(4);                    
                 }
                 GettingBonus(_car);
                 _Uppded = true;
@@ -59,18 +58,22 @@ public class BonusLogic : MonoBehaviour
         {
             case BonusEffect.Armor:
                 _car.ArmorFactoring(_FactorObject, _Time);
+                if (_car._Player) Notification.Instance.Notificate("Armor " + "x2 for "+_Time+ " seconds");
                 break;
 
             case BonusEffect.Damage:
                 _car.Damage(_FactorObject, _Time);
+                if (_car._Player) Notification.Instance.Notificate("Damage " + "x2 for " + _Time + " seconds");
                 break;
 
             case BonusEffect.Repair:
                 _car.Repair();
+                if (_car._Player) Notification.Instance.Notificate("Repair");
                 break;
 
             case BonusEffect.Speed:
                 _car.TopSpeedFactoring(_FactorObject, _Time);
+                if (_car._Player) Notification.Instance.Notificate("Speed " + "x2 for " + _Time + " seconds");
                 break;
         }
         AudioController.Instance.PlayOneShot(_Clip, 1.0f);

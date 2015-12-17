@@ -14,7 +14,8 @@ public class ReturnerTimeScale : MonoBehaviour
             }
             else
             {
-                _TimeScaler = new GameObject("TimeScaler", typeof(ReturnerTimeScale)).GetComponent<ReturnerTimeScale>();
+                _TimeScaler = new GameObject("_TimeScaler", typeof(ReturnerTimeScale)).GetComponent<ReturnerTimeScale>();
+                _TimeScaler.transform.SetParent(GameObject.FindWithTag("InstanceLogics").transform);
                 return _TimeScaler;
             }
         }

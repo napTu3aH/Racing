@@ -8,15 +8,15 @@ public class BackDrive : MonoBehaviour {
     CarAiController _AILogic;
 
     [SerializeField] internal float _StayTimer;
-    [SerializeField] internal float _Distance = 1.1f;
-    [SerializeField] internal Transform[] _Dots;
+    [SerializeField] internal float _DistanceForward = 1.1f, _DistanceBack = 1.1f;
+    [SerializeField] internal Transform[] _Dots;    // 0, 1, 2 - forward, 3,4 - back
     float _StartSpeed;
     float _TimeForСheck;
     float _DistanceFromStart;
 
     Vector3 _StartPointBrake;
 
-	bool _HittedToWall, _Coroutined, _Counting;
+	bool _HittedToWall, _Coroutined, _Counting, _Steering, _Forward;
 
 	void Awake () 
 	{
@@ -42,12 +42,11 @@ public class BackDrive : MonoBehaviour {
     {
         _HittedToWall = true;
         _StayTimer = 0.0f;        
-        _CarControl._FullTorqueOverAllWheels = -2500f;
         _DistanceFromStart = 0.0f;
         if (!_Coroutined)
         {
             _Coroutined = true;
-            StartCoroutine(ResetSpeed());
+            StartCoroutine(ResetSpeed());            
         }
         
     }
@@ -55,8 +54,9 @@ public class BackDrive : MonoBehaviour {
     /// <summary>
     /// Метод запуска подсчёта времени застоя при столкновении.
     /// </summary>
-    void Staying()
+    void Staying(bool _forward)
     {
+        _Forward = _forward;
         if (!_Counting)
         {
             _Counting = true;
@@ -82,22 +82,32 @@ public class BackDrive : MonoBehaviour {
     {
         RaycastHit _hit;
         Vector3 _direction = Vector3.zero;
-
-        Ray[] _Ray = new Ray[_Dots.Length];
+        float _distance = 0.0f;
+        Ray[] _Ray = new Ray[_Dots.Length]; // 0, 1, 2 - forward, 3,4 - back
 
         while (true)
         {
             for (int i = 0; i < _Ray.Length; i++)
             {
                 _Ray[i].origin = _Dots[i].position; _Ray[i].direction = _Dots[i].forward;
-                _direction = _Ray[i].direction * _Distance;
-                
-                if (Physics.Raycast(_Ray[i].origin, _Ray[i].direction, out _hit, _Distance))
+                if (i <= 2) _distance = _DistanceForward;
+                else _distance = _DistanceBack;
+
+                _direction = _Ray[i].direction * _distance;
+
+                if (Physics.Raycast(_Ray[i].origin, _Ray[i].direction, out _hit, _distance))
                 {
                     if (_hit.collider.CompareTag("Walls") || _hit.collider.CompareTag("HitBox"))
                     {
-                        Staying();
-                        Debug.DrawRay(_Ray[i].origin, _direction, Color.red);
+                        if (i <= 2)
+                        {
+                            Staying(false);
+                        }
+                        else
+                        {
+                            Staying(true);
+                        }                        
+                        Debugger.Instance.DrawRay(_Ray[i].origin, _direction, Color.red);
                     }
                 }
             }
@@ -114,6 +124,18 @@ public class BackDrive : MonoBehaviour {
     {
         while (_HittedToWall)
         {
+            if (_Forward && _CarControl._FullTorqueOverAllWheels != 2500)
+            {
+                _CarControl._FullTorqueOverAllWheels = 2500f;
+                _AILogic._SteerFactor = 1;
+            }
+            else
+            if(!_Forward && _CarControl._FullTorqueOverAllWheels != -2500)
+            {
+                _CarControl._FullTorqueOverAllWheels = -2500f;
+                _AILogic._SteerFactor = -1;
+            }
+
             _DistanceFromStart = Vector3.Distance(transform.position, _StartPointBrake);
             if (_DistanceFromStart >= 1.2f)
             {
@@ -122,6 +144,7 @@ public class BackDrive : MonoBehaviour {
             }
             yield return null;
         }
+        _AILogic._SteerFactor = 1;
         _Coroutined = false;
         yield return null;
     }
@@ -134,6 +157,7 @@ public class BackDrive : MonoBehaviour {
             yield return null;
         }
         _AILogic._SteerFactor = 1;
+        _Steering = true;
         yield return null;
     }
 

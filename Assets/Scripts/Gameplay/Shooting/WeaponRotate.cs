@@ -15,35 +15,26 @@ public class WeaponRotate : MonoBehaviour {
     [SerializeField] internal float _Radius;
 
     internal CarInfo _Car;
-    internal bool _Targeted;
-    internal CarController _CarController;
-    [SerializeField] internal float _DistanceForTarget, _DistanceFromPlayer;
-    internal List<Transform> _CarsTransform;
+    [SerializeField] internal float _DistanceForTarget, _DistanceFromPlayer;    
     internal Transform _PlayerTransform;
 
     [HideInInspector] public HitBox _TargetedHitBox;
-                                            
-    void Awake ()
-    {
-        Init();
-	}
-	
-    void Init()
+
+    internal void Init()
     {      
         _Car = GetComponent<CarInfo>();
         _ShootingScript = GetComponent<ShootScript>();
-        _CarController = GetComponent<CarController>();
 
         if (!_Car._Player)
         {
-            GameObject _go = GameObject.FindWithTag("Player");
-            if (_go)
+            GameObject _player = GameObject.FindWithTag("Player");
+            if (_player)
             {
-                _PlayerTransform = _go.GetComponent<Transform>();
-            }           
+                _PlayerTransform = _player.GetComponent<Transform>();
+            }
+            
         }
-        
-
+                
         if (_Weapons.Length != 0)
         {
             for (int i = 0; i < _Weapons.Length; i++)
@@ -51,116 +42,88 @@ public class WeaponRotate : MonoBehaviour {
                 _Weapons[i]._HitBox = _Weapons[i]._WeaponCollider.GetComponent<HitBox>();
                 _Weapons[i]._Tower._HitBox = _Weapons[i]._Tower._TowerCollider.GetComponent<HitBox>();
                 _Weapons[i]._WeaponTransform = transform.SearchChildWithName(_Weapons[i]._Name);
-                _Weapons[i]._Tower._TowerTransform = transform.SearchChildWithName(_Weapons[i]._Tower._Name);   
+                _Weapons[i]._Tower._TowerTransform = transform.SearchChildWithName(_Weapons[i]._Tower._Name);
             }
         }
         
         _ShootingScript.Init();
-    }
 
-	void Update ()
-    {
-        SearchTarget();
-        MissingTargeting();
-        DistanceToPlayer();
-        WeaponRotating(); 
-	}
-
-    void SearchTarget()
-    {
-        if (!_Targeted)
+        if (!_Car._Player)
         {
-            if (_CarsTransform == null || _CarsTransform.Count < RespawnCars.Instance._MaximumCountPlayers)
-            {
-                _CarsTransform = RespawnCars.Instance._CarsOnScene;
-            }
-                        
-            for (int i = 0; i < _CarsTransform.Count; i++)
-            {
-                if (_CarsTransform[i] != transform)
-                {
-                    if (Vector3.Distance(transform.position, _CarsTransform[i].position) < _Radius)
-                    {
-                        CarInfo _info = _CarsTransform[i].GetComponent<CarInfo>();
-                        for (int j = 0; j < _info._HitBoxs.Length; j++)
-                        {
-                            if (_info._HitBoxs[j]._HitBoxHealth > 0.0f)
-                            {
-                                _Target = _info._HitBoxs[j].transform;
-                                _TargetedHitBox = _info._HitBoxs[j];
-                                _ShootingScript._TargetedHitBox = _TargetedHitBox;
-                                _Targeted = true;
-                            }
-                        }
-                    }
-                }                
-            }
+            StartCoroutine(DistanceToPlayer());
         }
+        StartCoroutine(WeaponRotating());
     }
+	
 
-    void DistanceToPlayer()
+    void SearchAndMissingTarget()
     {
-        if (!_Car._Player && _PlayerTransform)
+        if (!_Target)
         {
-            _DistanceFromPlayer = Vector3.Distance(transform.position, _PlayerTransform.position);
-            _DistanceFromPlayer = 1.0f - (Mathf.Clamp(_DistanceFromPlayer, 0, _Radius) / _Radius);
+            _Target = WeaponTargeting.Instance.SearchTarget(_Car, _Radius);
+            if (_Target)
+            {
+                _TargetedHitBox = _Target.GetComponent<HitBox>();
+            }                                   
         }
-    }
-
-    #region Missing of target
-    /// <summary>
-    /// Метод потери цели.
-    /// </summary>
-    void MissingTargeting()
-    {
-        if (_Targeted && _Target)
+        else
         {
-            _DistanceForTarget = Vector3.Distance(_CarController.transform.position, _Target.position);
+            _DistanceForTarget = Vector3.Distance(transform.position, _Target.position);
             if (_DistanceForTarget > _Radius || _TargetedHitBox._HitBoxHealth <= 0.0f)
             {
                 _Target = null;
                 _TargetedHitBox = null;
-                _Targeted = false;
             }
         }
-        else
-        {
-            _Targeted = false;
-        }
-        
     }
-    #endregion
+
+    IEnumerator DistanceToPlayer()
+    {
+        while (_Car._isAlive)
+        {
+            if (_PlayerTransform)
+            {
+                _DistanceFromPlayer = Vector3.Distance(transform.position, _PlayerTransform.position);
+                _DistanceFromPlayer = 1.0f - (Mathf.Clamp(_DistanceFromPlayer, 0, _Radius) / _Radius);
+            }
+            yield return null;
+        }
+        yield return null;
+    }
 
     #region Weapon rotating
     /// <summary>
     /// Метод, в котором описываются данные для вращения оружия.
     /// </summary>
-    void WeaponRotating()
+    IEnumerator WeaponRotating()
     {
         if (_Weapons.Length > 0)
         {
-            foreach (Weapon _wp in _Weapons)
+            while (_Car._isAlive)
             {
-                if (_wp._HitBox._HitBoxHealth > 0.0f)
+                foreach (Weapon _wp in _Weapons)
                 {
-                    float _volume = 1.0f - (Mathf.Clamp(_DistanceForTarget, 0, _Radius) / _Radius);
-
-                    if (_Car._Player) _ShootingScript.Shoot(_wp._Muzzle, _wp._Damage, _wp._TimeBetweenShot, _wp._Clip, _volume);
-                    else _ShootingScript.Shoot(_wp._Muzzle, _wp._Damage, _wp._TimeBetweenShot, _wp._Clip, _DistanceFromPlayer);
-
-                    RotateWeapon(_wp._WeaponTransform, _wp._WeaponCollider, _wp._Quat, _wp._SpeedRotate, 1, 1, 0);
-                    if (_wp._Tower._TowerTransform)
+                    if (_wp._HitBox._HitBoxHealth > 0.0f)
                     {
-                        if (_wp._Tower._HitBox._HitBoxHealth > 0.0f)
+                        SearchAndMissingTarget();
+                        RotateWeapon(_wp._WeaponTransform, _wp._WeaponCollider, _wp._Quat, _wp._SpeedRotate, 1, 1, 0);
+                        if (_wp._Tower._TowerTransform)
                         {
-                            RotateWeapon(_wp._Tower._TowerTransform, _wp._Tower._TowerCollider, _wp._Tower._Quat, _wp._Tower._SpeedRotate, 0, 1, 1);
+                            if (_wp._Tower._HitBox._HitBoxHealth > 0.0f)
+                            {
+                                RotateWeapon(_wp._Tower._TowerTransform, _wp._Tower._TowerCollider, _wp._Tower._Quat, _wp._Tower._SpeedRotate, 0, 1, 1);
+                            }
                         }
+
+                        float _volume = 1.0f - (Mathf.Clamp(_DistanceForTarget, 0, _Radius) / _Radius);
+                        if (_Car._Player) _ShootingScript.Shoot(_wp._Muzzle, _wp._Damage, _wp._TimeBetweenShot, _wp._Clip, _volume);
+                        else _ShootingScript.Shoot(_wp._Muzzle, _wp._Damage, _wp._TimeBetweenShot, _wp._Clip, _DistanceFromPlayer);
                     }
                 }
-                
+                yield return null;
             }
         }
-        
+        yield return null;
 
     }
     #endregion
@@ -203,10 +166,6 @@ public class WeaponRotate : MonoBehaviour {
                 {
                     _Target = _col.transform;
                     _TargetedHitBox = _col.GetComponent<HitBox>();
-                    if (!_Targeted)
-                    {
-                        _Targeted = true;
-                    }
                 }                
             }
             

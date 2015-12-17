@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using UnityStandardAssets.Vehicles.Car;
 
 public class RespawnCars : MonoBehaviour
 {
@@ -23,7 +24,6 @@ public class RespawnCars : MonoBehaviour
     [SerializeField] internal int _CountNPCNow;
 
     [SerializeField] internal Transform[] _SpawnPoints;
-    [SerializeField] internal List<Transform> _CarsOnScene;
     [SerializeField] internal List<Transform> _CurrentWayPoints;
 
 
@@ -100,7 +100,10 @@ public class RespawnCars : MonoBehaviour
     internal void RemoveCar(bool _Player, int _ID, Transform _CarTransform)
     {
         _CountPlayersNow--;
-        _CarsOnScene.Remove(_CarTransform);
+
+        CarInfo _carInfo = _CarTransform.GetComponent<CarInfo>();
+        WeaponTargeting.Instance.RemoveTarget(_carInfo);
+
         PlayerTargetPoint _tp = _CarTransform.GetComponentInChildren<PlayerTargetPoint>();
         _Targets.Remove(_tp);
         if (!_Player)
@@ -139,9 +142,12 @@ public class RespawnCars : MonoBehaviour
             _AI.SetTarget(_CurrentWayPoints[_CountNPCNow]);            
             _CountNPCNow++;
         }
+
+        CarInfo _carInfo = _car.GetComponent<CarInfo>();
+        WeaponTargeting.Instance.AddTarget(_carInfo);
+
         _Targets.Add(_car.GetComponentInChildren<PlayerTargetPoint>());
         _Targets[_CountPlayersNow].Set();
-        _CarsOnScene.Add(_car.transform);
         _CountPlayersNow++;
     }
 }

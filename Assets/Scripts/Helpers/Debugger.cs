@@ -17,7 +17,8 @@ public class Debugger : MonoBehaviour {
             }
             else
             {
-                _Debugger = new GameObject("Debugger", typeof(Debugger)).GetComponent<Debugger>();
+                _Debugger = new GameObject("_Debugger", typeof(Debugger)).GetComponent<Debugger>();
+                _Debugger.transform.SetParent(GameObject.FindWithTag("InstanceLogics").transform);
                 return _Debugger;
             }
         }
@@ -50,6 +51,23 @@ public class Debugger : MonoBehaviour {
         {
             Color _color = Color.white;
             Debug.DrawLine(_start, _end, _color, _duration, _depthTest);
+        }
+    }
+
+    public void DrawRay(Vector3 _start, Vector3 _end)
+    {
+        if (_DebugLine)
+        {
+            Color _color = Color.white;
+            Debug.DrawRay(_start, _end, _color);
+        }
+    }
+
+    public void DrawRay(Vector3 _start, Vector3 _end, Color _color)
+    {
+        if (_DebugLine)
+        {
+            Debug.DrawRay(_start, _end, _color);
         }
     }
 }

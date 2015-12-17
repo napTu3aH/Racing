@@ -108,7 +108,6 @@ public class CarAiController : MonoBehaviour
 
     void UpdateDistance()
     {
-        //NPCCalculatePath.Instance.DistaceUpdate(_ID);
         _Distance = Vector3.Distance(transform.position, _CurrentPoint.position);
         _TimeUpdateFactor = (_Distance / 100.0f);
         _UpdatedPath = false;

@@ -71,7 +71,15 @@ public class ShootScript : MonoBehaviour
                 {
                     if (!_TargetedHitBox || _hit.collider.name != _TargetedHitBox.name)
                     {
-                        _TargetedHitBox = _hit.collider.GetComponent<HitBox>();
+                        if (!_CarInfo._HitBoxs.Contains(_hit.collider.GetComponent<HitBox>()))
+                        {
+                            _TargetedHitBox = _hit.collider.GetComponent<HitBox>();
+                            if (_TargetedHitBox)
+                            {
+                                _WeaponRotateScript._Target = _TargetedHitBox.transform;
+                            }
+                        }                        
+                        
                     } else
                     {
                         _TargetedHitBox.Hitted(_damage, _CarInfo);

@@ -6,9 +6,8 @@ namespace UnityStandardAssets.Vehicles.Car
 {
     public class CarSelfRighting : MonoBehaviour
     {
-        // Automatically put the car the right way up, if it has come to rest upside-down.
-        [SerializeField] float _WaitTime = 3f;           // time to wait before self righting
-        [SerializeField] float _VelocityThreshold = 1f;  // the velocity below which the car is considered stationary for self-righting
+        [SerializeField] float _WaitTime = 3f;
+        [SerializeField] float _VelocityThreshold = 1f;
         [SerializeField] Rigidbody _Rigidbody;
 
 
@@ -18,10 +17,8 @@ namespace UnityStandardAssets.Vehicles.Car
             StartCoroutine(CarSelf());
         }
 
-        // put the car back the right way up:
         void RightCar()
         {
-            // set the correct orientation for the car, and lift it off the ground a little
             transform.position += Vector3.up;
             transform.rotation = Quaternion.LookRotation(transform.forward);
         }
@@ -30,10 +27,14 @@ namespace UnityStandardAssets.Vehicles.Car
         {
             while (_Rigidbody)
             {
-                if (transform.up.y < 0f && _Rigidbody.velocity.magnitude < _VelocityThreshold)
+                if (transform.up.y < 0f)
                 {
-                    yield return new WaitForSeconds(_WaitTime);
-                    RightCar();
+                    if (_Rigidbody.velocity.magnitude < _VelocityThreshold)
+                    {
+                        yield return new WaitForSeconds(_WaitTime);
+                        RightCar();
+                    }
+                    
                 }
                 yield return null;
             }
