@@ -249,7 +249,7 @@ public class HitBox : MonoBehaviour {
                 GameSettings.Instance.Vibrate();
             }
 
-            //_CarWeapon.ChangeTarget(_col);
+            _CarWeapon.ChangeTarget(_col);
             HitBox _box = _col.GetComponent<HitBox>();
             if (_box)
             {

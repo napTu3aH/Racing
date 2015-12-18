@@ -106,12 +106,12 @@ public class WeaponRotate : MonoBehaviour {
                     if (_wp._HitBox._HitBoxHealth > 0.0f)
                     {
                         SearchAndMissingTarget();
-                        RotateWeapon(_wp._WeaponTransform, _wp._WeaponCollider, _wp._Quat, _wp._SpeedRotate, 1, 1, 0);
+                        RotateWeapon(_wp._WeaponTransform, _wp._WeaponCollider, _wp._Quat, _wp._SpeedRotate, _wp._RotatingAxis.x, _wp._RotatingAxis.y, _wp._RotatingAxis.z);
                         if (_wp._Tower._TowerTransform)
                         {
                             if (_wp._Tower._HitBox._HitBoxHealth > 0.0f)
                             {
-                                RotateWeapon(_wp._Tower._TowerTransform, _wp._Tower._TowerCollider, _wp._Tower._Quat, _wp._Tower._SpeedRotate, 0, 1, 1);
+                                RotateWeapon(_wp._Tower._TowerTransform, _wp._Tower._TowerCollider, _wp._Tower._Quat, _wp._Tower._SpeedRotate, _wp._Tower._RotatingAxis.x, _wp._Tower._RotatingAxis.y, _wp._Tower._RotatingAxis.z);
                             }
                         }
 
@@ -132,29 +132,31 @@ public class WeaponRotate : MonoBehaviour {
     /// <summary>
     /// Метод, вращающий оружие. Необходимо указать Transform самого оружия, Collider оружия, Quaternion оружия и оси, по-которым будет осуществляться вращение.
     /// </summary>
-    void RotateWeapon(Transform _weaponTransform, Collider _weaponCollider, Quaternion _quat, float _speedRotate, int _x, int _y, int _z)
+    void RotateWeapon(Transform _weaponTransform, Collider _weaponCollider, Quaternion _quat, float _speedRotate, float _x, float _y, float _z)
     {
         if (_weaponTransform)
         {
             Vector3 _RelativePos;
             if (_Target)
             {
-                _RelativePos = _Target.position - _weaponTransform.position;
+                _RelativePos = _Target.position - new Vector3(0, 2.0f, 0.0f);
             }
             else
             {
-                _RelativePos = transform.forward;
+                _RelativePos = _weaponTransform.position + Vector3.forward;
             }
             //float step = 1.0f * Time.deltaTime;
             //Vector3 _newDir = Vector3.RotateTowards(_weaponTransform.forward, _RelativePos, step, 0.0f);
-            //Debug.DrawRay(_weaponTransform.position, _newDir, Color.red);
+            Debug.DrawLine(_weaponTransform.position, _RelativePos, Color.red);
             //_quat = Quaternion.LookRotation(_newDir);
             //_weaponTransform.rotation = _quat;
-            _quat = Quaternion.Slerp(_quat, Quaternion.LookRotation(_RelativePos), _speedRotate * Time.deltaTime);
-            _weaponTransform.rotation = Quaternion.Euler(_x * _quat.eulerAngles.x, _y * _quat.eulerAngles.y, _z * _quat.eulerAngles.z);
+            Vector3 _LocalTarget = transform.InverseTransformPoint(_RelativePos);
+            Debug.DrawLine(_weaponTransform.position, _LocalTarget, Color.magenta);
+            _quat = Quaternion.Slerp(_quat, Quaternion.LookRotation(_LocalTarget), _speedRotate * Time.deltaTime);
+            _weaponTransform.localRotation = Quaternion.Euler(_x * _quat.eulerAngles.x, _y * _quat.eulerAngles.y, _z * _quat.eulerAngles.z);
             if (_weaponCollider)
             {
-                _weaponCollider.transform.rotation = _weaponTransform.rotation;
+                _weaponCollider.transform.localRotation = _weaponTransform.localRotation;
             }
         }
     }
@@ -190,6 +192,7 @@ public class Weapon
     public ParticleSystem _Muzzle;
     public float _TimeBetweenShot = 0.1f;
     public float _Damage = 1.0f;
+    public Vector3 _RotatingAxis;
     [Range(1.0f, 5.0f)] public float _SpeedRotate;
     [HideInInspector] public Quaternion _Quat;
     public Tower _Tower;
@@ -202,6 +205,7 @@ public class Tower
     public Transform _TowerTransform;
     public Collider _TowerCollider;
     public HitBox _HitBox;
+    public Vector3 _RotatingAxis;
     [Range(1.0f, 5.0f)] public float _SpeedRotate;
     [HideInInspector] public Quaternion _Quat;
 }
