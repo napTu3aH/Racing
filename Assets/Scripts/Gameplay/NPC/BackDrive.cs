@@ -16,7 +16,7 @@ public class BackDrive : MonoBehaviour {
 
     Vector3 _StartPointBrake;
 
-	bool _HittedToWall, _Coroutined, _Counting, _Steering, _Forward;
+	bool _HittedToWall, _Coroutined, _Raying, _Counting, _Steering, _Forward;
 
 	void Awake () 
 	{
@@ -27,13 +27,34 @@ public class BackDrive : MonoBehaviour {
     {
         _CarControl = GetComponent<CarController>();
         _AILogic = GetComponent<CarAiController>();
-        _Dots = transform.Find("Rays").GetComponentsInChildren<Transform>();
+        _Dots = transform.SearchChildWithName("Rays").GetComponentsInChildren<Transform>();
         _StartSpeed = _CarControl._FullTorqueOverAllWheels;
         _TimeForСheck = Random.Range(1.5f, 1.6f);
-        StartCoroutine(Raying());
+
     }
 
+    void OnCollisionEnter(Collision _col)
+    {
+        if (_col.collider.CompareTag("Walls") || _col.collider.CompareTag("HitBoxsParent"))
+        {
+            if (!_Raying)
+            {
+                _Raying = true;
+                StartCoroutine(Raying());
+            }            
+        }
+    }
 
+    void OnCollisionExit(Collision _col)
+    {
+        if (_col.collider.CompareTag("Walls") || _col.collider.CompareTag("HitBoxsParent"))
+        {
+            if (_Raying)
+            {
+                _Raying = false;
+            }
+        }
+    }
 
     /// <summary>
     /// Метод запуска движения NPC назад при длительном столкновении.
@@ -85,7 +106,7 @@ public class BackDrive : MonoBehaviour {
         float _distance = 0.0f;
         Ray[] _Ray = new Ray[_Dots.Length]; // 0, 1, 2 - forward, 3,4 - back
 
-        while (true)
+        while (_Raying)
         {
             for (int i = 0; i < _Ray.Length; i++)
             {
@@ -146,6 +167,7 @@ public class BackDrive : MonoBehaviour {
         }
         _AILogic._SteerFactor = 1;
         _Coroutined = false;
+        _Raying = false;
         yield return null;
     }
 

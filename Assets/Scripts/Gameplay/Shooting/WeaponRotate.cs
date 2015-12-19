@@ -10,21 +10,21 @@ using UnityStandardAssets.Vehicles.Car;
 public class WeaponRotate : MonoBehaviour {
 
     [SerializeField] internal ShootScript _ShootingScript;
-    [SerializeField] internal Transform _Target;
+    [SerializeField] internal Transform _Target, _Empty;
     [SerializeField] internal Weapon[] _Weapons;
-    [SerializeField] internal float _Radius;
+    [SerializeField] internal float _Radius;    
+    [SerializeField] internal float _DistanceForTarget, _DistanceFromPlayer;
 
     internal CarInfo _Car;
-    [SerializeField] internal float _DistanceForTarget, _DistanceFromPlayer;    
+    internal HitBox _TargetedHitBox;
     internal Transform _PlayerTransform;
-
-    [HideInInspector] public HitBox _TargetedHitBox;
+    Vector3 _LocalEuler;
+    bool _Started;
 
     internal void Init()
     {      
         _Car = GetComponent<CarInfo>();
         _ShootingScript = GetComponent<ShootScript>();
-
         if (!_Car._Player)
         {
             GameObject _player = GameObject.FindWithTag("Player");
@@ -32,9 +32,7 @@ public class WeaponRotate : MonoBehaviour {
             {
                 _PlayerTransform = _player.GetComponent<Transform>();
             }
-            
         }
-                
         if (_Weapons.Length != 0)
         {
             for (int i = 0; i < _Weapons.Length; i++)
@@ -45,35 +43,20 @@ public class WeaponRotate : MonoBehaviour {
                 _Weapons[i]._Tower._TowerTransform = transform.SearchChildWithName(_Weapons[i]._Tower._Name);
             }
         }
-        
         _ShootingScript.Init();
 
         if (!_Car._Player)
         {
             StartCoroutine(DistanceToPlayer());
-        }
-        StartCoroutine(WeaponRotating());
+        }        
     }
-	
 
-    void SearchAndMissingTarget()
+    void FixedUpdate()
     {
-        if (!_Target)
+        if (_Car._Visibled && !_Started)
         {
-            _Target = WeaponTargeting.Instance.SearchTarget(_Car, _Radius);
-            if (_Target)
-            {
-                _TargetedHitBox = _Target.GetComponent<HitBox>();
-            }                                   
-        }
-        else
-        {
-            _DistanceForTarget = Vector3.Distance(transform.position, _Target.position);
-            if (_DistanceForTarget > _Radius || _TargetedHitBox._HitBoxHealth <= 0.0f)
-            {
-                _Target = null;
-                _TargetedHitBox = null;
-            }
+            _Started = true;
+            StartCoroutine(WeaponRotating());
         }
     }
 
@@ -99,86 +82,92 @@ public class WeaponRotate : MonoBehaviour {
     {
         if (_Weapons.Length > 0)
         {
-            while (_Car._isAlive)
+            while (_Car._Visibled)
             {
                 foreach (Weapon _wp in _Weapons)
                 {
                     if (_wp._HitBox._HitBoxHealth > 0.0f)
                     {
                         SearchAndMissingTarget();
-                        RotateWeapon(_wp._WeaponTransform, _wp._WeaponCollider, _wp._Quat, _wp._SpeedRotate, _wp._RotatingAxis.x, _wp._RotatingAxis.y, _wp._RotatingAxis.z);
+                        RotateWeapon(_wp._WeaponTransform, _wp._WeaponCollider, _wp._SpeedRotate, _wp._RotatingAxis);
                         if (_wp._Tower._TowerTransform)
                         {
                             if (_wp._Tower._HitBox._HitBoxHealth > 0.0f)
                             {
-                                RotateWeapon(_wp._Tower._TowerTransform, _wp._Tower._TowerCollider, _wp._Tower._Quat, _wp._Tower._SpeedRotate, _wp._Tower._RotatingAxis.x, _wp._Tower._RotatingAxis.y, _wp._Tower._RotatingAxis.z);
+                                RotateWeapon(_wp._Tower._TowerTransform, _wp._Tower._TowerCollider, _wp._Tower._SpeedRotate, _wp._Tower._RotatingAxis);
                             }
                         }
 
-                        float _volume = 1.0f - (Mathf.Clamp(_DistanceForTarget, 0, _Radius) / _Radius);
+                        /*float _volume = 1.0f - (Mathf.Clamp(_DistanceForTarget, 0, _Radius) / _Radius);
                         if (_Car._Player) _ShootingScript.Shoot(_wp._Muzzle, _wp._Damage, _wp._TimeBetweenShot, _wp._Clip, _volume);
-                        else _ShootingScript.Shoot(_wp._Muzzle, _wp._Damage, _wp._TimeBetweenShot, _wp._Clip, _DistanceFromPlayer);
+                        else _ShootingScript.Shoot(_wp._Muzzle, _wp._Damage, _wp._TimeBetweenShot, _wp._Clip, _DistanceFromPlayer);*/
                     }
                 }
                 yield return null;
             }
         }
+        _Started = false;
         yield return null;
 
     }
     #endregion
 
+    void SearchAndMissingTarget()
+    {
+        if (!_Target)
+        {
+            _Target = WeaponTargeting.Instance.SearchTarget(_Car, _Radius);
+            if (_Target)
+            {
+                _TargetedHitBox = _Target.GetComponent<HitBox>();
+            }
+        }
+        else
+        {
+            _DistanceForTarget = Vector3.Distance(transform.position, _Target.position);
+            if (_DistanceForTarget > _Radius || _TargetedHitBox._HitBoxHealth <= 0.0f)
+            {
+                _Target = null;
+                _TargetedHitBox = null;
+            }
+        }
+    }
+
     #region Rotate weapon logic
     /// <summary>
     /// Метод, вращающий оружие. Необходимо указать Transform самого оружия, Collider оружия, Quaternion оружия и оси, по-которым будет осуществляться вращение.
-    /// </summary>
-    void RotateWeapon(Transform _weaponTransform, Collider _weaponCollider, Quaternion _quat, float _speedRotate, float _x, float _y, float _z)
+    /// </summary
+    void RotateWeapon(Transform _weaponTransform, Collider _weaponCollider, float _speedRotate, Vector3 _rotateAxis)
     {
         if (_weaponTransform)
         {
-            Vector3 _RelativePos;
+            Vector3 _Direction;
+
             if (_Target)
             {
-                _RelativePos = _Target.position - new Vector3(0, 2.0f, 0.0f);
+                _Direction = _Target.position;
             }
             else
             {
-                _RelativePos = _weaponTransform.position + Vector3.forward;
-            }
-            //float step = 1.0f * Time.deltaTime;
-            //Vector3 _newDir = Vector3.RotateTowards(_weaponTransform.forward, _RelativePos, step, 0.0f);
-            Debug.DrawLine(_weaponTransform.position, _RelativePos, Color.red);
-            //_quat = Quaternion.LookRotation(_newDir);
-            //_weaponTransform.rotation = _quat;
-            Vector3 _LocalTarget = transform.InverseTransformPoint(_RelativePos);
-            Debug.DrawLine(_weaponTransform.position, _LocalTarget, Color.magenta);
-            _quat = Quaternion.Slerp(_quat, Quaternion.LookRotation(_LocalTarget), _speedRotate * Time.deltaTime);
-            _weaponTransform.localRotation = Quaternion.Euler(_x * _quat.eulerAngles.x, _y * _quat.eulerAngles.y, _z * _quat.eulerAngles.z);
+                _Direction = _Empty.position;
+            }            
+            Debugger.Instance.Line(_weaponTransform.position, _Direction, Color.red);
+
+            _weaponTransform.LookAt(_Direction);
+
+            _LocalEuler.x = _weaponTransform.localEulerAngles.x * _rotateAxis.x;
+            _LocalEuler.y = _weaponTransform.localEulerAngles.y * _rotateAxis.y;
+            _LocalEuler.z = _weaponTransform.localEulerAngles.z * _rotateAxis.z;
+
+            _weaponTransform.localEulerAngles = _LocalEuler;
+
             if (_weaponCollider)
             {
-                _weaponCollider.transform.localRotation = _weaponTransform.localRotation;
+                _weaponCollider.transform.localEulerAngles = _weaponTransform.localEulerAngles;
             }
         }
     }
     #endregion
-
-    public void ChangeTarget(Collider _col)
-    {
-        if (_col.CompareTag("HitBox"))
-        {
-            HitBox _hitBox = _col.GetComponent<HitBox>();
-            if (_hitBox)
-            {
-                if (_hitBox._HitBoxHealth > 0.0f)
-                {
-                    _Target = _col.transform;
-                    _TargetedHitBox = _col.GetComponent<HitBox>();
-                }                
-            }
-            
-        }       
-    }
-
 }
 
 [Serializable]
@@ -193,8 +182,7 @@ public class Weapon
     public float _TimeBetweenShot = 0.1f;
     public float _Damage = 1.0f;
     public Vector3 _RotatingAxis;
-    [Range(1.0f, 5.0f)] public float _SpeedRotate;
-    [HideInInspector] public Quaternion _Quat;
+    [Range(0.0f, 5.0f)] public float _SpeedRotate;
     public Tower _Tower;
 }
 
@@ -206,6 +194,5 @@ public class Tower
     public Collider _TowerCollider;
     public HitBox _HitBox;
     public Vector3 _RotatingAxis;
-    [Range(1.0f, 5.0f)] public float _SpeedRotate;
-    [HideInInspector] public Quaternion _Quat;
+    [Range(0.0f, 5.0f)] public float _SpeedRotate;
 }

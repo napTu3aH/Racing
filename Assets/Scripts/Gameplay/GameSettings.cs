@@ -42,11 +42,7 @@ public class GameSettings : MonoBehaviour {
     public bool _Particles;
     public bool _Destructions;
     public bool _ShowBackgroundForLoading;
-    [Range (0.0f, 1.0f)]public float _SlowValue;
-    public float _SmoothRate = 0.005f;
 
-    internal float _SlowingFactor = 1.0f;
-    bool _Slowed, _SlowCoroutine;
 
     void Awake()
     {
@@ -235,7 +231,7 @@ public class GameSettings : MonoBehaviour {
         _ControlsLayer.SetActive(!_ControlsLayer.activeSelf);
         if (_SlowMotion)
         {
-            SlowMotion(SlowMotionClass.Instance._Slow);
+            SlowMotionClass.Instance.SlowMotion(SlowMotionObject.Instance._Slow);
         }
         else
         {
@@ -264,74 +260,6 @@ public class GameSettings : MonoBehaviour {
     public void RestartButton()
     {
         StartCoroutine(LoadingLevelCoroutine(_ThisSceneLevel));        
-    }
-
-    /// <summary>
-    /// Метод замедления времени.
-    /// </summary>
-    public void SlowMotion(bool _Slow)
-    {
-        if (!_Slow)
-        {
-            _Slowed = !_Slowed;
-            if (!_SlowCoroutine)
-            {
-                _SlowCoroutine = true;
-                StartCoroutine(Slowing());
-            }
-        }        
-    }
-
-    /// <summary>
-    /// Метод изменения значения кадра.
-    /// </summary>
-    void FrameChangeValue()
-    {
-        Time.timeScale = _SlowingFactor;
-        Time.fixedDeltaTime = 0.02F * Time.timeScale;
-        _SoundSource.pitch = _SlowingFactor;
-        _MusicSource.pitch = Mathf.Clamp(_SlowingFactor + 0.4f, -1.0f, 1.0f);
-        Debugger.Instance.Log(Time.fixedDeltaTime);
-    }
-
-    /// <summary>
-    /// Сопрограмма плавного замедления времени.
-    /// </summary>
-    IEnumerator Slowing()
-    {
-
-        while (_Slowed && _SlowingFactor != _SlowValue)
-        {
-            if (_SlowingFactor > _SlowValue)
-            {
-                _SlowingFactor -= _SmoothRate;
-            }
-            else
-            if (_SlowingFactor < _SlowValue)
-            {
-                _SlowingFactor = _SlowValue;
-            }
-            FrameChangeValue();
-            yield return null;
-        }
-
-        while (!_Slowed && _SlowingFactor != 1.0f)
-        {
-            if (_SlowingFactor < 1.0f)
-            {
-                _SlowingFactor += _SmoothRate;
-            }
-            else
-            if (_SlowingFactor > 1.0f)
-            {
-                _SlowingFactor = 1.0f;
-            }
-            FrameChangeValue();
-            yield return null;
-        }
-        
-        _SlowCoroutine = false;
-        yield return null;
     }
 
     IEnumerator LoadingLevelCoroutine(int _index)

@@ -33,7 +33,7 @@ namespace UnityStandardAssets.Vehicles.Car
             _ArmorFactor = 1.0f, _TimeArmor,
             _DamageFactor = 1.0f, _TimeDamage;
         bool _TopSpeedCoroutine, _ArmorCoroutine, _DamageCoroutine;
-        SlowMotionClass _SlowMotion;
+        SlowMotionObject _SlowMotion;
 
         void Awake()
         {
@@ -50,9 +50,8 @@ namespace UnityStandardAssets.Vehicles.Car
             {
                 _Visibled = true;
                 CarUserControl.Instance.CarSet(_Car, transform);
-                //SpawnPlayers.Instance._PlayerSpawned = true;
                 RespawnCars.Instance._PlayerSpawned = true;
-                _SlowMotion = GetComponentInChildren<SlowMotionClass>();
+                _SlowMotion = GetComponentInChildren<SlowMotionObject>();
 
             }
             else

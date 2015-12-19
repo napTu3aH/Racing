@@ -48,10 +48,6 @@ public class ShootScript : MonoBehaviour
         }
     }
 
-    /*void Update()
-    {
-        Shoot();
-    }*/
     /// <summary>
     /// Метод, описывающий логику выстрела.
     /// </summary>

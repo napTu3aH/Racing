@@ -14,19 +14,22 @@ public class FPSCounter : MonoBehaviour {
     {
         m_FpsNextPeriod = Time.realtimeSinceStartup + fpsMeasurePeriod;
         m_Text = GetComponent<UILabel>();
+        StartCoroutine(FPS());
     }
 
-
-    private void Update()
+    IEnumerator FPS()
     {
-        // measure average frames per second
-        m_FpsAccumulator++;
-        if (Time.realtimeSinceStartup > m_FpsNextPeriod)
+        while (true)
         {
-            m_CurrentFps = (int)(m_FpsAccumulator / fpsMeasurePeriod);
-            m_FpsAccumulator = 0;
-            m_FpsNextPeriod += fpsMeasurePeriod;
-            m_Text.text = string.Format(display, m_CurrentFps);
-        }
+            m_FpsAccumulator++;
+            if (Time.realtimeSinceStartup > m_FpsNextPeriod)
+            {
+                m_CurrentFps = (int)(m_FpsAccumulator / fpsMeasurePeriod);
+                m_FpsAccumulator = 0;
+                m_FpsNextPeriod += fpsMeasurePeriod;
+                m_Text.text = string.Format(display, m_CurrentFps);
+            }
+            yield return null;
+        }        
     }
 }

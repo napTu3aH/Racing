@@ -74,7 +74,7 @@ public class CarAudioManager : MonoBehaviour {
     {
         while (_StartedSound)
         {
-            float _pitch = ULerp(_LowPitchMin * GameSettings.Instance._SlowingFactor, _LowPitchMax * GameSettings.Instance._SlowingFactor, _CarController.Revs);
+            float _pitch = ULerp(_LowPitchMin * SlowMotionClass.Instance._SlowingFactor, _LowPitchMax * SlowMotionClass.Instance._SlowingFactor, _CarController.Revs);
             _pitch = Mathf.Min(_LowPitchMax, _pitch);
 
             _AudioSource.pitch = _pitch * _PitchMultiplier * _HighPitchMultiplier;

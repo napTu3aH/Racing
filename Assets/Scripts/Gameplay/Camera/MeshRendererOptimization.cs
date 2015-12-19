@@ -22,24 +22,11 @@ public class MeshRendererOptimization : MonoBehaviour {
     {
         _Visible = true;
         _CarInfo._Visibled = _Visible;
-        //Visibling();
     }
 
     void OnBecameInvisible()
     {
         _Visible = false;
         _CarInfo._Visibled = _Visible;
-        //Visibling();
-    }
-
-    void Visibling()
-    {
-        if (_Renderers.Length > 0)
-        {
-            for (int i = 0; i < _Renderers.Length; i++)
-            {
-                _Renderers[i].enabled = _Visible;
-            }
-        }
     }
 }
