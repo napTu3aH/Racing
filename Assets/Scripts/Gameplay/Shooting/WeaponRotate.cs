@@ -1,7 +1,6 @@
 ﻿using System;
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 using UnityStandardAssets.Vehicles.Car;
 
 /// <summary>
@@ -15,6 +14,7 @@ public class WeaponRotate : MonoBehaviour {
     [SerializeField] internal float _Radius;    
     [SerializeField] internal float _DistanceForTarget, _DistanceFromPlayer;
 
+    internal float _volumeToPlayer;
     internal CarInfo _Car;
     internal HitBox _TargetedHitBox;
     internal Transform _PlayerTransform;
@@ -66,8 +66,8 @@ public class WeaponRotate : MonoBehaviour {
         {
             if (_PlayerTransform)
             {
-                _DistanceFromPlayer = Vector3.Distance(transform.position, _PlayerTransform.position);
-                _DistanceFromPlayer = 1.0f - (Mathf.Clamp(_DistanceFromPlayer, 0, _Radius) / _Radius);
+                _DistanceFromPlayer = DistanceCounting.Instance._Distance(transform.position, _PlayerTransform.position);
+                _volumeToPlayer = 1.0f - (Mathf.Clamp(_DistanceFromPlayer, 0, _Radius) / _Radius);
             }
             yield return null;
         }
@@ -84,25 +84,28 @@ public class WeaponRotate : MonoBehaviour {
         {
             while (_Car._Visibled)
             {
-                foreach (Weapon _wp in _Weapons)
+                if (_DistanceFromPlayer < _Radius)
                 {
-                    if (_wp._HitBox._HitBoxHealth > 0.0f)
+                    for (int i = 0; i < _Weapons.Length; i++)
                     {
-                        SearchAndMissingTarget();
-                        RotateWeapon(_wp._WeaponTransform, _wp._WeaponCollider, _wp._SpeedRotate, _wp._RotatingAxis);
-                        if (_wp._Tower._TowerTransform)
+                        if (_Weapons[i]._HitBox._HitBoxHealth > 0.0f)
                         {
-                            if (_wp._Tower._HitBox._HitBoxHealth > 0.0f)
+                            SearchAndMissingTarget();
+                            RotateWeapon(_Weapons[i]._WeaponTransform, _Weapons[i]._WeaponCollider, _Weapons[i]._SpeedRotate, _Weapons[i]._RotatingAxis);
+                            if (_Weapons[i]._Tower != null)
                             {
-                                RotateWeapon(_wp._Tower._TowerTransform, _wp._Tower._TowerCollider, _wp._Tower._SpeedRotate, _wp._Tower._RotatingAxis);
+                                if (_Weapons[i]._Tower._HitBox._HitBoxHealth > 0.0f)
+                                {
+                                    RotateWeapon(_Weapons[i]._Tower._TowerTransform, _Weapons[i]._Tower._TowerCollider, _Weapons[i]._Tower._SpeedRotate, _Weapons[i]._Tower._RotatingAxis);
+                                }
                             }
-                        }
 
-                        /*float _volume = 1.0f - (Mathf.Clamp(_DistanceForTarget, 0, _Radius) / _Radius);
-                        if (_Car._Player) _ShootingScript.Shoot(_wp._Muzzle, _wp._Damage, _wp._TimeBetweenShot, _wp._Clip, _volume);
-                        else _ShootingScript.Shoot(_wp._Muzzle, _wp._Damage, _wp._TimeBetweenShot, _wp._Clip, _DistanceFromPlayer);*/
+                            float _volume = 1.0f - (Mathf.Clamp(_DistanceForTarget, 0, _Radius) / _Radius);
+                            if (_Car._Player) _ShootingScript.Shoot(_Weapons[i]._Muzzle, _Weapons[i]._Damage, _Weapons[i]._TimeBetweenShot, _Weapons[i]._Clip, _volume);
+                            else _ShootingScript.Shoot(_Weapons[i]._Muzzle, _Weapons[i]._Damage, _Weapons[i]._TimeBetweenShot, _Weapons[i]._Clip, _volumeToPlayer);
+                        }
                     }
-                }
+                }                
                 yield return null;
             }
         }
@@ -124,7 +127,7 @@ public class WeaponRotate : MonoBehaviour {
         }
         else
         {
-            _DistanceForTarget = Vector3.Distance(transform.position, _Target.position);
+            _DistanceForTarget = DistanceCounting.Instance._Distance(transform.position, _Target.position);
             if (_DistanceForTarget > _Radius || _TargetedHitBox._HitBoxHealth <= 0.0f)
             {
                 _Target = null;

@@ -157,7 +157,7 @@ public class BackDrive : MonoBehaviour {
                 _AILogic._SteerFactor = -1;
             }
 
-            _DistanceFromStart = Vector3.Distance(transform.position, _StartPointBrake);
+            _DistanceFromStart = DistanceCounting.Instance._Distance(transform.position, _StartPointBrake);
             if (_DistanceFromStart >= 1.2f)
             {
                 _CarControl._FullTorqueOverAllWheels = _StartSpeed;

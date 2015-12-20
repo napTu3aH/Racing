@@ -17,6 +17,7 @@ public class BonusesLogic : MonoBehaviour
             {
                 GameObject _prefab = Instantiate(Resources.Load("Gameplay/Bonuses/_Bonuses", typeof(GameObject))) as GameObject;
                 _BonusesLogic = _prefab.GetComponent<BonusesLogic>();
+                _BonusesLogic.transform.SetParent(GameObject.FindWithTag("InstanceLogics").transform);
                 return _BonusesLogic;
             }
         }

@@ -21,15 +21,15 @@ public class CameraSetter : MonoBehaviour
         
     }
 
-    void OnPreRender()
+    /*void OnPreRender()
     {
         QualitySettings.shadowDistance = ShadowDistance;
         QualitySettings.shadowCascades = ShadowCascades;
-    }
+    }*/
 
     public static List<Terrain> ActiveTerrains;
 
-    void OnPreCull()
+    /*void OnPreCull()
     {
         if (ActiveTerrains != null)
         {
@@ -38,6 +38,6 @@ public class CameraSetter : MonoBehaviour
                 ActiveTerrains[i].detailObjectDistance = DetailDistance;
             }
         }
-    }
+    }*/
 }
 

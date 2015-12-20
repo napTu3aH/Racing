@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 using UnityStandardAssets.Vehicles.Car;
 
@@ -68,8 +67,8 @@ public class WeaponTargeting : MonoBehaviour
         for (int i = 0; i < _Cars.Count; i++)
         {
             if (_Cars[i] != _car)
-            {
-                if (Vector3.Distance(_car.transform.position, _Cars[i].transform.position) < _radius)
+            {                
+                if (DistanceCounting.Instance._Distance(_car.transform.position, _Cars[i].transform.position) < _radius)
                 {
                     CarInfo _info = _Cars[i].GetComponent<CarInfo>();
                     for (int j = 0; j < _info._HitBoxs.Count; j++)

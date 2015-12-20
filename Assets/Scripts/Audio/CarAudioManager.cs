@@ -90,7 +90,7 @@ public class CarAudioManager : MonoBehaviour {
     {
         while (true)
         {
-            float _camDist = Vector3.Distance(Camera.main.transform.position, transform.position);
+            float _camDist = DistanceCounting.Instance._Distance(Camera.main.transform.position, transform.position);
             if (!_StartedSound && _camDist < _MaxRolloffDistance)
             {
                 StartSound();

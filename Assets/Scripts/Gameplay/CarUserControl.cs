@@ -24,7 +24,7 @@ namespace UnityStandardAssets.Vehicles.Car
         [SerializeField] internal List<GameObject> _ImagesTypesControl; // 0 - Type1, 1 - Type2 ... n - TypeN+1
         internal bool _shooting;
         
-        float h, v, j, _ChangeSpeed = 2.5f;
+        float h, v, j, _ChangeSpeed = 2.5f, _max;
         bool _left, _right, _forward, _back;
         int _NumberInput = 0;
 
@@ -138,11 +138,11 @@ namespace UnityStandardAssets.Vehicles.Car
         {
             if (_forward)
             {
-                v = ChangeValue(v, true);
+                v = Mathf.Clamp(ChangeValue(v, true), -1, _max);
             }
             if (_back)
             {
-                v = ChangeValue(v, false);
+                v = Mathf.Clamp(ChangeValue(v, false), -1, _max);
             }
 
             if (_TypesControl != _TypeControl.Type3)
@@ -224,18 +224,22 @@ namespace UnityStandardAssets.Vehicles.Car
 
         public void PressLeftButton()
         {
+            _max = 0.5f;
             _left = true;
         }
         public void ReleaseLeftButton()
         {
+            _max = 1.0f;
             _left = false;
         }
         public void PressRightButton()
         {
+            _max = 0.5f;
             _right = true;
         }
         public void ReleaseRightButton()
         {
+            _max = 1.0f;
             _right = false;
         }
         public void PressForwardButton()

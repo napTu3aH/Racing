@@ -1,6 +1,5 @@
 ﻿using System;
 using UnityEngine;
-using System.Collections;
 using UnityStandardAssets.Vehicles.Car;
 
 public class ParticlesHitting : MonoBehaviour
@@ -15,6 +14,8 @@ public class ParticlesHitting : MonoBehaviour
     [SerializeField] internal GameObject _ShootHitParticle;
     [SerializeField] internal GameObject[] _Explosions;
 
+    Transform _CameraTransform;
+    float _DistanceToPlayer;
     
     void Awake()
     {
@@ -23,7 +24,8 @@ public class ParticlesHitting : MonoBehaviour
 
     void Init()
     {
-        Instance = this;               
+        Instance = this;
+        _CameraTransform = Camera.main.transform;
     }
 
     /// <summary>
@@ -33,23 +35,24 @@ public class ParticlesHitting : MonoBehaviour
     public void Hitting(Collision _col, CarInfo _car, WeaponRotate _weaponRotate)
     {
         if (GameSettings.Instance._Particles)
-        {       
-            if (_col.contacts.Length > 0 && _HitParticle)
+        {
+            if (DistanceCounting.Instance._Distance(_CameraTransform.position, _col.transform.position) < 50.0f)
             {
-                double _contacts = Math.Round(_col.contacts.Length / 2.0);
-
-                for (int i = 0; i < _contacts; i++)
+                if (_col.contacts.Length > 0 && _HitParticle)
                 {
-                    if (_car._Visibled)
+                    double _contacts = Math.Round(_col.contacts.Length / 2.0);
+                    for (int i = 0; i < _contacts; i++)
                     {
-                        GameObject _hit = Instantiate(_HitParticle, _col.contacts[i].point, Quaternion.identity) as GameObject;
-                    }                        
-                    
+                        if (_car._Visibled)
+                        {
+                            GameObject _hit = Instantiate(_HitParticle, _col.contacts[i].point, Quaternion.identity) as GameObject;
+                        }
+                    }
                 }
             }
         }
         if(!_car._Player && _weaponRotate._DistanceFromPlayer > 0.0f)
-            AudioController.Instance.PlayOneShot(_HitColliderSound[UnityEngine.Random.Range(0, _HitShootSound.Length)], 0.25f * _weaponRotate._DistanceFromPlayer);
+            AudioController.Instance.PlayOneShot(_HitColliderSound[UnityEngine.Random.Range(0, _HitShootSound.Length)], 0.25f * _weaponRotate._volumeToPlayer);
         else if(_car._Player)
             AudioController.Instance.PlayOneShot(_HitColliderSound[UnityEngine.Random.Range(0, _HitShootSound.Length)], 0.25f);
     }
@@ -63,7 +66,7 @@ public class ParticlesHitting : MonoBehaviour
     {
         if (GameSettings.Instance._Particles)
         {
-            if (_visibled) Instantiate(_ShootHitParticle, _hitPoint, _quat);
+            if (_visibled && DistanceCounting.Instance._Distance(_CameraTransform.position, _hitPoint) < 50.0f) Instantiate(_ShootHitParticle, _hitPoint, _quat);
         }
     }
 
@@ -80,7 +83,7 @@ public class ParticlesHitting : MonoBehaviour
             if (_car._Visibled) Instantiate(_Explosions[_index], _position, _quat);
 
             if (!_car._Player && _car._WeaponRotate._DistanceFromPlayer > 0.0f)
-                AudioController.Instance.PlayOneShot(_ExplosionsSound[UnityEngine.Random.Range(0, _ExplosionsSound.Length)], 1.0f * _car._WeaponRotate._DistanceFromPlayer);
+                AudioController.Instance.PlayOneShot(_ExplosionsSound[UnityEngine.Random.Range(0, _ExplosionsSound.Length)], 1.0f * _car._WeaponRotate._volumeToPlayer);
             else if (_car._Player)
                 AudioController.Instance.PlayOneShot(_ExplosionsSound[UnityEngine.Random.Range(0, _ExplosionsSound.Length)], 1.0f);
         }

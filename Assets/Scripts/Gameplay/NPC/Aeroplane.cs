@@ -48,7 +48,7 @@ public class Aeroplane : MonoBehaviour
 
     void SetDistance()
     {
-        _Distance = Vector3.Distance(_StartPoint.position, _EndPoint.position);
+        _Distance = DistanceCounting.Instance._Distance(_StartPoint.position, _EndPoint.position);
         _CountDrop = _CountDropping;
         int _OffSet = (_CountDropping % 2 == 0) ? 1 : 2;
         if (_CountDropping > 0) _DistanceToDrop = _Distance / (_CountDropping + _OffSet);
@@ -118,7 +118,7 @@ public class Aeroplane : MonoBehaviour
     {
         while (_CountDropping > 0)
         {
-            _Distance = Vector3.Distance(transform.position, _EndPoint.position);
+            _Distance = DistanceCounting.Instance._Distance(transform.position, _EndPoint.position);
             if (_Distance < _DistanceToDrop * _CountDropping)
             {
                 _CountDropping--;
