@@ -119,10 +119,11 @@ public class WeaponRotate : MonoBehaviour {
     {
         if (!_Target)
         {
-            _Target = WeaponTargeting.Instance.SearchTarget(_Car, _Radius);
+            _Target = WeaponTargeting.Instance.SearchTarget(_Car, _Radius);            
             if (_Target)
             {
                 _TargetedHitBox = _Target.GetComponent<HitBox>();
+                if (_Car._Player) CameraTargeting.Instance.SetTarget(_Target, _Car);
             }
         }
         else
@@ -132,6 +133,7 @@ public class WeaponRotate : MonoBehaviour {
             {
                 _Target = null;
                 _TargetedHitBox = null;
+                if (_Car._Player) CameraTargeting.Instance.ClearTarget();
             }
         }
     }
