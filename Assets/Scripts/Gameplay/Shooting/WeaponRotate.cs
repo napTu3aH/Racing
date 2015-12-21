@@ -123,7 +123,7 @@ public class WeaponRotate : MonoBehaviour {
             if (_Target)
             {
                 _TargetedHitBox = _Target.GetComponent<HitBox>();
-                if (_Car._Player) CameraTargeting.Instance.SetTarget(_Target, _Car);
+                if (_Car._Player) CameraTargeting.Instance.SetTarget(_Target, _TargetedHitBox._CarInfo);
             }
         }
         else

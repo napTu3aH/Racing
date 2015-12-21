@@ -24,12 +24,13 @@ public class CameraTargeting : MonoBehaviour
 
     [SerializeField] internal Transform _Camera;
     [SerializeField] internal Transform _Target;
+    [SerializeField] internal TweenTransform _BarTop, _BarBotton;
     [SerializeField] internal bool _Start;
-    [SerializeField] internal float _Speed = 0.5f, _Angle;
+    [SerializeField] internal float _Speed = 0.5f, _AngleClamp;
 
-    [SerializeField] internal Vector3 _Axis;
+    float _Angle;
     Vector3 _CurrentPosition, _LocalEuler;
-    Quaternion _Quat;
+    Quaternion _Quat, _Zero;
     CarInfo _CarInfo;
 
     void Awake()
@@ -43,13 +44,13 @@ public class CameraTargeting : MonoBehaviour
         {
             _CameraTargeting = this;
         }
-
         if (!_Camera) SetCamera();
     }
 
     internal void SetCamera()
     {        
-        _Camera = Camera.main.transform;
+        _Camera = Camera.main.transform.parent;
+        _Zero = _Camera.localRotation;
     }
 
     internal void SetTarget(Transform _target, CarInfo _carInfo)
@@ -70,15 +71,29 @@ public class CameraTargeting : MonoBehaviour
         _CarInfo = null;
     }
 
+    void TargetBar(bool _barred)
+    {
+        if (_barred)
+        {
+            _BarTop.PlayForward(); _BarBotton.PlayForward();
+        }
+        else
+        {
+            _BarTop.PlayReverse(); _BarBotton.PlayReverse();
+        }
+    }
 
     IEnumerator AngleCounting()
     {
         while (_Start)
         {
-            Vector3 targetDir = _Target.position - _Camera.parent.position;
-            Vector3 forward = _Camera.parent.forward;
-            Debug.DrawLine(_Camera.position, _Target.position, Color.red);
-            _Angle = Vector3.Angle(targetDir, forward);
+            if (_Target)
+            {
+                Vector3 targetDir = _Target.position - _Camera.parent.position;
+                Vector3 forward = _Camera.parent.forward;
+                Debugger.Instance.Line(_Camera.position, _Target.position, Color.red);
+                _Angle = Vector3.Angle(targetDir, forward);
+            }            
             yield return null;
         }
         yield return null;
@@ -86,12 +101,12 @@ public class CameraTargeting : MonoBehaviour
 
     IEnumerator Targeting()
     {
-        float _y = 0.0f;
-        while (_Target)
+        bool _barred = false;
+        while (_Start)
         {
-            if (_Angle < 70.0f)
+            if (_Angle < _AngleClamp)
             {
-                _CurrentPosition = (_Target.position - _Camera.position) * 0.25f;
+                if(_Target) _CurrentPosition = (_Target.position - _Camera.position) * 0.25f;
                 Debug.DrawRay(_Camera.position, _CurrentPosition, Color.red);
                 _CurrentPosition.y = 0.0f;
                 _Quat = Quaternion.LookRotation(_CurrentPosition);
@@ -99,11 +114,26 @@ public class CameraTargeting : MonoBehaviour
             }
             else
             {
-                _Camera.rotation = Quaternion.Slerp(_Camera.rotation, Quaternion.identity, Time.deltaTime * _Speed);
+                _Camera.localRotation = Quaternion.Slerp(_Camera.localRotation, _Zero, Time.deltaTime * _Speed);
+
             }
+
+            if (_CarInfo)
+            {
+                if (!_barred && _CarInfo._Visibled)
+                {
+                    _barred = true;
+                    TargetBar(_barred);
+                }
+                else
+                if (_barred && !_CarInfo._Visibled)
+                {
+                    _barred = false;
+                    TargetBar(_barred);
+                }
+            }            
             yield return null;
         }
-        _Start = false;
         yield return null;
     }
 }
