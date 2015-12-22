@@ -10,10 +10,15 @@ public class FPSCounter : MonoBehaviour {
     const string display = "{0} FPS";
     private UILabel m_Text;
 
-    private void Start()
+    void Awake()
     {
         m_FpsNextPeriod = Time.realtimeSinceStartup + fpsMeasurePeriod;
         m_Text = GetComponent<UILabel>();
+        
+    }
+
+    void OnEnable()
+    {
         StartCoroutine(FPS());
     }
 

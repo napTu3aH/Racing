@@ -28,6 +28,7 @@ public class CameraTargeting : MonoBehaviour
     [SerializeField] internal bool _Start;
     [SerializeField] internal float _Speed = 0.5f, _AngleClamp;
 
+    bool _Visibling, _Return, _AngleCounting, _Targeting;
     float _Angle;
     Vector3 _CurrentPosition, _LocalEuler;
     Quaternion _Quat, _Zero;
@@ -51,22 +52,22 @@ public class CameraTargeting : MonoBehaviour
     {        
         _Camera = Camera.main.transform.parent;
         _Zero = _Camera.localRotation;
+        if (!_Visibling)
+        {
+            _Visibling = true;
+            StartCoroutine(TargetVisibling());
+        }
     }
 
     internal void SetTarget(Transform _target, CarInfo _carInfo)
     {
         _Target = _target;
         _CarInfo = _carInfo;
-        if (!_Start)
-        {
-            _Start = true;
-            StartCoroutine(AngleCounting());
-            StartCoroutine(Targeting());
-        }
     }
 
     internal void ClearTarget()
     {
+        _Start = false;
         _Target = null;
         _CarInfo = null;
     }
@@ -83,9 +84,60 @@ public class CameraTargeting : MonoBehaviour
         }
     }
 
+    IEnumerator TargetVisibling()
+    {
+        bool _barred = false;
+        while (_Visibling)
+        {
+            if (_CarInfo)
+            {
+                if (!_barred && _CarInfo._Visibled)
+                {
+                    _barred = true;
+                    TargetBar(_barred);
+                    if (!_Targeting && !_AngleCounting)
+                    {
+                        _AngleCounting = true;
+                        _Targeting = true;
+                        StartCoroutine(AngleCounting());
+                        StartCoroutine(Targeting());
+                    }
+                }
+                else
+                if (_barred && !_CarInfo._Visibled)
+                {
+                    _barred = false;
+                    if (_Targeting && _AngleCounting && !_Return)
+                    {
+                        _AngleCounting = false;
+                        _Targeting = false;
+                        _Return = true;
+                        StartCoroutine(ReturnBackRotation());
+                    }
+                    TargetBar(_barred);
+                }
+            }
+            else
+                if (_barred)
+            {
+                _barred = false;
+                if (_Targeting && _AngleCounting && !_Return)
+                {
+                    _AngleCounting = false;
+                    _Targeting = false;
+                    _Return = true;
+                    StartCoroutine(ReturnBackRotation());
+                }
+                TargetBar(_barred);
+            }
+            yield return null;
+        }
+        yield return null;
+    }
+
     IEnumerator AngleCounting()
     {
-        while (_Start)
+        while (_AngleCounting)
         {
             if (_Target)
             {
@@ -101,8 +153,7 @@ public class CameraTargeting : MonoBehaviour
 
     IEnumerator Targeting()
     {
-        bool _barred = false;
-        while (_Start)
+        while (_Targeting)
         {
             if (_Angle < _AngleClamp)
             {
@@ -112,26 +163,23 @@ public class CameraTargeting : MonoBehaviour
                 _Quat = Quaternion.LookRotation(_CurrentPosition);
                 _Camera.rotation = Quaternion.Slerp(_Camera.rotation, _Quat, Time.deltaTime * _Speed);
             }
-            else
-            {
-                _Camera.localRotation = Quaternion.Slerp(_Camera.localRotation, _Zero, Time.deltaTime * _Speed);
+            yield return null;
+        }
+        yield return null;
+    }
 
+    IEnumerator ReturnBackRotation()
+    {
+        float _timer = 0.0f;
+        while (_Return)
+        {
+            _timer += Time.deltaTime * _Speed;
+            _Camera.localRotation = Quaternion.Slerp(_Camera.localRotation, _Zero, _timer);
+            if (_timer > 1.0f)
+            {
+                _timer = 1.0f;
+                _Return = false;
             }
-
-            if (_CarInfo)
-            {
-                if (!_barred && _CarInfo._Visibled)
-                {
-                    _barred = true;
-                    TargetBar(_barred);
-                }
-                else
-                if (_barred && !_CarInfo._Visibled)
-                {
-                    _barred = false;
-                    TargetBar(_barred);
-                }
-            }            
             yield return null;
         }
         yield return null;
